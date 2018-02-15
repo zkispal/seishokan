@@ -1,0 +1,9 @@
+{"client":"mysql",
+    "connection": {"host":"localhost",
+                   "user": "root",
+                   "password": "mysql",
+                   "database": "seishokan",
+                   "timezone": "Z"
+                    },
+    "useNullAsDefault": "true"
+}

@@ -1,0 +1,96 @@
+
+
+<div class="col-md-6 col-md-offset-3">
+
+<h3>Edzéstervezés</h3>
+
+<h4>A meghirdetett edzések:</h4>
+
+<form class="form-horizontal" name="newtrainingform" #f="ngForm" (ngSubmit)="publishPractice()" novalidate>
+
+
+        <div class="form-group">
+            <label for="rangepicker">Edzésidőszak:</label>
+            <input  class="form-control"
+                    name="rangepicker"
+                    #drp="bsDaterangepicker"
+                    [(ngModel)]="newPractice.timerange"
+                    [bsConfig]="bsrpConfig"
+                    bsDaterangepicker>
+        </div>
+
+
+
+    <div class="form-group" >
+        <label for="newtraininglocation">Dojo:</label>
+        <select class="form-control"
+                name="newtraininglocation"
+                id="newtraininglocation" 
+                [(ngModel)]="newPractice.locationID"
+                #newtraininglocation="ngModel"
+                required>
+            <option  *ngFor="let dojo  of dojos" [value]="dojo.ID">{{dojo.name}}</option>
+        </select>
+    </div>
+
+    <div class="form-group" >
+        <label for="newtrainingtype">Edzés típusa:</label>
+        <select class="form-control"
+                name="newtrainingtype"
+                id="newtrainingtype" 
+                [(ngModel)]="newPractice.eventtypeID"
+                #newtraininglocation="ngModel"
+                required>
+            <option  *ngFor="let practicetype  of practicetypes" [value]="practicetype.ID">{{practicetype.name}}</option>
+        </select>
+    </div>
+    <div class="form-group" >
+        <label for="weekdaycheck">Edzésnapok:</label>
+        <div class="btn-group"
+            name="weekdaycheck"
+            id="weekdaycheck" >
+
+            <label class="btn btn-primary"
+                    *ngFor="let day  of weekdays"
+                    [ngClass]="{ 'btn-success': day.isPracticeDay }"
+                    [(ngModel)]="day.isPracticeDay"
+                    [ngModelOptions]="{standalone: true}"
+                    btnCheckbox>{{day.name}}</label>   
+        </div>
+    </div>
+
+
+    <div class="form-group">
+            <span style="white-space: nowrap">Az edzések az edzésnapokon 
+            <timepicker name="startime"
+                        #starttimepicker="ngModel"          
+                        [(ngModel)]="newPractice.timerange[0]"
+                        [showMeridian]="false"
+                        [showSpinners]="false">
+            </timepicker>-kor kezdődnek és 
+            <select class="input-small inline form-control" 
+                    name="practicelength"
+                    id="practicelength" 
+                    [(ngModel)]="newPractice.practicelength"
+                    #practicelength="ngModel"
+                    required>
+                    <option value="45">45</option>
+                    <option value="60">60</option>
+                    <option value="90">90</option>
+            </select>percig tartanak.</span>
+    </div>
+
+
+
+
+
+    <div class="form-group">
+        <button  type="submit"  class="btn btn-primary">Meghirdetés</button>
+  
+    </div>
+
+</form>
+
+<p> {{newPractice | json}} <br> weekdays: {{weekdays | json}}</p>
+
+</div>

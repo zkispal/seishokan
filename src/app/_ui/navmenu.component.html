@@ -1,0 +1,14 @@
+<span dropdown (onShown)="onShown()" (onHidden)="onHidden()" (isOpenChange)="isOpenChange()">
+  <a href dropdownToggle (click)="false">{{title}}</a>
+    <ul *dropdownMenu class="dropdown-menu">
+
+      <li *ngFor="let choice of navmenu">
+        
+        <a class="dropdown-item" routerLink = "/{{choice.link}}"  href="#">{{choice.item}}</a>
+        
+      </li>
+
+    </ul>
+</span>
+
+

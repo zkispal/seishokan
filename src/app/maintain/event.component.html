@@ -1,0 +1,114 @@
+<div class="container">
+    <div class="row">
+    <div class="col-md-6 col-md-offset-3">
+            <div class="row">
+                    <div class="col-6 col-sm-6 col-md-6">
+                    <h3>Vizsgák/Események</h3>
+                    </div>
+                    <div class="col-6 col-sm-6 col-md-6">
+                    <button class="btn btn-primary pull-right" (click) = "openNeweventModal()">Új vizsga/esemény</button>
+                    </div>
+            </div>
+    <accordion >
+        <accordion-group #group *ngFor="let event of events; let i=index" heading={{event.name}} >
+            <form name="eventform" #f="ngForm" (ngSubmit)="f.form.valid && updateevent(i)" novalidate>
+                    
+                <div class="form-group" [ngClass]="{ 'has-error': f.submitted && !eventname.valid }">
+                <label for="name">Esemény megnevezése</label>
+                <input type="text" class="form-control" name="name" [(ngModel)]="event.name" #eventname="ngModel" required />
+                <div *ngIf="!eventname.valid" class="help-block">Kötelező megadni egy elnevezést!</div>            
+                </div>
+
+                <div  class="form-group" [ngClass]="{ 'has-error': f.submitted && !locationselect.valid }">
+                    <label for="locselect">Esemény helyszíne</label>
+                    <select class="form-control" 
+                            name="locselect"               
+                            [(ngModel)]="event.locationID" 
+                            #locationselect="ngModel"  required>
+                    <option  *ngFor="let locname  of locationnames" [ngValue]="locname.ID">{{locname.name}}</option>
+                    </select>
+                    <div *ngIf="f.submitted && !locationselect.valid" class="help-block">Kötelező választani egy helyszínt!</div>
+                </div>
+
+
+
+            <div  class="form-group" [ngClass]="{ 'has-error': f.submitted && !startdp.valid }">
+
+                <label for="sddp">Kezdés dátuma:</label>
+                <input type="text"
+                class="form-control"
+                name="sddp"
+                [bsConfig]="bsConfig"
+                #startdp="bsDatepicker"
+                [(ngModel)]="event.start" 
+                bsDatepicker>
+                <label for="sttp">Kezdési idő:</label>
+                <timepicker name="sttp"
+                            class="pull-right"
+                            #starttimepicker="ngModel"          
+                            [(ngModel)]="event.start"
+
+                            [showMeridian]="false">
+                </timepicker>
+
+
+                <div *ngIf="f.submitted && !startdp.valid" class="help-block">Kötelező megadni a kezdési időt!</div>
+            </div>
+
+    
+
+
+            <div  class="form-group" [ngClass]="{ 'has-error': f.submitted && !enddp.valid }">
+                <label for="eddp">Befejezés dátuma:</label>
+                <input type="text"
+                class="form-control"
+                name="eddp"
+                [bsConfig]="bsConfig"
+                #enddp="bsDatepicker"
+                [(ngModel)]="event.end" 
+                bsDatepicker>
+                <label for="ettp">Befejezés ideje:</label>
+                <timepicker name="ettp"
+                            class="pull-right"
+                            #endtimepicker="ngModel"              
+                            [(ngModel)]="event.end"
+
+                            [showMeridian]="false">
+                </timepicker>
+                <div *ngIf="f.submitted && !enddp.valid" class="help-block">Kötelező megadni a befejezési időt!</div>
+                </div>
+
+                <div  class="form-group" [ngClass]="{ 'has-error': f.submitted && !eventtypeselect.valid }">
+                    <label for="typeselect">Esemény típusa</label>
+                    <select class="form-control" 
+                            name="typeselect" 
+                
+                            [(ngModel)]="event.eventtypeID" 
+                            #eventtypeselect="ngModel"  required>
+                    <option  *ngFor="let evtype  of eventtypes" [ngValue]="evtype.ID">{{evtype.name}}</option>
+                    </select>
+                    <div *ngIf="f.submitted && !eventtypeselect.valid" class="help-block">Kötelező választani egy eseménytípust!</div>
+                </div>
+
+
+
+                <div class="form-group">
+                    <button  type="submit" [disabled] = "!f.form.valid" class="btn btn-primary">Módosítás</button>
+                    <button type="button" (click) = "deleteevent(event.ID)" class="btn btn-primary pull-right">Törlés</button>
+                    <img *ngIf="loading" src="data:image/gif;base64,R0lGODlhEAAQAPIAAP///wAAAMLCwkJCQgAAAGJiYoKCgpKSkiH/C05FVFNDQVBFMi4wAwEAAAAh/hpDcmVhdGVkIHdpdGggYWpheGxvYWQuaW5mbwAh+QQJCgAAACwAAAAAEAAQAAADMwi63P4wyklrE2MIOggZnAdOmGYJRbExwroUmcG2LmDEwnHQLVsYOd2mBzkYDAdKa+dIAAAh+QQJCgAAACwAAAAAEAAQAAADNAi63P5OjCEgG4QMu7DmikRxQlFUYDEZIGBMRVsaqHwctXXf7WEYB4Ag1xjihkMZsiUkKhIAIfkECQoAAAAsAAAAABAAEAAAAzYIujIjK8pByJDMlFYvBoVjHA70GU7xSUJhmKtwHPAKzLO9HMaoKwJZ7Rf8AYPDDzKpZBqfvwQAIfkECQoAAAAsAAAAABAAEAAAAzMIumIlK8oyhpHsnFZfhYumCYUhDAQxRIdhHBGqRoKw0R8DYlJd8z0fMDgsGo/IpHI5TAAAIfkECQoAAAAsAAAAABAAEAAAAzIIunInK0rnZBTwGPNMgQwmdsNgXGJUlIWEuR5oWUIpz8pAEAMe6TwfwyYsGo/IpFKSAAAh+QQJCgAAACwAAAAAEAAQAAADMwi6IMKQORfjdOe82p4wGccc4CEuQradylesojEMBgsUc2G7sDX3lQGBMLAJibufbSlKAAAh+QQJCgAAACwAAAAAEAAQAAADMgi63P7wCRHZnFVdmgHu2nFwlWCI3WGc3TSWhUFGxTAUkGCbtgENBMJAEJsxgMLWzpEAACH5BAkKAAAALAAAAAAQABAAAAMyCLrc/jDKSatlQtScKdceCAjDII7HcQ4EMTCpyrCuUBjCYRgHVtqlAiB1YhiCnlsRkAAAOwAAAAAAAAAAAA==" />
+                </div>
+
+
+
+            
+
+
+            </form>    
+
+    <p>{{event | json}}</p>
+
+        </accordion-group>
+        </accordion>
+    </div>
+    </div>
+</div>

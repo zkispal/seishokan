@@ -1,0 +1,105 @@
+<div class="modal-header">
+  <h4 class="modal-title pull-left">{{title}}</h4>
+  <button type="button" class="close pull-right" aria-label="Close"  (click)="bsModalRef.hide()">
+    <span aria-hidden="true">&times;</span>
+  </button>
+</div>
+<div class="modal-body">
+
+    <form name="neweventform" #f="ngForm" (ngSubmit)="f.form.valid && addevent()" novalidate>
+              
+        <div class="form-group" [ngClass]="{ 'has-error': f.submitted && !eventname.valid }">
+          <label for="name">Esemény megnevezése</label>
+          <input type="text" class="form-control" name="name" [(ngModel)]="newevent.name" #eventname="ngModel" required />
+          <div *ngIf="f.submitted && !eventname.valid" class="help-block">Kötelező megadni egy elnevezést!</div>            
+        </div>
+
+        <div  class="form-group" [ngClass]="{ 'has-error': f.submitted && !locationselect.valid }">
+            <label for="locselect">Esemény helyszíne</label>
+            <select class="form-control" 
+                    name="locselect"               
+                    [(ngModel)]="newevent.locationID" 
+                    #locationselect="ngModel"  required>
+            <option  *ngFor="let locname  of locationnames" [ngValue]="locname.ID">{{locname.name}}</option>
+            </select>
+            <div *ngIf="f.submitted && !locationselect.valid" class="help-block">Kötelező választani egy helyszínt!</div>
+        </div>
+
+
+
+
+      <div class="form-group row" [ngClass]="{ 'has-error': f.submitted && !startdp.valid }">
+        <div class="col-8 col-sm-8 col-md-8">
+          <label for="sddp">Kezdési dátum/idő:</label>
+          <input type="text"
+          class="form-control"
+          name="sddp"
+          [bsConfig]="bsConfig"
+          #startdp="bsDatepicker"
+          [(ngModel)]="newevent.start" 
+          bsDatepicker>
+        </div>
+        <div class="col-4 col-sm-4 col-md-4">
+          <timepicker name="sttp"
+                      class="pull-right"
+                      #starttimepicker="ngModel"          
+                      [(ngModel)]="newevent.start"
+  
+                      [showMeridian]="false">
+          </timepicker>
+        </div>
+        
+        <div *ngIf="f.submitted && !startdp.valid" class="help-block">Kötelező megadni a kezdési időt!</div>
+      </div>
+
+
+
+
+      <div  class="form-group row" [ngClass]="{ 'has-error': f.submitted && !enddp.valid }">
+          <div class="col-8 col-sm-8 col-md-8">
+          <label for="eddp">Befejezés dátuma:</label>
+          <input type="text"
+          class="form-control"
+          name="eddp"
+          [bsConfig]="bsConfig"
+          #enddp="bsDatepicker"
+          [(ngModel)]="newevent.end" 
+          bsDatepicker>
+        </div>
+        <div class="col-4 col-sm-4 col-md-4">
+          <timepicker name="ettp"
+                      class="pull-right"
+                      #endtimepicker="ngModel"              
+                      [(ngModel)]="newevent.end"
+
+                      [showMeridian]="false">
+          </timepicker>
+        </div>
+          <div *ngIf="f.submitted && !enddp.valid" class="help-block">Kötelező megadni a befejezési időt!</div>
+        </div>
+
+        <div  class="form-group" [ngClass]="{ 'has-error': f.submitted && !eventtypeselect.valid }">
+            <label for="typeselect">Esemény típusa</label>
+            <select class="form-control" 
+                    name="typeselect" 
+          
+                    [(ngModel)]="newevent.eventtypeID" 
+                    #eventtypeselect="ngModel"  required>
+            <option  *ngFor="let eventtype  of eventtypes" [ngValue]="eventtype.ID">{{eventtype.name}}</option>
+            </select>
+            <div *ngIf="f.submitted && !eventtypeselect.valid" class="help-block">Kötelező választani egy eseménytípust!</div>
+        </div>
+
+
+
+
+      </form>  
+
+  <p>{{newevent | json}}</p>
+</div>
+
+<div class="modal-footer">
+    <button  [disabled] = "!f.form.valid" class="btn btn-primary" (click)="addevent()">Hozzáadás</button>
+    <button type="button" class="btn btn-default" (click)="closeModal()">Bezár</button>
+    <img *ngIf="loading" src="data:image/gif;base64,R0lGODlhEAAQAPIAAP///wAAAMLCwkJCQgAAAGJiYoKCgpKSkiH/C05FVFNDQVBFMi4wAwEAAAAh/hpDcmVhdGVkIHdpdGggYWpheGxvYWQuaW5mbwAh+QQJCgAAACwAAAAAEAAQAAADMwi63P4wyklrE2MIOggZnAdOmGYJRbExwroUmcG2LmDEwnHQLVsYOd2mBzkYDAdKa+dIAAAh+QQJCgAAACwAAAAAEAAQAAADNAi63P5OjCEgG4QMu7DmikRxQlFUYDEZIGBMRVsaqHwctXXf7WEYB4Ag1xjihkMZsiUkKhIAIfkECQoAAAAsAAAAABAAEAAAAzYIujIjK8pByJDMlFYvBoVjHA70GU7xSUJhmKtwHPAKzLO9HMaoKwJZ7Rf8AYPDDzKpZBqfvwQAIfkECQoAAAAsAAAAABAAEAAAAzMIumIlK8oyhpHsnFZfhYumCYUhDAQxRIdhHBGqRoKw0R8DYlJd8z0fMDgsGo/IpHI5TAAAIfkECQoAAAAsAAAAABAAEAAAAzIIunInK0rnZBTwGPNMgQwmdsNgXGJUlIWEuR5oWUIpz8pAEAMe6TwfwyYsGo/IpFKSAAAh+QQJCgAAACwAAAAAEAAQAAADMwi6IMKQORfjdOe82p4wGccc4CEuQradylesojEMBgsUc2G7sDX3lQGBMLAJibufbSlKAAAh+QQJCgAAACwAAAAAEAAQAAADMgi63P7wCRHZnFVdmgHu2nFwlWCI3WGc3TSWhUFGxTAUkGCbtgENBMJAEJsxgMLWzpEAACH5BAkKAAAALAAAAAAQABAAAAMyCLrc/jDKSatlQtScKdceCAjDII7HcQ4EMTCpyrCuUBjCYRgHVtqlAiB1YhiCnlsRkAAAOwAAAAAAAAAAAA==" />
+</div>

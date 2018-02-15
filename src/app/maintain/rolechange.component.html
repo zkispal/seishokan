@@ -1,0 +1,24 @@
+<div class="row">
+  <div class="col-md-8 col-md-offset-2">
+    <dual-list [source]="sempais" 
+              [(destination)]="assistants"
+              [key]="key" 
+              [display]="display"
+              [format]="format"
+              height="265px"></dual-list>
+  </div>
+</div>
+<div class="row">
+  <div class="col-md-2 col-md-offset-5">
+    <button type="button" 
+            class="btn btn-primary"
+            (click)="upload()">Kinevez</button>
+  </div>
+</div>
+
+
+
+<div>
+  <p>sempais: {{sempais | json}} <br>assistants: {{assistants | json}} <br>selected: {{selected | json}} </p>
+  <p>sempaistring: {{sempaisstring}} <br> records: {{records | json}}</p>
+</div>
