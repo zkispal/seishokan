@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { HttpClient, HttpResponse, HttpErrorResponse, HttpHeaders } from '@angular/common/http';
+import { HttpClient, HttpResponse, HttpErrorResponse, HttpHeaders, HttpParams  } from '@angular/common/http';
 import { Options, Location, Event } from '../_models/index';
 
 
@@ -16,6 +16,11 @@ export class DataService {
   getdojos() {
     return this.http.get<Array<Options>>('/location/getdojos');
   }
+
+  getinstructors() {
+    return this.http.get<Array<Options>>('/data/getinstructors');
+  }
+
 
   getweekdays() {
     return this.http.get<Array<Options>>('/data/getweekdays');
@@ -144,8 +149,33 @@ export class DataService {
     return this.http.post('/event/addpractice/', _newtrainings);
   }
 
+  getpracticeByDateByLocID(_trainingDay, _locID) {
+
+    const params = {start: _trainingDay, locID: _locID };
+
+    return this.http.get<Array<Options>>('/event/getpractice/', { params: params });
+
+  }
+
+  addattendance(_attendanceRec) {
+    return this.http.post('/event/addattendance/', _attendanceRec);
+
+  }
+
+  getpracticeregs (_instructorID) {
+    return this.http.get<Array<any>>('/event/getpracticeregs/' + _instructorID);
+
+  }
+
+  getpracticeregnames(_eventID) {
+    return this.http.get<Array<Options>>('/event/getpracticeregnames/' + _eventID);
+  }
 
 
+  approveAttendance(_eventID, _regnames) {
+    return this.http.post('/event/approveattendance/' + _eventID, _regnames);
+
+  }
 
 }
 

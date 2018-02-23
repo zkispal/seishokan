@@ -15,11 +15,11 @@ router.get('/getadultranks', getadultranks);
 router.get('/getweekdays', getweekdays);
 router.get('/getpracticetypes', getpracticetypes);
 router.get('/getsempais', getsempais);
+router.get('/getinstructors', getinstructors);
 router.get('/getpromotableroles', getpromotableroles);
 router.get('/getroleholders/:_id', getroleholders);
 router.delete('/roleholders/:_id', delroleholders);
 router.post('/roleholders/', updtroleholders);
-router.get('/weekdays/', weekdays);
 
 
 module.exports = router;
@@ -67,6 +67,20 @@ function getpracticetypes(req,res) {
 function getsempais(req,res) {
 
     var viewname = 'vusempais';
+
+    dataservice.getview(viewname)
+    .then(function(sempais){
+        res.status(200).send(sempais);
+    })
+    .catch(function(err){
+        res.status(400).send(err);
+    }); 
+}
+
+
+function getinstructors(req,res) {
+
+    var viewname = 'vuinstructors';
 
     dataservice.getview(viewname)
     .then(function(sempais){

@@ -6,6 +6,8 @@ const dataservice = require ('server/service/data.service');
 //const knex = require('knex')(knexconfig);
 const express = require('express');
 const router = express.Router();
+const log4js = require('log4js');
+const logger = log4js.getLogger('event.controller');
 
 
 
@@ -13,6 +15,7 @@ router.get('/geteventtypes', geteventtypes);
 router.get('/getevents', getevents);
 router.get('/getallevents', getallevents);
 router.get('/getexams', getexams);
+router.get('/getpractice', getpractice);
 router.post('/addevent', addevent);
 router.post('/register', register);
 router.post('/unregister', unregister);
@@ -20,6 +23,10 @@ router.delete('/:_id', deleteevent);
 router.put('/:_id', updateevent);
 router.get('/getreginfo/:_id', getreginfo);
 router.post('/addpractice', addpractice);
+router.post('/addattendance', addattendance);
+router.get('/getpracticeregs/:_id', getpracticeregs);
+router.get('/getpracticeregnames/:_id', getpracticeregnames);
+router.post('/approveattendance/:_id', approveattendance);
 
 
 module.exports = router;
@@ -48,6 +55,23 @@ function getevents(req,res) {
     .catch(function(err){
         res.status(400).send(err);
     }); 
+}
+
+
+function getpractice(req,res) {
+
+
+    logger.info('param start: ' + req.params.start);
+    logger.info('param locid: ' + req.params.locID);
+    logger.info('query start: ' + req.query.start);
+    logger.info('query locid: ' + req.query.locID);
+   eventservice.getpractice(req.query.start, req.query.locID)
+   .then(function(practices){
+       res.status(200).send(JSON.stringify(practices));
+   })
+   .catch(function(err){
+       res.status(400).send(err);
+   }); 
 }
 
 function getallevents(req,res) {
@@ -179,5 +203,50 @@ function addpractice(req,res) { //TO DO  only Dojocho, validation of input
     })
     .catch(function(err){
         res.status(400).send(JSON.stringify(err));
+    }); 
+}
+
+function addattendance(req,res) { //TO DO  validation of input
+   
+    eventservice.addattendance(req)
+    .then(function(srvresp){
+        res.status(200).send(JSON.stringify(srvresp));
+    })
+    .catch(function(err){
+        res.status(400).send(JSON.stringify(err));
+    }); 
+}
+
+
+function getpracticeregs(req,res) {
+   
+    eventservice.getpracticeregs(req.params._id)
+    .then(function(reginfo){
+        res.status(200).send(JSON.stringify(reginfo));
+    })
+    .catch(function(err){
+        res.status(400).send(JSON.stringify(err));
+    }); 
+}
+
+function getpracticeregnames(req,res) {
+   
+    eventservice.getpracticeregnames(req.params._id)
+    .then(function(reginfo){
+        res.status(200).send(JSON.stringify(reginfo));
+    })
+    .catch(function(err){
+        res.status(400).send(JSON.stringify(err));
+    }); 
+}
+
+function approveattendance(req,res) {
+   
+    eventservice.approveattendance(req)
+    .then(function(srvresp){
+        res.status(200).send(JSON.stringify(srvresp));
+    })
+    .catch(function(err){
+        res.status(400).send(err);
     }); 
 }

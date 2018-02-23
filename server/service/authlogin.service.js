@@ -199,7 +199,7 @@ function authenticate(req) {
             })
 
 
-            q.resolve({id:res[0].ID,
+            q.resolve({ID:res[0].ID,
               lastname:res[0].lastname,
               firstname:res[0].firstname,
               role:roles,

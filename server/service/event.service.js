@@ -22,7 +22,11 @@ eventservice.register = register;
 eventservice.unregister = unregister;
 eventservice.getreginfo = getreginfo;
 eventservice.addpractice = addpractice;
-
+eventservice.getpractice = getpractice;
+eventservice.addattendance = addattendance;
+eventservice.getpracticeregs = getpracticeregs;
+eventservice.getpracticeregnames = getpracticeregnames;
+eventservice.approveattendance = approveattendance;
 
 module.exports = eventservice;
 
@@ -189,3 +193,83 @@ function addpractice(req) {
     return deferred.promise;    
 }
 
+function getpractice(_trainingday, _locid) {
+    var deferred = Q.defer();
+        logger.info('_trainingday: ' + _trainingday);
+        var date = new Date(parseInt(_trainingday));
+        logger.info('date: ' + date);
+
+
+        knex('vupractices')
+        .select('ID', 'name')
+        .where('locationID', _locid) 
+        .andWhere(knex.raw('DATE(start) = ?;', JSON.stringify(date).slice(1,11) ))
+        .then( dbresp => {logger.info('dbresp' + JSON.stringify(dbresp)); deferred.resolve(dbresp);
+                    })
+        .catch(err => deferred.reject(err));
+
+    return deferred.promise;    
+}
+
+
+function addattendance(req) {
+    var deferred = Q.defer();
+
+    knex('attendances').insert(req.body)
+    .then(dbresp =>  deferred.resolve(dbresp))
+    .catch(err => deferred.reject(err));
+
+    return deferred.promise;    
+}
+
+function getpracticeregs(_id) {
+    var deferred = Q.defer();
+
+    knex('vupracticeregs')
+        .select('eventID', 'dojoname', 'practicedate', 'practice', 'noofregistered')
+        .where('instructorID', _id)     
+        .then( res => deferred.resolve(res) )
+        .catch(err => deferred.reject(err));
+    
+    return deferred.promise;    
+}
+
+function getpracticeregnames(_id) {
+    var deferred = Q.defer();
+
+    knex('vupracticeregnames')
+        .select('ID', 'name')
+        .where('eventID', _id)     
+        .then( res => deferred.resolve(res) )
+        .catch(err => deferred.reject(err));
+    
+    return deferred.promise;    
+}
+
+function approveattendance(req) {
+    var deferred = Q.defer();
+
+    let attendedIDs = _.flattenDeep(_.remove(req.body, elem => {return elem.attended === true} )
+                                     .map(elem => _.omit(elem, 'attended'))
+                                     .map(elem => _.values(elem)));
+logger.info(JSON.stringify(attendedIDs));
+    knex('attendances').update('attendancetype', 'Attended')
+                        .whereIn('attendeeID', attendedIDs)    
+                        .andWhere('eventID',req.params._id)
+                        .then(dbsrvresp0 => {
+
+                            let notAttendedIDs = _.flattenDeep(req.body.map(elem => _.omit(elem, 'attended'))
+                                                                        .map(elem => _.values(elem)));
+                            logger.info(JSON.stringify(notAttendedIDs));
+                            knex('attendances').whereIn('attendeeID',notAttendedIDs)
+                                                .andWhere('eventID',req.params._id)
+                                                .del()
+                                                .then(dbsrvresp1 => deferred.resolve(dbsrvresp1))
+                                                .catch(err => {logger.info(JSON.stringify(err)); 
+                                                    deferred.reject(err); });
+                        } )
+                        .catch(err => {logger.info(JSON.stringify(err)); 
+                                        deferred.reject(err); });
+        
+    return deferred.promise;    
+}

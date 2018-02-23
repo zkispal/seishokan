@@ -17,7 +17,7 @@ export class EventregComponent implements OnInit {
 
   @Input() list: any[];
   @Input() title: string;
-  currentUser;
+
   userAlreadyRegged: number[] = [];
   regRecord: {eventID: number,
               attendeeID: string,
@@ -34,9 +34,8 @@ export class EventregComponent implements OnInit {
     this.regRecord = {eventID: 0,
         attendeeID: '',
         attendancetype: 'Registered' };
-    this.currentUser = this.authService.getCurrentUser();
-    this.regRecord.attendeeID = this.currentUser.id;
-    this. loadAlreadyRegged();
+    this.regRecord.attendeeID = this.authService.getCurrentUser().ID;
+    this.loadAlreadyRegged();
     console.log( 'AttendeeID: ' + this.regRecord.attendeeID);
   }
 
@@ -57,7 +56,7 @@ export class EventregComponent implements OnInit {
   }
 
   loadAlreadyRegged() {
-    this.dataService.getreginfo(this.currentUser.id)
+    this.dataService.getreginfo(this.authService.getCurrentUser().ID)
         .map(data => data.map(elem => _.get(elem, 'eventID')))
         .subscribe(data => { this.userAlreadyRegged = data;  console.log( 'data ' + JSON.stringify(data)); }
           , err => console.log(err));

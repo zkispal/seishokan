@@ -1,3 +1,60 @@
-<p>
-  trainingmanreg works!
-</p>
+<div class="col-md-8 col-md-offset-2">
+  <form  name="manualattendance" #manualattendance="ngForm" (ngSubmit)="manualattendance.form.valid && addattendance()">
+    <div class="form-group">
+      <label for="tddp">Melyik napon voltál edzésen?</label>
+        <input  type="text"
+                class="form-control"
+                id="tddp"
+                name="tddp"
+                [bsConfig]="bsConfig"
+                #tddp="bsDatepicker"
+                [(ngModel)]="trainingDay" 
+                bsDatepicker>
+    </div>
+    <div class="form-group">
+      <label for="dojoselect">Melyik dojoban voltál edzésen?</label>
+      <select class="form-control"
+              name="dojoselect"
+              id="dojoselect"
+              #dojoselect="ngModel"
+              (change)="getPractice()"
+              [(ngModel)]="locID"
+              required>
+          <option  *ngFor="let dojo  of dojos" [value]="dojo.ID">{{dojo.name}}</option>
+      </select>
+    </div>
+
+    <div class="form-group">
+        <label for="instructorselect">Ki volt az oktató?</label>
+        <select class="form-control"
+                name="instructorselect"
+                id="instructorselect"
+                #instructorselect="ngModel"
+                [(ngModel)]="attendanceRecord.instructorID"
+                required>
+            <option  *ngFor="let instructor  of instructors" [value]="instructor.ID">{{instructor.name}}</option>
+        </select>
+      </div>
+
+      <div class="form-group">
+          <label for="trainingselect">Melyik edzésen vettél részt?</label>
+          <select class="form-control"
+                  #trainingselect="ngModel"
+                  name="trainingselect"
+                  id="trainingselect"
+                  [(ngModel)]="attendanceRecord.eventID"
+                  [disabled]="!instructorselect.valid"
+                  required>
+              <option  *ngFor="let training  of trainings" [value]="training.ID">{{training.name}}</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <button  class="btn btn-primary">Ottvoltam</button>
+
+        </div>
+  </form>
+
+  <p>attendanceRecord: {{attendanceRecord | json}} <br>locID: {{locID | json}} <br> trainingDay: {{trainingDay | json}} <br>
+    instructors: {{instructors | json}} <br> trainings: {{trainings | json}} <br> currentUser: {{currentUser | json}} <br>
+    manualattendance : {{manualattendance.value | json}}</p>
+</div>
