@@ -1,3 +1,82 @@
-<p>
-  examresults works!
-</p>
+<div class="fluid">
+  <div class="col-md-8 col-md-offset-2">
+      <form class="form-inline">
+          <div class="form-group">
+              <label for="years">Vizsgaév</label>
+              <select class="form-control"
+                      name="years"
+                      id="years" 
+                      [(ngModel)]="selectedYear"
+                      (ngModelChange)="getExamsInYear($event)"
+                      #exams="ngModel"
+                      required>
+                      <option  *ngFor="let year of years" [value]="year">{{year}}</option>
+              </select>
+              <label for="exams">Vizsgák</label>
+              <select class="form-control"
+                      name="exams"
+                      id="exams" 
+                      [(ngModel)]="selectedExam"
+                      (ngModelChange)="getExamParticipants($event)"
+                      #exams="ngModel"
+                      required>
+                      <option  *ngFor="let exam of examsInaYear" [value]="exam.ID">{{exam.name}}</option>
+              </select>
+          </div>
+      </form>
+      <div *ngIf="participants.length>0"class="table-responsive">
+        <table class="table">
+            <tr>
+                <th>Név</th>
+                <th>Eredmény</th>
+                <th>Fokozat</th>
+                <th>Oklevélszám</th>
+                <th> </th>
+            </tr>
+            <tr *ngFor="let participant of participants">
+                <td>{{participant.name}}</td>
+                <td>                    
+                    <select class="form-control"
+                        name="attendancetype"
+                        id="attendancetype" 
+                        [(ngModel)]="participant.attendancetype"
+                        #attendancetype="ngModel"
+                        required>
+                    <option>Sikeres</option>
+                    <option>Sikertelen</option>
+                    </select>
+                </td>
+                <td>
+                    <select class="form-control"
+                        name="rankID"
+                        id="rankID" 
+                        [(ngModel)]="participant.rankID"
+                        #rankID="ngModel"
+                        [disabled] = "attendancetype.value == 'Sikertelen'"
+                        [attr.required] = "attendancetype.value == 'Sikeres'">
+                        <option  *ngFor="let rank of adultRanks" [value]="rank.ID">{{rank.name}}</option>
+                    </select>   
+                </td>
+                <td>
+                    <input id="certno"
+                           type="text"
+                           class="form-control"
+                           placeholder="Oklevélszám"
+                           [(ngModel)]="participant.certno"
+                           #certno="ngModel"
+                           [disabled] = "attendancetype.value == 'Sikertelen'"
+                           [attr.required] = "attendancetype.value == 'Sikeres'">
+                </td>
+                <td>
+                    <button class="btn btn-primary"
+                            (click)="updateExamResults(participant)"
+                            [disabled] = "!attendancetype.valid">Eredményrögzítés</button>
+                </td>
+            </tr>
+        </table>
+      </div>
+  </div>
+</div>
+
+<p>{{years | json}}  <br> selectedYear: {{selectedYear}} <br> examsInaYear: {{examsInaYear | json}}
+<br> selectedExam: {{selectedExam | json}} <br> adultRanks: {{adultRanks | json}} <br> participants: {{participants | json}}</p>

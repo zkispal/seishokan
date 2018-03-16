@@ -14,9 +14,11 @@ var dataservice = {};
 
 
 dataservice.getview = getview;
+dataservice.getviewSelectByID = getviewSelectByID;
 dataservice.getroleholders = getroleholders;
 dataservice.delroleholders = delroleholders;
-dataservice.updtroleholders = updtroleholders;
+dataservice.updtroleholders = updtroleholders
+
 
 
 module.exports = dataservice;
@@ -37,6 +39,22 @@ function getview(_viewname) {
 
     return deferred.promise;
 }
+
+function getviewSelectByID(_id, _viewname) {
+
+    var deferred = Q.defer();
+
+    knex(_viewname).where('ID', _id)
+    .then(function (res){
+        deferred.resolve(res);
+    })
+    .catch(function(err){
+        deferred.reject(err);
+    });
+
+    return deferred.promise;
+}
+
 
 function getroleholders(_id) {
 

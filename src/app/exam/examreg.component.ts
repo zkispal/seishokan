@@ -18,7 +18,7 @@ export class ExamregComponent implements OnInit {
 
 
   constructor(private dataService: DataService,
-    private authService: AuthLoginService) { }
+              private authService: AuthLoginService) { }
 
   ngOnInit() {
     registerLocaleData(localeHu);

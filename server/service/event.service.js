@@ -25,8 +25,14 @@ eventservice.addpractice = addpractice;
 eventservice.getpractice = getpractice;
 eventservice.addattendance = addattendance;
 eventservice.getpracticeregs = getpracticeregs;
-eventservice.getpracticeregnames = getpracticeregnames;
+eventservice.geteventregs = geteventregs;
+eventservice.getregnames = getregnames;
 eventservice.approveattendance = approveattendance;
+eventservice.getexamyears = getexamyears;
+eventservice.getpastexams = getpastexams;
+eventservice.updateExamResult = updateExamResult;
+eventservice.updateExamResultRank = updateExamResultRank;
+
 
 module.exports = eventservice;
 
@@ -125,6 +131,7 @@ function register(req) {
     return deferred.promise;    
 }
 
+
 function unregister(req) {
     var deferred = Q.defer();
 
@@ -138,6 +145,7 @@ function unregister(req) {
     return deferred.promise;    
 }
 
+
 function getreginfo(_id) {
     var deferred = Q.defer();
 
@@ -149,6 +157,7 @@ function getreginfo(_id) {
     
     return deferred.promise;    
 }
+
 
 function addpractice(req) {
     var deferred = Q.defer();
@@ -193,6 +202,7 @@ function addpractice(req) {
     return deferred.promise;    
 }
 
+
 function getpractice(_trainingday, _locid) {
     var deferred = Q.defer();
         logger.info('_trainingday: ' + _trainingday);
@@ -222,6 +232,7 @@ function addattendance(req) {
     return deferred.promise;    
 }
 
+
 function getpracticeregs(_id) {
     var deferred = Q.defer();
 
@@ -234,10 +245,23 @@ function getpracticeregs(_id) {
     return deferred.promise;    
 }
 
-function getpracticeregnames(_id) {
+
+function geteventregs() {
     var deferred = Q.defer();
 
-    knex('vupracticeregnames')
+    knex('vueventregs')
+        .select('eventID', 'eventlocation', 'eventdate', 'eventname', 'noofregistered')    
+        .then( res => deferred.resolve(res) )
+        .catch(err => deferred.reject(err));
+    
+    return deferred.promise;    
+}
+
+
+function getregnames(_id, _vuname) {
+    var deferred = Q.defer();
+
+    knex(_vuname)
         .select('ID', 'name')
         .where('eventID', _id)     
         .then( res => deferred.resolve(res) )
@@ -245,6 +269,7 @@ function getpracticeregnames(_id) {
     
     return deferred.promise;    
 }
+
 
 function approveattendance(req) {
     var deferred = Q.defer();
@@ -272,4 +297,75 @@ logger.info(JSON.stringify(attendedIDs));
                                         deferred.reject(err); });
         
     return deferred.promise;    
+}
+
+function getexamyears (req) {
+    var deferred = Q.defer();
+
+    knex('vupastexams')
+        .distinct(knex.raw('YEAR(start) as year'))
+        .select()
+        .then( dbresp => deferred.resolve(dbresp) )
+        .catch(err => deferred.reject(err));
+    
+    return deferred.promise; 
+
+}
+
+
+function getpastexams (_id) {
+    var deferred = Q.defer();
+
+    knex('vupastexams')
+        .select(knex.raw('ID, concat(eventname, \' \', date(start), \' \', locationname) AS name'))
+        .where(knex.raw('YEAR(start) = ?', [_id]))
+        .then( dbresp => deferred.resolve(dbresp) )
+        .catch(err => deferred.reject(err));
+    
+    return deferred.promise; 
+
+}
+
+
+function updateExamResult(req) {
+    var deferred = Q.defer();
+
+
+    knex('attendances')
+    .where('attendeeID', req.body.ID)
+    .andWhere('eventID', req.params._id)
+    .update('attendancetype', req.body.attendancetype)
+    .then(srvresp => deferred.resolve(srvresp))
+    .catch(err => deferred.reject(err));
+
+
+    
+    return deferred.promise; 
+}
+
+function updateExamResultRank(req) {
+    var deferred = Q.defer();
+
+    console.log(JSON.stringify(_.pick(req.body,['attendancetype', 'certno'])));
+    knex.transaction(trx => {
+
+        return trx.update(_.pick(req.body,['attendancetype', 'certno']))
+                .into('attendances')
+                .where('attendeeID', req.body.ID)
+                .andWhere('eventID', req.params._id)
+                .then(() => {
+
+                    return trx.update('rankID', req.body.rankID)
+                            .into('person')
+                            .where('ID', req.body.ID);
+                });
+
+
+    })
+        .then(srvresp => deferred.resolve(srvresp))
+        .catch(err => deferred.reject(err))
+
+
+    
+    return deferred.promise; 
 }

@@ -2,8 +2,6 @@ require('rootpath')();
 const Q = require('q');
 const eventservice = require ('server/service/event.service');
 const dataservice = require ('server/service/data.service');
-//const knexconfig = require ('server/knexconfig.json');
-//const knex = require('knex')(knexconfig);
 const express = require('express');
 const router = express.Router();
 const log4js = require('log4js');
@@ -14,7 +12,7 @@ const logger = log4js.getLogger('event.controller');
 router.get('/geteventtypes', geteventtypes);
 router.get('/getevents', getevents);
 router.get('/getallevents', getallevents);
-router.get('/getexams', getexams);
+router.get('/getfutureexams', getfutureexams);
 router.get('/getpractice', getpractice);
 router.post('/addevent', addevent);
 router.post('/register', register);
@@ -26,7 +24,14 @@ router.post('/addpractice', addpractice);
 router.post('/addattendance', addattendance);
 router.get('/getpracticeregs/:_id', getpracticeregs);
 router.get('/getpracticeregnames/:_id', getpracticeregnames);
+router.get('/geteventregs/', geteventregs);
+router.get('/geteventregnames/:_id', geteventregnames);
+router.get('/getexamhistory/:_id', getexamhistory);
 router.post('/approveattendance/:_id', approveattendance);
+router.get('/getexamyears/', getexamyears);
+router.get('/getpastexams/:_id', getpastexams);
+router.get('/getexamregnames/:_id', getexamregnames);
+router.post('/updateexam/:_id', updateExamResult);
 
 
 module.exports = router;
@@ -87,9 +92,9 @@ function getallevents(req,res) {
    }); 
 }
 
-function getexams(req,res) {
+function getfutureexams(req,res) {
 
-    var viewname = 'vuexams';
+    var viewname = 'vufutureexams';
 
    dataservice.getview(viewname)
    .then(function(events){
@@ -229,9 +234,10 @@ function getpracticeregs(req,res) {
     }); 
 }
 
-function getpracticeregnames(req,res) {
+
+function geteventregs(req,res) {
    
-    eventservice.getpracticeregnames(req.params._id)
+    eventservice.geteventregs()
     .then(function(reginfo){
         res.status(200).send(JSON.stringify(reginfo));
     })
@@ -239,6 +245,45 @@ function getpracticeregnames(req,res) {
         res.status(400).send(JSON.stringify(err));
     }); 
 }
+
+
+function getpracticeregnames(req,res) {
+   
+    var viewname = 'vupracticeregnames';
+    eventservice.getregnames(req.params._id, viewname)
+    .then(function(reginfo){
+        res.status(200).send(JSON.stringify(reginfo));
+    })
+    .catch(function(err){
+        res.status(400).send(JSON.stringify(err));
+    }); 
+}
+
+
+function geteventregnames(req,res) {
+   
+    var viewname = 'vueventregnames';
+    eventservice.getregnames(req.params._id, viewname)
+    .then(function(reginfo){
+        res.status(200).send(JSON.stringify(reginfo));
+    })
+    .catch(function(err){
+        res.status(400).send(JSON.stringify(err));
+    }); 
+}
+
+function getexamhistory(req,res) {
+   
+    var viewname = 'vuexamhistory';
+    dataservice.getviewSelectByID(req.params._id, viewname)
+    .then(function(resp){
+        res.status(200).send(JSON.stringify(resp));
+    })
+    .catch(function(err){
+        res.status(400).send(JSON.stringify(err));
+    }); 
+}
+
 
 function approveattendance(req,res) {
    
@@ -249,4 +294,65 @@ function approveattendance(req,res) {
     .catch(function(err){
         res.status(400).send(err);
     }); 
+}
+
+function getexamyears(req,res) {
+   
+    eventservice.getexamyears(req)
+    .then(function(srvresp){
+        res.status(200).send(JSON.stringify(srvresp));
+    })
+    .catch(function(err){
+        res.status(400).send(err);
+    }); 
+}
+
+function getpastexams (req,res) {
+
+    eventservice.getpastexams(req.params._id)
+    .then(function(srvresp){
+        res.status(200).send(JSON.stringify(srvresp));
+    })
+    .catch(function(err){
+        res.status(400).send(err);
+    }); 
+  
+}
+
+
+function getexamregnames(req,res) {
+   
+    var viewname = 'vuexamregnames';
+    eventservice.getregnames(req.params._id, viewname)
+    .then(function(reginfo){
+        res.status(200).send(JSON.stringify(reginfo));
+    })
+    .catch(function(err){
+        res.status(400).send(JSON.stringify(err));
+    }); 
+}
+
+function updateExamResult (req, res) {
+
+    if (req.body.attendancetype === 'Sikertelen') {
+        eventservice.updateExamResult(req)
+        .then(function(srvresp){
+            res.status(200).send(JSON.stringify(srvresp));
+        })
+        .catch(function(err){
+            res.status(400).send(JSON.stringify(err));
+        });
+    } else {
+        eventservice.updateExamResultRank(req)
+        .then(function(srvresp){
+            res.status(200).send(JSON.stringify(srvresp));
+        })
+        .catch(function(err){
+            res.status(400).send(JSON.stringify(err));
+        });
+
+    }
+
+
+
 }

@@ -48,7 +48,7 @@ export class DataService {
   }
 
   getexams() {
-    return this.http.get<Array<any>>('/event/getexams');
+    return this.http.get<Array<any>>('/event/getfutureexams');
   }
 
   getlocations() {
@@ -171,12 +171,43 @@ export class DataService {
     return this.http.get<Array<Options>>('/event/getpracticeregnames/' + _eventID);
   }
 
+  geteventregnames(_eventID) {
+    return this.http.get<Array<Options>>('/event/geteventregnames/' + _eventID);
+  }
+
+  getexamregnames(_eventID) {
+    return this.http.get<Array<Options>>('/event/getexamregnames/' + _eventID);
+  }
 
   approveAttendance(_eventID, _regnames) {
     return this.http.post('/event/approveattendance/' + _eventID, _regnames);
 
   }
 
+
+  geteventregs () {
+    return this.http.get<Array<any>>('/event/geteventregs/');
+
+  }
+
+
+  getexamhistory (_id) {
+    return this.http.get<Array<any>>('/event/getexamhistory/' + _id);
+  }
+
+  getexamyears () {
+    return this.http.get<Array<any>>('/event/getexamyears/');
+  }
+
+
+  getpastexams (_year) {
+    return this.http.get<Array<Options>>('/event/getpastexams/' + _year);
+  }
+
+
+  updateExamResults (_result, _eventID) {
+  return this.http.post('/event/updateexam/' + _eventID, _result);
+  }
 }
 
 

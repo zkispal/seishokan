@@ -30,7 +30,7 @@ export class NavigationComponent {
     exammenutitle = 'Vizsgák';
     exammenu = [{'item': 'Vizsgatörténet', 'link': 'examhistory'},
                 {'item': 'Vizsgajelentkezés', 'link': 'examregistration'},
-                {'item': 'Regisztráltak/Eredmények', 'link': 'examresults'}];
+                {'item': 'Vizsgaeredmények', 'link': 'examresults'}];
 
     eventmenutitle = 'Események';
     eventmenu = [{'item': 'Meghirdetett események', 'link': 'events'},
@@ -45,7 +45,7 @@ export class NavigationComponent {
 
     // store state
     toggleState() { // click handler
-        let bool = this.isIn;
+        const bool = this.isIn;
         this.isIn = bool === false ? true : false;
     }
 

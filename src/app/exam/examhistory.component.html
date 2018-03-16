@@ -1,3 +1,20 @@
-<p>
-  examhistory works!
-</p>
+<div class="fluid">
+  <div class="col-md-8 col-md-offset-2">
+    <div class="table-responsive">
+      <table class="table table-hover">
+        <tr>
+          <th>Dátum</th>
+          <th>Vizsgatípus</th>
+          <th>Eredmény</th>
+          <th>Oklevél sorszáma</th>
+        </tr>
+        <tr *ngFor="let exam of history">
+          <td>{{exam.start}}</td>
+          <td>{{exam.eventtypestring}}</td>
+          <td>{{exam.attendancetype}}</td>
+          <td>{{exam.certno}}</td>
+        </tr>
+      </table>
+    </div>
+  </div>
+</div>

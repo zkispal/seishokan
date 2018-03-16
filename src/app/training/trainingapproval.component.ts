@@ -51,6 +51,7 @@ export class TrainingapprovalComponent implements OnInit {
                       .subscribe(resp => {  console.log(resp); this.regnames = resp; },
                       err => {console.log(err); });
   }
+
   selectAll() {
     console.log('selectAll() was called');
     for (let i = 0; i < this.regnames.length; i++) {
