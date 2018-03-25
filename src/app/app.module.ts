@@ -21,6 +21,8 @@ import { ButtonsModule } from 'ngx-bootstrap/buttons';
 
 import { AngularDualListBoxModule } from 'angular-dual-listbox';
 
+import { ZXingScannerModule } from '@zxing/ngx-scanner';
+
 
 
 import { AppComponent } from './app.component';
@@ -93,7 +95,9 @@ import { EventregComponent } from './_ui/eventreg.component';
     AlertModule.forRoot(),
     PopoverModule.forRoot(),
     ButtonsModule.forRoot(),
-    AngularDualListBoxModule
+    AngularDualListBoxModule,
+    ZXingScannerModule.forRoot()
+
 
   ],
   exports: [

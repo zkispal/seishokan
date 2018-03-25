@@ -1,3 +1,108 @@
-<p>
-  trainingqrreg works!
-</p>
+<div class="col-xs-6 col-xs-offset-1 col-sm-6 col-sm-offset-1 col-md-6 col-md-offset-1">
+        <p>training day: {{trainingDay | json}} <br>
+            attendanceRecord: {{attendanceRecord | json}}<br>
+            qrResultString: {{qrResultString}} <br>
+            allAttendance: {{allAttendance | json}} <br>
+        locID: {{locID}} <br>
+        selecteddojo: {{selectedDojo | json}}</p>
+
+    <form  name="QRattendance" #QRattendance="ngForm" (ngSubmit)="QRattendance.form.valid && addattendance()">
+
+        <div class="form-group">
+            <label for="dojoselect">Dojo:</label>
+            <select class="form-control"
+                    name="dojoselect"
+                    id="dojoselect"
+                    #dojoselect="ngModel"
+                    (change)="getPractice()"
+                    [(ngModel)]="selectedDojo"
+                    required>
+                <option  *ngFor="let dojo  of dojos" [ngValue]="dojo">{{dojo.name}}</option>
+            </select>
+        </div>
+
+        <div class="form-group">
+            <label for="trainingselect">Edzés:</label>
+            <select class="form-control"
+                   #trainingselect="ngModel"
+                    name="trainingselect"
+                    id="trainingselect"
+                    (change)="setTrainingID()"
+                    [(ngModel)]="selectedTraining"
+                    [disabled]="!dojoselect.valid"
+                    required>
+                    <option  *ngFor="let training  of trainings" [ngValue]="training">{{training.name}}</option>
+            </select>
+        </div>
+
+        <div *ngIf="availableDevices" class="form-group">
+            <label for="cameraselect">Kamera:</label>
+            <select class="form-control"
+                    name="cameraselect"
+                    id="cameraselect"
+                    #cameraselect
+                    (change)="onDeviceSelectChange($event.target.value)"
+                    [disabled]="attendanceRecord.eventID == 0">
+            <option value="" [selected]="!selectedDevice">Nincs kiválasztott kamera</option>
+            <option *ngFor="let device of availableDevices" [value]="device.deviceId" [selected]="selectedDevice && device.deviceId === selectedDevice.deviceId">{{ device.label }}</option>
+            </select>
+        </div>
+
+
+
+
+        <div [hidden]="!hasCameras"> 
+            <h2 *ngIf="!this.selectedDevice">Nincs kiválasztott kamera.</h2>        
+            <zxing-scanner #scanner
+                            class="test-class"
+                            start="true"
+                            [cssClass]="'small-video'"
+                            [device]="selectedDevice"
+                            (scanSuccess)="handleQrCodeResult($event)"></zxing-scanner>
+        
+      
+        </div>
+  
+        <div *ngIf="!hasCameras && hasPermission === true">
+        
+            <h2>Az eszközön nincs kamera vagy nem elérhető!</h2>
+        
+        </div>
+  
+        <div *ngIf="hasPermission === undefined">
+        
+            <h2>Kamera hozzáférésre várakozik.</h2>
+        
+            <blockquote>
+            <h2>Ha az eszközön nincs kamera nincs engedélykérés.</h2>
+            </blockquote>
+        
+        </div>
+  
+        <div *ngIf="hasPermission === false">
+        
+            <h1>Megtagadta a hozzáférést a kamerához. Anélkül a QR kód beolvasása lehetetlen.</h1>
+        
+        </div>
+    </form>
+
+</div>
+<div class="col-xs-4  col-sm-4 col-md-4">
+        <div class="panel panel-default">
+            <div class="panel-heading">
+              <h3 class="panel-title">{{selectedDojo.name}} {{selectedTraining.name}}</h3>
+            </div>
+            <div class="panel-body">{{trainingDay}}</div>
+                <ul *ngFor = "let attendeename  of allAttendeeNames" class="list-group">
+                    <li class="list-group-item">{{attendeename}}</li>
+                </ul>
+            <div class="panel-footer clearfix">
+                <button type="button" 
+                        class="btn btn-primary pull-right"
+                        [disabled]="allAttendance.length == 0"
+                        (click)="addattendance()">Részvétel rögzítése</button>
+            </div>
+        </div>
+
+
+</div>

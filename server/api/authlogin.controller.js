@@ -26,7 +26,7 @@ const JwtStrategy = passportJWT.Strategy;
 
 var jwtOptions = {};
 jwtOptions.jwtFromRequest = ExtractJwt.fromHeader("authorization");
-jwtOptions.secretOrKey =fs.readFileSync('server/private-key.key').slice(31,1673); //Extract the pure private key
+jwtOptions.secretOrKey =fs.readFileSync('server/private.key').slice(31,1673); //Extract the pure private key
 
 
 

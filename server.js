@@ -16,6 +16,8 @@ const authloginctrl = require('server/api/authlogin.controller');
 const datactrl = require('server/api/data.controller');
 const locationctrl = require('server/api/location.controller');
 const eventctrl = require('server/api/event.controller');
+var https = require('https');
+var http = require('http');
 
 
 
@@ -24,7 +26,11 @@ const JwtStrategy = passportJWT.Strategy;
 
 var jwtOptions = {};
 jwtOptions.jwtFromRequest = ExtractJwt.fromHeader("authorization");
-jwtOptions.secretOrKey = fs.readFileSync('server/private-key.key').slice(31,1673); //Extract the pure private key
+jwtOptions.secretOrKey = fs.readFileSync('server/private.key').slice(31,1673); //Extract the pure private key
+
+var httpsOptions = { key: fs.readFileSync('server/private.key'),
+                    cert: fs.readFileSync('server/server.crt')};
+
 
 
 var strategy = new JwtStrategy(jwtOptions, function(jwt_payload, next) {
@@ -68,13 +74,18 @@ app.get('*', function(req, res) {
 });
 
 
+var httpServer = http.createServer(app);
+var httpsServer = https.createServer(httpsOptions, app);
+
+// httpServer.listen(3000);
+httpsServer.listen(3443);
 
 
-var port = process.env.NODE_ENV === 'production' ? 80 : 3000;
+/* var port = process.env.NODE_ENV === 'production' ? 80 : 3000;
 
 var server = app.listen(port, function () {
     console.log('Server listening on port ' + port);
-});
+}); */
 
 
 

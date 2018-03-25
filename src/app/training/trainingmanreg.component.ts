@@ -46,7 +46,7 @@ export class TrainingmanregComponent implements OnInit {
 
     private initAttendanceRec() {
       this.currentUser = this.authService.getCurrentUser();
-      this.attendanceRecord.attendeeID = this.currentUser.ID;
+      this.attendanceRecord.attendeeID = parseInt(this.currentUser.ID, 10);
       this.attendanceRecord.attendancetype = 'Registered';
       this.attendanceRecord.eventID = 0;
       this.attendanceRecord.instructorID = 0;
@@ -66,7 +66,7 @@ export class TrainingmanregComponent implements OnInit {
   }
 
   private getPractice() {
-    this.dataService.getpracticeByDateByLocID(this.trainingDay.setHours(this.trainingDay.getHours() + 23), this.locID)
+    this.dataService.getpracticeByDateByLocID(this.trainingDay.setHours(2), this.locID)
                     .subscribe( res => {  this.trainings = res; },
                       err => {console.log(err); }  ) ;
   }
