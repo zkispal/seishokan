@@ -1,11 +1,17 @@
 <div class="container-fluid">
+<div class="row">
+  <div class="col-xs-10 col-xs-offset-1 col-sm-10 col-sm-offset-1 col-md-10 col-md-offset-1">
+    <app-alert></app-alert>
+  </div>
+</div>
+
   <div class="row">
     <div class="col-xs-5 col-xs-offset-1 col-sm-5 col-sm-offset-1 col-md-5 col-md-offset-1">
       <ul class="list-group">
         <button type="button"
           (click)="getRegisteredNames(i)"
           class="list-group-item"
-          *ngFor="let reg of practiceregs; let i=index"> {{reg.dojoname}} {{reg.practicedate}} {{reg.practice}}
+          *ngFor="let reg of practiceregs; let i=index">{{reg.practicedate | date:'longDate'}} {{reg.dojoname}} {{reg.practice}}
           <span class="glyphicon glyphicon-chevron-right pull-right"></span>
           <span class="badge">{{reg.noofregistered}}</span></button>
       </ul>
@@ -13,7 +19,7 @@
     <div *ngIf="regnames.length>0" class="col-xs-5  col-sm-5 col-md-5">
       <div class="panel panel-default">
         <div class="panel-heading">
-          <h3 class="panel-title">{{panelTitle}}</h3>
+          <h3 class="panel-title">{{panelTitleDate | date:'longDate' }} {{panelTitleText}}</h3>
         </div>
         <div class="panel-body">
           Utólag rögzítették az edzést:
@@ -48,5 +54,3 @@
     </div>
   </div>
 </div>
-
-      <p>practiceregs: {{practiceregs | json}} <br> {{regnames | json}} <br>activeEventID: {{activeEventID}} </p>

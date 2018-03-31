@@ -1,84 +1,90 @@
 <div class="container">
     <div class="row">
-        <div class="col-md-6 col-md-offset-2">
-            <h3>Helyszínek</h3>
-        </div>
-        <div class="col-md-3 pull-right">
-            <button class="btn btn-primary" (click) = "openNewlocModal()">Új helyszín</button>
-        </div>
-        <div class="col-md-3 ">
+            <div class="col-xs-6 col-xs-offset-3 col-sm-6 col-sm-offset-3 col-md-6 col-md-offset-3">
+                <app-alert></app-alert>
+            </div>
+    </div>
+    <div class="row">
+        <div class="col-md-6 col-md-offset-3">
+            <div class="row">
+                    <div class="col-6 col-sm-6 col-md-6">
+                        <h3>Helyszínek</h3>
+                    </div>
+
+                    <div class="col-6 col-sm-6 col-md-6">
+                        <button class="btn btn-primary pull-right" 
+                                (click) = "openNewlocModal()">Új helyszín</button>
+                    </div>
+            </div>
+            <accordion >
+                <accordion-group #group *ngFor="let loc of locs; let i=index" heading={{loc.name}}>
+                <form name="locationform" #f="ngForm" (ngSubmit)="f.form.valid && updateloc(i)" novalidate>
+                    <div class="form-group" [ngClass]="{ 'has-error': !locname.valid }">
+                        <label for="name">Helyszín megnevezése</label>
+                        <input type="text" class="form-control" name="name" [(ngModel)]="loc.name" #locname="ngModel" required />
+                        <div *ngIf="!locname.valid" class="help-block">Kötelező megadni egy elnevezést!</div>            
+                    </div>
+                    
+                    <div class="form-group" [ngClass]="{ 'has-error': f.submitted && !locbuilding.valid }">
+                        <label for="building">Épület</label>
+                        <input type="text" class="form-control" name="building" [(ngModel)]="loc.building" #locbuilding="ngModel" required />
+                        <div *ngIf="f.submitted && !locbuilding.valid" class="help-block">Kötelező megadni egy épületnevet!</div>
+
+                    </div>
+
+                    <div class="form-group" [ngClass]="{ 'has-error': f.submitted && !locaddress.valid }">
+                        <label for="address">Cím</label>
+                        <input type="text" class="form-control" name="address" [(ngModel)]="loc.address" #locaddress="ngModel" required />
+                        <div *ngIf="f.submitted && !locaddress.valid" class="help-block">Kötelező megadni egy címet!</div>
+                    </div>
+
+                    <div class="form-group" [ngClass]="{ 'has-error': f.submitted && !loccity.valid }">
+                        <label for="City">Város</label>
+                        <input type="text" class="form-control" name="City" [(ngModel)]="loc.city" #loccity="ngModel" required />
+                        <div *ngIf="f.submitted && !loccity.valid" class="help-block">Kötelező megadni egy várost!</div>
+                    </div>
+
+                    <div class="form-group" [ngClass]="{ 'has-error': f.submitted && !loczipcode.valid }">
+                        <label for="zipcode">Irányítószám</label>
+                        <input type="text" class="form-control" name="zipcode" [(ngModel)]="loc.zipcode" #loczipcode="ngModel" required />
+                        <div *ngIf="f.submitted && !loczipcode.valid" class="help-block">Kötelező megadni egy irányítószámot!</div>
+                    </div>
+
+                    <div class="form-group" [ngClass]="{ 'has-error': f.submitted && !loclon.valid }">
+                        <label for="lon">Földrajzi hosszúság</label>
+                        <input type="number" class="form-control" name="lon" [(ngModel)]="loc.lon" #loclon="ngModel" step="0.00005"required />
+                        <div *ngIf="f.submitted && !loclon.valid" class="help-block">Kötelező megadni a földrajzi hosszúságot!</div>
+                    </div>
+
+                    <div class="form-group" [ngClass]="{ 'has-error': f.submitted && !loclat.valid }">
+                        <label for="lat">Földrajzi szélesség</label>
+                        <input type="number" class="form-control" name="lat" [(ngModel)]="loc.lat" #loclat="ngModel"  step="0.00005" required />
+                        <div *ngIf="f.submitted && !loclat.valid" class="help-block">Kötelező megadni földrajzi szélességet!</div>
+                    </div>
+
+
+                    <div  class="form-group" [ngClass]="{ 'has-error': f.submitted && !loctypeselect.valid }">
+                        <label for="typeselect">Helyszín típusa?</label>
+                        <select class="form-control" 
+                                name="typeselect" 
+                                [(ngModel)]="loc.locationtype" 
+                                #loctypeselect="ngModel"  required>
+                        <option  *ngFor="let loctype  of loctypes" [value]="loctype">{{loctype}}</option>
+                        </select>
+                        <div *ngIf="f.submitted && !loctypeselect.valid" class="help-block">Kötelező választani egy helyszíntípust!</div>
+                    </div>
+
+
+                    <div class="form-group">
+                        <button  type="submit" [disabled] = "!f.form.valid" class="btn btn-primary">Módosítás</button>
+                        <button type="button" (click) = "deleteloc(loc.ID)" class="btn btn-primary pull-right">Törlés</button>
+                        <img *ngIf="loading" src="data:image/gif;base64,R0lGODlhEAAQAPIAAP///wAAAMLCwkJCQgAAAGJiYoKCgpKSkiH/C05FVFNDQVBFMi4wAwEAAAAh/hpDcmVhdGVkIHdpdGggYWpheGxvYWQuaW5mbwAh+QQJCgAAACwAAAAAEAAQAAADMwi63P4wyklrE2MIOggZnAdOmGYJRbExwroUmcG2LmDEwnHQLVsYOd2mBzkYDAdKa+dIAAAh+QQJCgAAACwAAAAAEAAQAAADNAi63P5OjCEgG4QMu7DmikRxQlFUYDEZIGBMRVsaqHwctXXf7WEYB4Ag1xjihkMZsiUkKhIAIfkECQoAAAAsAAAAABAAEAAAAzYIujIjK8pByJDMlFYvBoVjHA70GU7xSUJhmKtwHPAKzLO9HMaoKwJZ7Rf8AYPDDzKpZBqfvwQAIfkECQoAAAAsAAAAABAAEAAAAzMIumIlK8oyhpHsnFZfhYumCYUhDAQxRIdhHBGqRoKw0R8DYlJd8z0fMDgsGo/IpHI5TAAAIfkECQoAAAAsAAAAABAAEAAAAzIIunInK0rnZBTwGPNMgQwmdsNgXGJUlIWEuR5oWUIpz8pAEAMe6TwfwyYsGo/IpFKSAAAh+QQJCgAAACwAAAAAEAAQAAADMwi6IMKQORfjdOe82p4wGccc4CEuQradylesojEMBgsUc2G7sDX3lQGBMLAJibufbSlKAAAh+QQJCgAAACwAAAAAEAAQAAADMgi63P7wCRHZnFVdmgHu2nFwlWCI3WGc3TSWhUFGxTAUkGCbtgENBMJAEJsxgMLWzpEAACH5BAkKAAAALAAAAAAQABAAAAMyCLrc/jDKSatlQtScKdceCAjDII7HcQ4EMTCpyrCuUBjCYRgHVtqlAiB1YhiCnlsRkAAAOwAAAAAAAAAAAA==" />
+                    </div>
+
+
+                </form>
+                </accordion-group>
+            </accordion>
         </div>
     </div>
-</div>
-
-<div class="col-md-6 col-md-offset-3">
-<accordion >
-    <accordion-group #group *ngFor="let loc of locs; let i=index" heading={{loc.name}}>
-    <form name="locationform" #f="ngForm" (ngSubmit)="f.form.valid && updateloc(i)" novalidate>
-        <div class="form-group" [ngClass]="{ 'has-error': !locname.valid }">
-            <label for="name">Helyszín megnevezése</label>
-            <input type="text" class="form-control" name="name" [(ngModel)]="loc.name" #locname="ngModel" required />
-            <div *ngIf="!locname.valid" class="help-block">Kötelező megadni egy elnevezést!</div>            
-        </div>
-        
-        <div class="form-group" [ngClass]="{ 'has-error': f.submitted && !locbuilding.valid }">
-            <label for="building">Épület</label>
-            <input type="text" class="form-control" name="building" [(ngModel)]="loc.building" #locbuilding="ngModel" required />
-            <div *ngIf="f.submitted && !locbuilding.valid" class="help-block">Kötelező megadni egy épületnevet!</div>
-
-        </div>
-
-        <div class="form-group" [ngClass]="{ 'has-error': f.submitted && !locaddress.valid }">
-            <label for="address">Cím</label>
-            <input type="text" class="form-control" name="address" [(ngModel)]="loc.address" #locaddress="ngModel" required />
-            <div *ngIf="f.submitted && !locaddress.valid" class="help-block">Kötelező megadni egy címet!</div>
-        </div>
-
-        <div class="form-group" [ngClass]="{ 'has-error': f.submitted && !loccity.valid }">
-            <label for="City">Város</label>
-            <input type="text" class="form-control" name="City" [(ngModel)]="loc.city" #loccity="ngModel" required />
-            <div *ngIf="f.submitted && !loccity.valid" class="help-block">Kötelező megadni egy várost!</div>
-        </div>
-
-        <div class="form-group" [ngClass]="{ 'has-error': f.submitted && !loczipcode.valid }">
-            <label for="zipcode">Irányítószám</label>
-            <input type="text" class="form-control" name="zipcode" [(ngModel)]="loc.zipcode" #loczipcode="ngModel" required />
-            <div *ngIf="f.submitted && !loczipcode.valid" class="help-block">Kötelező megadni egy irányítószámot!</div>
-        </div>
-
-        <div class="form-group" [ngClass]="{ 'has-error': f.submitted && !loclon.valid }">
-            <label for="lon">Földrajzi hosszúság</label>
-            <input type="number" class="form-control" name="lon" [(ngModel)]="loc.lon" #loclon="ngModel" step="0.00005"required />
-            <div *ngIf="f.submitted && !loclon.valid" class="help-block">Kötelező megadni a földrajzi hosszúságot!</div>
-        </div>
-
-        <div class="form-group" [ngClass]="{ 'has-error': f.submitted && !loclat.valid }">
-            <label for="lat">Földrajzi szélesség</label>
-            <input type="number" class="form-control" name="lat" [(ngModel)]="loc.lat" #loclat="ngModel"  step="0.00005" required />
-            <div *ngIf="f.submitted && !loclat.valid" class="help-block">Kötelező megadni földrajzi szélességet!</div>
-        </div>
-
-
-        <div  class="form-group" [ngClass]="{ 'has-error': f.submitted && !loctypeselect.valid }">
-            <label for="typeselect">Helyszín típusa?</label>
-            <select class="form-control" 
-                    name="typeselect" 
-                    [(ngModel)]="loc.locationtype" 
-                    #loctypeselect="ngModel"  required>
-            <option  *ngFor="let loctype  of loctypes" [value]="loctype">{{loctype}}</option>
-            </select>
-            <div *ngIf="f.submitted && !loctypeselect.valid" class="help-block">Kötelező választani egy helyszíntípust!</div>
-        </div>
-
-
-        <div class="form-group">
-            <button  type="submit" [disabled] = "!f.form.valid" class="btn btn-primary">Módosítás</button>
-            <button type="button" (click) = "deleteloc(loc.ID)" class="btn btn-primary pull-right">Törlés</button>
-            <img *ngIf="loading" src="data:image/gif;base64,R0lGODlhEAAQAPIAAP///wAAAMLCwkJCQgAAAGJiYoKCgpKSkiH/C05FVFNDQVBFMi4wAwEAAAAh/hpDcmVhdGVkIHdpdGggYWpheGxvYWQuaW5mbwAh+QQJCgAAACwAAAAAEAAQAAADMwi63P4wyklrE2MIOggZnAdOmGYJRbExwroUmcG2LmDEwnHQLVsYOd2mBzkYDAdKa+dIAAAh+QQJCgAAACwAAAAAEAAQAAADNAi63P5OjCEgG4QMu7DmikRxQlFUYDEZIGBMRVsaqHwctXXf7WEYB4Ag1xjihkMZsiUkKhIAIfkECQoAAAAsAAAAABAAEAAAAzYIujIjK8pByJDMlFYvBoVjHA70GU7xSUJhmKtwHPAKzLO9HMaoKwJZ7Rf8AYPDDzKpZBqfvwQAIfkECQoAAAAsAAAAABAAEAAAAzMIumIlK8oyhpHsnFZfhYumCYUhDAQxRIdhHBGqRoKw0R8DYlJd8z0fMDgsGo/IpHI5TAAAIfkECQoAAAAsAAAAABAAEAAAAzIIunInK0rnZBTwGPNMgQwmdsNgXGJUlIWEuR5oWUIpz8pAEAMe6TwfwyYsGo/IpFKSAAAh+QQJCgAAACwAAAAAEAAQAAADMwi6IMKQORfjdOe82p4wGccc4CEuQradylesojEMBgsUc2G7sDX3lQGBMLAJibufbSlKAAAh+QQJCgAAACwAAAAAEAAQAAADMgi63P7wCRHZnFVdmgHu2nFwlWCI3WGc3TSWhUFGxTAUkGCbtgENBMJAEJsxgMLWzpEAACH5BAkKAAAALAAAAAAQABAAAAMyCLrc/jDKSatlQtScKdceCAjDII7HcQ4EMTCpyrCuUBjCYRgHVtqlAiB1YhiCnlsRkAAAOwAAAAAAAAAAAA==" />
-        </div>
-
-
-    </form>
-    </accordion-group>
-</accordion>
 </div>

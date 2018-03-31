@@ -1,6 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { DualListComponent } from 'angular-dual-listbox';
-import {  DataService } from '../_services/index';
+import {  DataService, AlertService } from '../_services/index';
 import { Options, Location } from '../_models/index';
 
 @Component({
@@ -27,7 +27,8 @@ roleid = 13;
 
 
 
-  constructor(private dataService: DataService) { }
+  constructor(private dataService: DataService,
+              private alertService: AlertService) { }
 
   ngOnInit() {
     this.loadsempais();
@@ -37,41 +38,48 @@ roleid = 13;
 
   loadsempais() {
 
-    this.dataService.getsempais()
-        .subscribe( sempais => {this.sempais = sempais; },
-                    err => console.log(err));
+    this.dataService
+        .getsempais()
+        .subscribe( sempais => {
+          if (sempais.length === 0) {
+               this.alertService.warn('Nincs kinevezhető tapasztalt aikidoka.');
+          } else {this.sempais = sempais; } },
+                    err => this.alertService.error('Kinevezhető aikidokák betöltése sikertelen! ' + err.message));
   }
 
 
   loadassistants() {
 
-    this.dataService.getroleholder(this.roleid)
-        .subscribe(assistants => {console.log(JSON.stringify(assistants)); this.assistants = assistants; },
-                  err => console.log(err));
+    this.dataService
+        .getroleholder(this.roleid)
+        .subscribe(assistants => { this.assistants = assistants; },
+          err => this.alertService.error('Asszisztensek betöltése sikertelen! ' + err.message));
 
   }
 
 
   upload() {
     if (this.assistants.length === 0) {
-      this.dataService.delroleholder(this.roleid)
-          .subscribe(res => {console.log(JSON.stringify(res)); },
-                     err => console.log(err));
+      this.dataService
+          .delroleholder(this.roleid)
+          .subscribe(res => { this.alertService.success('Kinevezés/visszavonás sikeres.'); },
+                     err => this.alertService.error('Kinevezés/visszavonás megerősítése sikertelen! ' + err.message));
     } else {
       this.records = [];
       this.assistants.forEach(elem => this.records.push({personID: elem.ID, roleID: this.roleid }) );
-      console.log(JSON.stringify(this.records));
-      this.dataService.updtroleholder(this.records)
-          .subscribe(res => {console.log(JSON.stringify(res)); },
-                    err => console.log(err));
+
+      this.dataService
+          .updtroleholder(this.records)
+          .subscribe( res => {this.alertService.success('Kinevezés/visszavonás sikeres.'); },
+                      err => this.alertService.error('Kinevezés/visszavonás megerősítése sikertelen! ' + err.message));
     }
 
   }
 
 
-  log($event) {
+/*   log($event) {
     console.log($event);
-  }
+  } */
 
 
 }

@@ -1,3 +1,51 @@
-<p>
-  traininghistory works!
-</p>
+<div *ngIf="loaded" class="container-fluid">
+        <div class="col-md-8 col-md-offset-2">
+                <app-alert></app-alert>
+                <form class="form-inline">
+                        <div class="form-group">
+                        <label for="rangepicker">Időszak:</label>
+                        <input  class="form-control"
+                                name="rangepicker"
+                                #drp="bsDaterangepicker"
+                                [(ngModel)]="timerange"
+                                [bsConfig]="bsrpConfig"
+                                bsDaterangepicker>
+                        </div>
+                        <button type="submit" 
+                                class="btn btn-primary pull-right"
+                                (click)="getpracticehistory()">Edzéstörténet lekérés</button>
+                </form>
+
+
+
+
+                <h3>A kiválasztott időszakban {{traininghistory.length}} edzésen vettél részt.</h3>
+
+ 
+
+                        <table class="table table-striped table-condensed">
+                        <tr>
+                                        <th>Dátum</th>
+                                        <th>Edzés</th>
+                                        <th>Dojo</th>
+                                        <th>Oktató</th>
+                                </tr>
+                                <tr *ngFor="let historyItem of pagedHistory">
+                                        <td >{{historyItem.datum | date:'longDate'}} {{historyItem.datum | date:'shortTime'}}</td>
+                                        <td>{{historyItem.eventname}}</td>
+                                        <td>{{historyItem.dojo}}</td>
+                                        <td>{{historyItem.instructorname}}</td>
+                                </tr>     
+                        </table>
+                <div class="center-block">
+                        <pagination [totalItems]="traininghistory.length"
+                        [itemsPerPage]="itemsPerPage" 
+                                 (pageChanged)="pageChanged($event)"></pagination>  
+                </div>              
+        </div>
+</div>  
+  
+
+
+
+

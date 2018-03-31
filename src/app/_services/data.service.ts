@@ -181,15 +181,11 @@ export class DataService {
 
   approveAttendance(_eventID, _regnames) {
     return this.http.post('/event/approveattendance/' + _eventID, _regnames);
-
   }
-
 
   geteventregs () {
     return this.http.get<Array<any>>('/event/geteventregs/');
-
   }
-
 
   getexamhistory (_id) {
     return this.http.get<Array<any>>('/event/getexamhistory/' + _id);
@@ -199,15 +195,19 @@ export class DataService {
     return this.http.get<Array<any>>('/event/getexamyears/');
   }
 
-
   getpastexams (_year) {
     return this.http.get<Array<Options>>('/event/getpastexams/' + _year);
   }
 
 
   updateExamResults (_result, _eventID) {
-  return this.http.post('/event/updateexam/' + _eventID, _result);
+    return this.http.post('/event/updateexam/' + _eventID, _result);
   }
+
+  getpracticehistory (_id, _timerange) {
+    return this.http.post<Array<any>>('/event/getpracticehistory/' + _id, _timerange);
+  }
+
 }
 
 

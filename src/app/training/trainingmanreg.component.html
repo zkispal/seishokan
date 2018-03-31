@@ -1,4 +1,5 @@
 <div class="col-md-8 col-md-offset-2">
+  <app-alert></app-alert>
   <form  name="manualattendance" #manualattendance="ngForm" (ngSubmit)="manualattendance.form.valid && addattendance()">
     <div class="form-group">
       <label for="tddp">Melyik napon voltál edzésen?</label>
@@ -54,7 +55,4 @@
         </div>
   </form>
 
-  <p>attendanceRecord: {{attendanceRecord | json}} <br>locID: {{locID | json}} <br> trainingDay: {{trainingDay | json}} <br>
-    instructors: {{instructors | json}} <br> trainings: {{trainings | json}} <br> currentUser: {{currentUser | json}} <br>
-    manualattendance : {{manualattendance.value | json}}</p>
 </div>

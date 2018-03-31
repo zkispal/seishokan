@@ -2,7 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { BsModalService } from 'ngx-bootstrap/modal';
 import { BsModalRef } from 'ngx-bootstrap/modal/bs-modal-ref.service';
 import { ModalModule } from 'ngx-bootstrap/modal';
-import { DataService } from '../_services/index';
+import { DataService, AlertService } from '../_services/index';
 import { Options, Location } from '../_models/index';
 import { Observable } from 'rxjs/Observable';
 import { AccordionModule } from 'ngx-bootstrap/accordion';
@@ -25,7 +25,8 @@ export class LocationComponent implements OnInit {
 
 
   constructor(private dataService: DataService,
-              private modalService: BsModalService) { }
+              private modalService: BsModalService,
+              private alertService: AlertService) { }
 
   ngOnInit() {
     this.loadLocations();
@@ -33,16 +34,18 @@ export class LocationComponent implements OnInit {
   }
 
   private loadLocations() {
-
-   this.dataService.getlocations().subscribe( resp => this.locs = resp,
-                                              err => console.log(err));
+    this.dataService
+        .getlocations()
+        .subscribe( resp => this.locs = resp,
+                    err => this.alertService.error('Egyesületi helyszínek betöltése sikertelen! ' + err.message));
   }
 
 
   private loadLocationTypes() {
-
-   this.dataService.getlocationtypes().subscribe(resp => this.loctypes = resp,
-                                                err => console.log(err));
+    this.dataService
+        .getlocationtypes()
+        .subscribe( resp => this.loctypes = resp,
+                    err => this.alertService.error('Helyszíntípusok betöltése sikertelen! ' + err.message));
   }
 
 
@@ -56,14 +59,20 @@ export class LocationComponent implements OnInit {
 
 
   deleteloc(_id: string) {
-    this.dataService.deleteloc(_id).subscribe(() => { this.loadLocations(); });
+    this.dataService
+        .deleteloc(_id)
+        .subscribe(srvresp => { this.loadLocations();
+                                this.alertService.success('Helyszín sikeresen törölve.'); },
+                  err => this.alertService.error('Helyszín törlése sikertelen! ' + err.message) );
   }
 
   updateloc(i) {
     this.locToUpdate = this.locs[i];
-    this.dataService.updateloc(this.locToUpdate).subscribe(  data => { this.loadLocations(); },
-                                                              err => {console.log(err); });
+    this.dataService
+        .updateloc(this.locToUpdate)
+        .subscribe( data => { this.loadLocations();
+                              this.alertService.success('Helyszín sikeresen módosítva.'); },
+                    err => { this.alertService.error('Helyszín módosítása sikertelen! ' + err.message); });
   }
-
 
 }

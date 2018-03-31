@@ -1,7 +1,7 @@
 import { Component, OnInit, LOCALE_ID  } from '@angular/core';
 import { registerLocaleData } from '@angular/common';
 import localeHu from '@angular/common/locales/hu';
-import { DataService } from '../_services/index';
+import { DataService, AlertService } from '../_services/index';
 import { EventregComponent } from '../_ui/index';
 
 
@@ -16,13 +16,14 @@ export class EventsComponent implements OnInit {
   title: string;
 
 
-  constructor(private dataService: DataService) { }
+  constructor(private dataService: DataService,
+              private alertService: AlertService ) { }
 
   ngOnInit() {
     registerLocaleData(localeHu);
     this.dataService.getevents()
-        .subscribe( data => {console.log('returnedby getevent: ' + data); this.events = data; },
-                    err => console.log(err));
+        .subscribe( data => {this.events = data; },
+                    err => this.alertService.error('Sikertelen eseménylista letöltés! ' + err.message));
     this.title = 'Eseményregisztráció';
   }
 

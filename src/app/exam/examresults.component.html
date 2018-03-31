@@ -1,6 +1,7 @@
 <div class="fluid">
   <div class="col-md-8 col-md-offset-2">
-      <form class="form-inline">
+      <app-alert></app-alert>
+      <form class="form-inline form-inline-qr">
           <div class="form-group">
               <label for="years">Vizsgaév</label>
               <select class="form-control"
@@ -77,6 +78,3 @@
       </div>
   </div>
 </div>
-
-<p>{{years | json}}  <br> selectedYear: {{selectedYear}} <br> examsInaYear: {{examsInaYear | json}}
-<br> selectedExam: {{selectedExam | json}} <br> adultRanks: {{adultRanks | json}} <br> participants: {{participants | json}}</p>

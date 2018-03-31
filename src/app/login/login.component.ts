@@ -1,8 +1,8 @@
 import { Component, OnInit } from '@angular/core';
 import { Router, ActivatedRoute } from '@angular/router';
-import { AlertModule } from 'ngx-bootstrap/alert';
-import { AuthLoginService } from '../_services/index';
-import { User, ErrorResp } from '../_models/index';
+import { AlertComponent } from '../_ui/index';
+import { AuthLoginService, AlertService } from '../_services/index';
+import { User } from '../_models/index';
 
 @Component({
   selector: 'app-login',
@@ -13,20 +13,18 @@ import { User, ErrorResp } from '../_models/index';
 export class LoginComponent implements OnInit {
 
   submitData: any = {};
-  currentUser: User;
+  // currentUser: User;
   loading = false;
   returnUrl: string;
-  error: ErrorResp;
 
-  constructor(
-      private route: ActivatedRoute,
-      private router: Router,
-      private authService: AuthLoginService ) { }
+  constructor(private route: ActivatedRoute,
+              private router: Router,
+              private authService: AuthLoginService,
+              private alertService: AlertService) { }
 
   ngOnInit() {
       // reset login status
     this.authService.logout();
-    this.error = {ok: true, message: [], status : 0};
       // get return url from route parameters or default to '/'
     this.returnUrl = this.route.snapshot.queryParams['returnUrl'] || '/';
   }
@@ -35,18 +33,13 @@ export class LoginComponent implements OnInit {
       this.loading = true;
       this.authService.login( this.submitData.username, this.submitData.password)
           .subscribe(
-              data => {  console.log(JSON.stringify(data));
+              data => {
                 this.authService.setCurrentUser(data);
-                    this.router.navigate([this.returnUrl]);
+                this.router.navigate([this.returnUrl]);
               },
               err => {
-
-                console.log(err);
-                  this.error.ok = err.ok;
-                  this.error.status = err.status;
-                  this.error.message.push(err.message);
-                  this.error.message.push(err.error.message);
-                  this.loading = false;
+                this.alertService.error('Érvénytelen felhasználónév vagy jelszó\n' + err.message);
+                this.loading = false;
               });
   }
 }

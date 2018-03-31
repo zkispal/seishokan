@@ -1,3 +1,4 @@
+// import { Alert } from './_models/alert';
 import { NgModule, LOCALE_ID,  } from '@angular/core';
 import { BrowserModule } from '@angular/platform-browser';
 import { FormsModule,    } from '@angular/forms';
@@ -10,14 +11,18 @@ import { BsDropdownModule } from 'ngx-bootstrap/dropdown';
 import { BsDatepickerModule,
          BsDatepickerConfig,
          BsLocaleService } from 'ngx-bootstrap/datepicker';
+import { defineLocale } from 'ngx-bootstrap/chronos';
+import { huLocale } from 'ngx-bootstrap/locale';
+defineLocale('hu', huLocale);
 import { TimepickerModule } from 'ngx-bootstrap/timepicker';
 import { AccordionModule } from 'ngx-bootstrap/accordion';
 import { BsModalService } from 'ngx-bootstrap/modal';
 import { BsModalRef } from 'ngx-bootstrap/modal/bs-modal-ref.service';
 import { ModalModule } from 'ngx-bootstrap/modal';
-import { AlertModule } from 'ngx-bootstrap/alert';
+// import { AlertModule } from 'ngx-bootstrap/alert';
 import { PopoverModule } from 'ngx-bootstrap/popover';
 import { ButtonsModule } from 'ngx-bootstrap/buttons';
+import { PaginationModule } from 'ngx-bootstrap/pagination';
 
 import { AngularDualListBoxModule } from 'angular-dual-listbox';
 
@@ -31,8 +36,9 @@ import { RegisterComponent } from './login/register.component';
 import { LoginComponent } from './login/login.component';
 import { AuthGuard } from './_guards/index';
 import {  AuthLoginService, AuthHeaderInterceptorService,
-    DataService } from './_services/index';
-import { NavigationComponent, NavmenuComponent} from './_ui/index';
+    DataService, AlertService } from './_services/index';
+import { NavigationComponent, NavmenuComponent,
+        EventregComponent, AlertComponent } from './_ui/index';
 
 import { HomeComponent, AikidoComponent } from './home/index';
 import { TrainingqrregComponent, TrainingmanregComponent,
@@ -41,7 +47,8 @@ import { ExamregComponent, ExamhistoryComponent, ExamresultsComponent } from './
 import { EventsComponent, EventregsComponent } from './event/index';
 import { EventComponent, NeweventmodalComponent, NewtrainingComponent,
         LocationComponent, NewlocmodalComponent, RolechangeComponent } from './maintain/index';
-import { EventregComponent } from './_ui/eventreg.component';
+
+
 
 
 
@@ -70,7 +77,8 @@ import { EventregComponent } from './_ui/eventreg.component';
     RolechangeComponent,
     NewlocmodalComponent,
     NeweventmodalComponent,
-    EventregComponent
+    EventregComponent,
+    AlertComponent
 
 
 
@@ -92,9 +100,10 @@ import { EventregComponent } from './_ui/eventreg.component';
     TimepickerModule.forRoot(),
     AccordionModule.forRoot(),
     ModalModule.forRoot(),
-    AlertModule.forRoot(),
+    // AlertModule.forRoot(),
     PopoverModule.forRoot(),
     ButtonsModule.forRoot(),
+    PaginationModule.forRoot(),
     AngularDualListBoxModule,
     ZXingScannerModule.forRoot()
 
@@ -114,6 +123,7 @@ import { EventregComponent } from './_ui/eventreg.component';
     AuthGuard,
     AuthLoginService,
     DataService,
+    AlertService,
     BsModalService
   ],
 

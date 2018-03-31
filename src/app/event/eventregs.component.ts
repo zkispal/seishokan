@@ -2,7 +2,7 @@
 import { Component, OnInit } from '@angular/core';
 import { ButtonsModule } from 'ngx-bootstrap/buttons';
 import * as _ from 'lodash';
-import { DataService, AuthLoginService } from '../_services/index';
+import { DataService, AlertService } from '../_services/index';
 import { User, Options } from '../_models/index';
 
 
@@ -14,13 +14,13 @@ import { User, Options } from '../_models/index';
 export class EventregsComponent implements OnInit {
 
   eventregs = new Array<any>();
-  panelTitle = '';
+  panelTitle = { text : '', date : new Date()};
   regnames =  new Array<Options>();
   activeEvent = {ID: 0, index: 0};
 
 
   constructor(private dataService: DataService,
-              private authService: AuthLoginService) { }
+              private alertService: AlertService) { }
 
   ngOnInit() {
     this.loadEventRegs();
@@ -30,8 +30,8 @@ export class EventregsComponent implements OnInit {
   loadEventRegs() {
 
       this.dataService.geteventregs()
-                      .subscribe( resp => {  console.log(resp); this.eventregs = resp; },
-                                 err => {console.log(err); }  ) ;
+                      .subscribe( resp => { this.eventregs = resp; },
+                                 err => {this.alertService.error('Eseményregisztrációk betöltése sikertelen! ' + err.message ); }  ) ;
 
   }
 
@@ -40,13 +40,13 @@ export class EventregsComponent implements OnInit {
     this.activeEvent.ID = this.eventregs[_i].eventID;
     this.activeEvent.index = _i;
 
-    this.panelTitle = ''.concat(this.eventregs[_i].eventname, ' ',
-                                this.eventregs[_i].eventlocation, ' ',
-                                this.eventregs[_i].eventdate );
+    this.panelTitle.text = ''.concat(this.eventregs[_i].eventname, ' ',
+                            this.eventregs[_i].eventlocation );
+    this.panelTitle.date = this.eventregs[_i].eventdate;
 
     this.dataService.geteventregnames(this.eventregs[_i].eventID)
-                    .subscribe(resp => {  console.log(resp); this.regnames = resp; },
-                    err => {console.log(err); });
-}
+                    .subscribe(resp => { this.regnames = resp; },
+                    err => {this.alertService.error('Az eseményre regisztráltak listájának letöltése sikertelen! ' + err.message); });
+  }
 
 }

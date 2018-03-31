@@ -2,7 +2,7 @@ import { Component, OnInit, EventEmitter } from '@angular/core';
 import { BsModalRef } from 'ngx-bootstrap/modal/bs-modal-ref.service';
 import * as _ from 'lodash';
 import {Location} from '../_models/index';
-import { DataService} from '../_services/index';
+import { DataService, AlertService} from '../_services/index';
 
 
 
@@ -19,11 +19,12 @@ import { DataService} from '../_services/index';
     loading: boolean;
     newlocation: Location;
     title: string;
-    loctypes: String[];
+    loctypes: string[];
     closed: EventEmitter<any> = new EventEmitter();
 
     constructor(public bsModalRef: BsModalRef,
-      private dataService: DataService) { }
+                private dataService: DataService,
+                private alertService: AlertService) { }
 
     ngOnInit() {
       this.resetNewLoc ();
@@ -32,14 +33,11 @@ import { DataService} from '../_services/index';
 
   addlocation () {
     this.loading = true;
-    this.dataService.addlocation(_.omit(this.newlocation, 'id'))
-    .subscribe(
-      data => {
-          this.resetNewLoc ();
-      },
-      error => {
-          this.loading = false;
-      });
+    this.dataService
+        .addlocation(_.omit(this.newlocation, 'id'))
+        .subscribe( data => { this.resetNewLoc ();
+                              this.alertService.success('Új helyszín létrehozása sikeres.'); },
+                    err => { this.alertService.error('Új helyszín létrehozása sikertelen! ' + err.message); });
 
   }
 
@@ -56,6 +54,7 @@ import { DataService} from '../_services/index';
 
   closeModal() {
     this.closed.emit('modalClosedEvent$');
+    this.alertService.clear();
     this.bsModalRef.hide();
   }
 

@@ -4,7 +4,7 @@ import { BsDatepickerModule, BsDatepickerConfig } from 'ngx-bootstrap/datepicker
 import { TimepickerModule } from 'ngx-bootstrap/timepicker';
 import * as _ from 'lodash';
 import { Event, Options } from '../_models/index';
-import { DataService} from '../_services/index';
+import { DataService, AlertService} from '../_services/index';
 
 
 
@@ -20,11 +20,11 @@ export class NeweventmodalComponent implements OnInit {
   newevent: Event;
   eventtypes: Options[];
   locationnames: Options[];
-  loading: boolean;
   bsConfig: Partial<BsDatepickerConfig>;
 
   constructor(public bsModalRef: BsModalRef,
-    private dataService: DataService) { }
+              private dataService: DataService,
+              private alertService: AlertService) { }
 
   ngOnInit() {
     this.resetNewEvent();
@@ -42,21 +42,17 @@ export class NeweventmodalComponent implements OnInit {
 
 
   addevent() {
-    this.loading = true;
-    this.dataService.addevent(_.omit(this.newevent, 'ID'))
-    .subscribe(
-      data => {
-          this.resetNewEvent();
-          this.loading = false;
-      },
-      error => {
-          this.loading = false;
-      });
+    this.dataService
+        .addevent(_.omit(this.newevent, 'ID'))
+        .subscribe( data => { this.resetNewEvent();
+                              this.alertService.success('Új esemény létrehozása sikeres.'); },
+                    err => { this.alertService.error('Új esemény létrehozása sikertelen!' + err.message); });
 
   }
 
   closeModal() {
     this.closed.emit('modalClosedEvent$');
+    this.alertService.clear();
     this.bsModalRef.hide();
   }
 

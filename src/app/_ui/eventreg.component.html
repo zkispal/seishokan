@@ -1,6 +1,7 @@
 
 <div class="container-fluid">
   <div class="col-md-8 col-md-offset-2">
+    <app-alert></app-alert>
     <div class="panel panel-default">
       <div class="panel-heading"><h3>{{title}}</h3></div>
       <div class="table-responsive">
@@ -15,7 +16,7 @@
             <td>{{elem.eventname}}</td>
             <td [popover]="locinfo" 
                 [popoverTitle]="elem.locationname">{{elem.locationname}}</td>
-            <td>{{elem.start | date:'medium'}}</td>
+            <td>{{elem.start | date:'longDate'}} {{elem.start | date:'shortTime'}}</td>
             <td>
                 <div *ngIf="isRegged(elem.ID); then unregisterbutton; else registerbutton"></div>
                 <ng-template #unregisterbutton>

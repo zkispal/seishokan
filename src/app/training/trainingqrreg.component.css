@@ -3,3 +3,8 @@
     width: 100vw;
     object-fit: contain;
 }
+
+.form-inline-qr {
+    width: 100%;
+    margin-bottom: 2em
+}

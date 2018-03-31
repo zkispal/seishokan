@@ -3,9 +3,9 @@ import 'rxjs/add/operator/take';
 import { BsModalService } from 'ngx-bootstrap/modal';
 import { BsModalRef } from 'ngx-bootstrap/modal/bs-modal-ref.service';
 import { ModalModule } from 'ngx-bootstrap/modal';
-import { BsDatepickerModule, BsDatepickerConfig } from 'ngx-bootstrap/datepicker';
+import { BsDatepickerModule, BsDatepickerConfig, BsLocaleService } from 'ngx-bootstrap/datepicker';
 import { TimepickerModule } from 'ngx-bootstrap/timepicker';
-import { DataService } from '../_services/index';
+import { DataService, AlertService } from '../_services/index';
 import { Options, Event } from '../_models/index';
 import { Observable } from 'rxjs/Observable';
 import { AccordionModule } from 'ngx-bootstrap/accordion';
@@ -31,10 +31,13 @@ export class EventComponent implements OnInit {
   bsConfig: Partial<BsDatepickerConfig>;
   dpmindate: Date;
   dpmaxdate: Date;
+  locale = 'hu';
 
 
   constructor(private dataService: DataService,
-              private modalService: BsModalService) { }
+              private modalService: BsModalService,
+              private alertService: AlertService,
+              private bsLocService: BsLocaleService) { }
 
   ngOnInit() {
 
@@ -47,26 +50,30 @@ export class EventComponent implements OnInit {
     this.loadEvents();
     this.dpmindate.setFullYear(this.today.getFullYear() - 1);
     this.dpmaxdate.setFullYear(this.today.getFullYear() + 5);
-    this.bsConfig = Object.assign({},   {containerClass: 'theme-dark-blue'},
-      {maxDate: this.dpmaxdate},
-      {minDate: this.dpmindate},
-      {dateInputFormat: 'YYYY-MM-DD'},
-      {showWeekNumbers: false} );
+    this.bsLocService.use(this.locale);
+    this.bsConfig = Object.assign({}, {containerClass: 'theme-dark-blue'},
+                                      {maxDate: this.dpmaxdate},
+                                      {minDate: this.dpmindate},
+                                      {dateInputFormat: 'YYYY-MMM-DD'},
+                                      {showWeekNumbers: false} );
 
   }
 
   private loadEventTypes() {
-    this.dataService.geteventtypes().subscribe(resp => this.eventtypes = resp,
-                                              err => console.log(err));
+    this.dataService.geteventtypes()
+                    .subscribe(resp => this.eventtypes = resp,
+                               err => this.alertService.error('Eseménytípusok betöltése sikertelen! ' + err.message));
   }
   private loadLocationNames() {
-    this.dataService.getlocationnames().subscribe(resp => this.locationnames = resp,
-                                                  err => console.log(err));
+    this.dataService.getlocationnames()
+                    .subscribe(resp => this.locationnames = resp,
+                              err => this.alertService.error('Egyesületi helyszínek listájának betöltése sikertelen! ' + err.message));
   }
 
   private loadEvents() {
-    this.dataService.getallevents().subscribe(resp => this.events = resp,
-                                          err => console.log(err));
+    this.dataService.getallevents()
+                    .subscribe(resp => this.events = resp,
+                              err => this.alertService.error('Egyesületi események betöltése sikertelen! ' + err.message));
   }
 
   openNeweventModal() {
@@ -81,16 +88,20 @@ export class EventComponent implements OnInit {
 
   deleteevent(id: number) {
 
-      this.dataService.deleteevent(id).subscribe(() => { this.loadEvents(); },
-                                                  err => console.log(err) );
+      this.dataService.deleteevent(id)
+                      .subscribe(() => {this.loadEvents();
+                                        this.alertService.success('Esemény törlése sikeres.');  },
+                                err => this.alertService.error( 'Esemény törlése sikertelen! ' + err.message) );
 
     }
 
 
   updateevent(i) {
     this.eventToUpdate = this.events[i];
-    this.dataService.updateevent(this.eventToUpdate).subscribe(  data => { this.loadEvents(); },
-                                                              err => {console.log(err); });
+    this.dataService.updateevent(this.eventToUpdate)
+                    .subscribe( data => {this.loadEvents();
+                                          this.alertService.success('Esemény módosítása sikeres.'); },
+                                err => {this.alertService.error( 'Esemény módosítása sikertelen! ' + err.message) ; });
   }
 
 }

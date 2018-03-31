@@ -1,12 +1,9 @@
-<div class="col-xs-6 col-xs-offset-1 col-sm-6 col-sm-offset-1 col-md-6 col-md-offset-1">
-        <p>training day: {{trainingDay | json}} <br>
-            attendanceRecord: {{attendanceRecord | json}}<br>
-            qrResultString: {{qrResultString}} <br>
-            allAttendance: {{allAttendance | json}} <br>
-        locID: {{locID}} <br>
-        selecteddojo: {{selectedDojo | json}}</p>
-
-    <form  name="QRattendance" #QRattendance="ngForm" (ngSubmit)="QRattendance.form.valid && addattendance()">
+<div class="col-xs-8 col-xs-offset-2 col-sm-8 col-sm-offset-2 col-md-8 col-md-offset-2">
+    <app-alert></app-alert>
+    <form  class="form-inline form-inline-qr"
+           name="QRattendance"
+            #QRattendance="ngForm"
+            (ngSubmit)="QRattendance.form.valid && addattendance()">
 
         <div class="form-group">
             <label for="dojoselect">Dojo:</label>
@@ -47,9 +44,45 @@
             <option *ngFor="let device of availableDevices" [value]="device.deviceId" [selected]="selectedDevice && device.deviceId === selectedDevice.deviceId">{{ device.label }}</option>
             </select>
         </div>
+    </form>
 
 
 
+        <div class="panel panel-default">
+            <div class="panel-heading">
+              <h3 class="panel-title">{{selectedDojo.name}} {{selectedTraining.name}}</h3>
+              
+              <div *ngIf="!hasCameras && hasPermission === true">
+                <h3>Az eszközön nincs kamera vagy nincs csatlakoztatva.</h3>              
+              </div>
+              
+              <div *ngIf="hasPermission === undefined">
+              
+                <h3>Kamerahozzáférés engedélyezésére várakozik.</h3>
+              
+                <blockquote>
+                  <h2>Ha az eszközön nincs kamera akkor nincs engedélykérés.</h2>
+                </blockquote>
+              
+              </div>
+              
+              <div *ngIf="hasPermission === false">
+              
+                <h3>Kamerahozzáférés megtagadva. Enélkül a QR kód beolvasás lehetetlen.</h3>
+              
+              </div>
+            </div>
+            <div class="panel-body">{{trainingDay | date:'longDate'}}</div>
+                <ul *ngFor = "let attendeename  of allAttendeeNames" class="list-group">
+                    <li class="list-group-item">{{attendeename}}</li>
+                </ul>
+            <div class="panel-footer clearfix">
+                <button type="button" 
+                        class="btn btn-primary pull-right"
+                        [disabled]="allAttendance.length == 0"
+                        (click)="addattendance()">Részvétel rögzítése</button>
+            </div>
+        </div>
 
         <div [hidden]="!hasCameras"> 
             <h2 *ngIf="!this.selectedDevice">Nincs kiválasztott kamera.</h2>        
@@ -62,47 +95,4 @@
         
       
         </div>
-  
-        <div *ngIf="!hasCameras && hasPermission === true">
-        
-            <h2>Az eszközön nincs kamera vagy nem elérhető!</h2>
-        
-        </div>
-  
-        <div *ngIf="hasPermission === undefined">
-        
-            <h2>Kamera hozzáférésre várakozik.</h2>
-        
-            <blockquote>
-            <h2>Ha az eszközön nincs kamera nincs engedélykérés.</h2>
-            </blockquote>
-        
-        </div>
-  
-        <div *ngIf="hasPermission === false">
-        
-            <h1>Megtagadta a hozzáférést a kamerához. Anélkül a QR kód beolvasása lehetetlen.</h1>
-        
-        </div>
-    </form>
-
-</div>
-<div class="col-xs-4  col-sm-4 col-md-4">
-        <div class="panel panel-default">
-            <div class="panel-heading">
-              <h3 class="panel-title">{{selectedDojo.name}} {{selectedTraining.name}}</h3>
-            </div>
-            <div class="panel-body">{{trainingDay}}</div>
-                <ul *ngFor = "let attendeename  of allAttendeeNames" class="list-group">
-                    <li class="list-group-item">{{attendeename}}</li>
-                </ul>
-            <div class="panel-footer clearfix">
-                <button type="button" 
-                        class="btn btn-primary pull-right"
-                        [disabled]="allAttendance.length == 0"
-                        (click)="addattendance()">Részvétel rögzítése</button>
-            </div>
-        </div>
-
-
 </div>

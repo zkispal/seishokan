@@ -1,5 +1,6 @@
 <div class="fluid">
   <div class="col-md-8 col-md-offset-2">
+    <app-alert></app-alert>
     <div class="table-responsive">
       <table class="table table-hover">
         <tr>
@@ -9,7 +10,7 @@
           <th>Oklevél sorszáma</th>
         </tr>
         <tr *ngFor="let exam of history">
-          <td>{{exam.start}}</td>
+          <td>{{exam.start | date:'longDate'}}</td>
           <td>{{exam.eventtypestring}}</td>
           <td>{{exam.attendancetype}}</td>
           <td>{{exam.certno}}</td>

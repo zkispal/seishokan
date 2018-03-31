@@ -1,7 +1,8 @@
 import { Component, OnInit } from '@angular/core';
 import { registerLocaleData } from '@angular/common';
 import localeHu from '@angular/common/locales/hu';
-import { DataService, AuthLoginService } from '../_services/index';
+import * as _ from 'lodash';
+import { DataService, AuthLoginService, AlertService } from '../_services/index';
 
 
 @Component({
@@ -15,7 +16,8 @@ export class ExamhistoryComponent implements OnInit {
   history: Array<any> = [];
 
   constructor ( private dataService: DataService,
-                private authService: AuthLoginService) { }
+                private authService: AuthLoginService,
+                private alertService: AlertService) { }
 
   ngOnInit() {
     this.loadExamHistory();
@@ -23,8 +25,9 @@ export class ExamhistoryComponent implements OnInit {
 
   loadExamHistory() {
     this.dataService.getexamhistory(this.authService.getCurrentUser().ID)
-                    .subscribe(data => this.history = data,
-                                err => console.log(JSON.stringify(err)));
+                    .map(data => _.remove(data, elem => elem.attendancetype !== 'Registered'))
+                    .subscribe(data => {console.log(data); this.history = data; },
+                                err => this.alertService.error('Vizsgatörténet betöltés sikertelen. ' + err.message));
   }
 
 

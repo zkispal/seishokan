@@ -1,10 +1,11 @@
 import { Component, OnInit } from '@angular/core';
-import { BsDatepickerModule, BsDatepickerConfig } from 'ngx-bootstrap/datepicker';
+import { BsDatepickerModule, BsDatepickerConfig, BsLocaleService } from 'ngx-bootstrap/datepicker';
 import { TimepickerModule } from 'ngx-bootstrap/timepicker';
 import { ButtonsModule } from 'ngx-bootstrap/buttons';
 import * as _ from 'lodash';
-import { DataService } from '../_services/index';
+import { DataService, AlertService } from '../_services/index';
 import { Options } from '../_models/index';
+import { tick } from '@angular/core/testing';
 
 @Component({
   selector: 'app-newtraining',
@@ -26,17 +27,21 @@ export class NewtrainingComponent implements OnInit {
   bsrpConfig: Partial<BsDatepickerConfig>;
   dpmindate: Date;
   dpmaxdate: Date;
+  locale = 'hu';
 
-  constructor(private dataService: DataService) { }
+  constructor(private dataService: DataService,
+              private bsLocService: BsLocaleService,
+              private alertService: AlertService) { }
 
   ngOnInit() {
     this.dpmindate = new Date();
     this.dpmaxdate = new Date();
     this.dpmaxdate.setFullYear(this.dpmindate.getFullYear() + 2);
+    this.bsLocService.use(this.locale);
     this.bsrpConfig = Object.assign({}, {containerClass: 'theme-dark-blue'},
                                         {maxDate: this.dpmaxdate},
                                         {minDate: this.dpmindate},
-                                        {dateInputFormat: 'YYYY-MM-DD'},
+                                        {dateInputFormat: 'YYYY-MMM-DD'},
                                         {showWeekNumbers: false} );
     this.loadDojos();
     this.loadWeekdays();
@@ -45,31 +50,32 @@ export class NewtrainingComponent implements OnInit {
   }
 
  private loadDojos() {
-    this.dataService.getdojos()
-                    .subscribe( res => {  this.dojos = res; },
-                                err => {console.log(err); }  ) ;
+    this.dataService
+        .getdojos()
+        .subscribe( res => { this.dojos = res; },
+                    err => { this.alertService.error('Dojolista betöltése sikertelen! ' + err.message); }  ) ;
   }
 
   private loadWeekdays() {
-    this.dataService.getweekdays()
-                    .map(srvresp => srvresp.map(elem => _.extend(elem, {isPracticeDay : false})))
-                    .subscribe( mapres => {  this.weekdays = mapres; },
-                                err => {console.log(err); }  ) ;
+    this.dataService
+        .getweekdays()
+        .map(srvresp => srvresp.map(elem => _.extend(elem, {isPracticeDay : false})))
+        .subscribe( mapres => {  this.weekdays = mapres; },
+                    err => { this.alertService.error('Napok listájának betöltése sikertelen! ' + err.message); }  ) ;
   }
 
   private loadPracticetypes() {
-    this.dataService.getpracticetypes()
-                    .subscribe( res => {  this.practicetypes = res; },
-                                err => {console.log(err); }  ) ;
+    this.dataService
+        .getpracticetypes()
+        .subscribe( res => {  this.practicetypes = res; },
+                    err => {this.alertService.error('Edzéstípusok betöltése sikertelen! ' + err.message); }  ) ;
   }
 
   publishPractice() {
-    console.log('Meghirdet clicked');
     this.newPractice.weekdayID = [];
     this.newPractice.timerange[1].setHours(this.newPractice.timerange[1].getHours() + 23);
-    this.weekdays.forEach(elem => {
-      console.log(JSON.stringify(elem));
 
+    this.weekdays.forEach(elem => {
       if (elem.isPracticeDay) {
         this.newPractice.weekdayID.push(elem.ID);
       }
@@ -77,10 +83,8 @@ export class NewtrainingComponent implements OnInit {
     });
 
     this.dataService.addtraining(this.newPractice)
-                    .subscribe( res => { console.log(res); },
-                                err => {console.log(err); }  ) ;
-    console.log(JSON.stringify(this.newPractice.weekdayID));
-
+                    .subscribe( res => {this.alertService.success('Sikeres edzésmeghirdtés.'); },
+                                err => {this.alertService.error('Sikertelen edzésmeghirdetés ' + err.message); }  ) ;
   }
 
 }

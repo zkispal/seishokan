@@ -1,9 +1,13 @@
-import { Component, OnInit, ViewChild } from '@angular/core';
+import { Component, OnInit, ViewChild, LOCALE_ID  } from '@angular/core';
+import { registerLocaleData } from '@angular/common';
+import localeHu from '@angular/common/locales/hu';
 import { ZXingScannerComponent } from '@zxing/ngx-scanner';
-import * as _ from 'lodash';
 import { Result } from '@zxing/library';
-import { DataService, AuthLoginService } from '../_services/index';
+import { DataService, AuthLoginService, AlertService } from '../_services/index';
+import { AlertComponent } from '../_ui/index';
 import { User, Options, Attendance } from '../_models/index';
+import * as _ from 'lodash';
+
 
 @Component({
   selector: 'app-trainingqrreg',
@@ -38,13 +42,14 @@ export class TrainingqrregComponent implements OnInit {
   allAttendeeNames: string[] = [];
 
   constructor (private dataService: DataService,
-              private authService: AuthLoginService) {
+              private authService: AuthLoginService,
+              private alertService: AlertService) {
 
   }
 
   ngOnInit() {
 
-    this.trainingDay = new Date(2018, 2, 19, 12, 0, 0);
+    this.trainingDay = new Date(2018, 3, 7, 12, 0, 0);
     this.loadDojos();
     this.initAttendanceRec();
     this.scanner.camerasFound.subscribe((devices: MediaDeviceInfo[]) => {
@@ -84,9 +89,13 @@ export class TrainingqrregComponent implements OnInit {
   }
 
   private getPractice() {
+    this.trainings = [];
     this.dataService.getpracticeByDateByLocID(this.trainingDay.valueOf(), this.selectedDojo.ID)
-                    .subscribe( res => {  this.trainings = res; },
-                      err => {console.log(err); }  ) ;
+                    .subscribe( res => {
+                      if (res.length === 0) {
+                        this.alertService.warn('Ezen a napon ebben a dojoban nincs edzés!');
+                      } else {this.trainings = res; } },
+                                err => {this.alertService.error(err.message); }  ) ;
 
   }
 
@@ -105,7 +114,6 @@ export class TrainingqrregComponent implements OnInit {
   }
 
   onDeviceSelectChange(selectedValue: string) {
-      console.log('Selection changed: ', selectedValue);
       this.selectedDevice = this.scanner.getDeviceById(selectedValue);
   }
 
@@ -114,13 +122,13 @@ export class TrainingqrregComponent implements OnInit {
     this.attendanceRecord.attendeeID = _user.ID;
 
     if ( _user.ID === parseInt(this.authService.getCurrentUser().ID, 10)) {
-      console.log('Cannot self register.');
+      this.alertService.error('Saját magadnak nem igazolhatsz edzést!');
     } else {
       if (_.indexOf(this.allAttendeeNames, _user.name) === -1 && this.attendanceRecord.attendeeID !== 0 ) {
         this.allAttendeeNames.push(_user.name);
         this.allAttendance.push(_.assign({}, this.attendanceRecord));
         } else {
-          console.log(_user.name + ' already added.');
+          this.alertService.warn(_user.name + ' már beolvasva.');
         }
     }
 
@@ -131,10 +139,11 @@ export class TrainingqrregComponent implements OnInit {
   }
 
    addattendance() {
-    console.log('addattendance() was clicked' + JSON.stringify(this.allAttendance));
     this.dataService.addattendance(this.allAttendance)
-                    .subscribe( res => {  console.log('Attendance successfully added' + res); },
-                                err => {console.log(err); }  ) ;
+                    .subscribe( res => {this.allAttendance = [];
+                                        this.allAttendeeNames = [];
+                                        this.alertService.success('Edzésrészvétel sikeresen rögzítve.'); },
+                                err => {this.alertService.error('Sikertelen edzésrögzítés. ' + err.message); }  ) ;
 
   }
 

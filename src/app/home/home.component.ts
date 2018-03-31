@@ -15,11 +15,11 @@ export class HomeComponent implements OnInit {
 
     constructor(
                 private authService: AuthLoginService) {
-        this.currentUser = authService.getCurrentUser();
+
     }
 
     ngOnInit() {
-
+        this.currentUser = this.authService.getCurrentUser();
     }
 
     logout() {

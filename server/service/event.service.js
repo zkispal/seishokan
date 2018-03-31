@@ -32,6 +32,7 @@ eventservice.getexamyears = getexamyears;
 eventservice.getpastexams = getpastexams;
 eventservice.updateExamResult = updateExamResult;
 eventservice.updateExamResultRank = updateExamResultRank;
+eventservice.getpracticehistory = getpracticehistory;
 
 
 module.exports = eventservice;
@@ -368,4 +369,28 @@ function updateExamResultRank(req) {
 
     
     return deferred.promise; 
+}
+
+function getpracticehistory (req) {
+    var deferred = Q.defer();
+
+    console.log (JSON.stringify(req.body));
+
+    var interval = [];
+    req.body.forEach(element => {
+         interval.push(JSON.stringify(new Date(parseInt(element))).slice(1,11));        
+    });
+
+    logger.info(interval[0]);
+    logger.info(interval[1]);
+
+    knex('vupracticeattendance')
+        .whereBetween('datum', interval)
+        .andWhere('attendeeID', req.params._id)
+        .then( dbresp => deferred.resolve(dbresp) )
+        .catch(err => { console.log(JSON.stringify(err)); 
+                        deferred.reject(err);});
+    
+    return deferred.promise; 
+
 }

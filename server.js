@@ -88,5 +88,7 @@ var server = app.listen(port, function () {
 }); */
 
 
-
-
+/* var date1 = new Date(2018, 2, 1, 12, 0, 0);
+var date2 = new Date(2018, 2, 31, 12, 0, 0);
+console.log(date1.valueOf());
+console.log(date2.valueOf()); */

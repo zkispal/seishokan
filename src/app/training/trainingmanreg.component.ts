@@ -1,8 +1,8 @@
 import { Component, OnInit } from '@angular/core';
-import { BsDatepickerModule, BsDatepickerConfig } from 'ngx-bootstrap/datepicker';
+import { BsDatepickerModule, BsDatepickerConfig, BsLocaleService  } from 'ngx-bootstrap/datepicker';
 import { ButtonsModule } from 'ngx-bootstrap/buttons';
 import * as _ from 'lodash';
-import { DataService, AuthLoginService } from '../_services/index';
+import { DataService, AuthLoginService, AlertService } from '../_services/index';
 import { User, Options, Attendance } from '../_models/index';
 @Component({
   selector: 'app-trainingmanreg',
@@ -16,18 +16,20 @@ export class TrainingmanregComponent implements OnInit {
   trainingDay = new Date();
   locID: number;
   instructors: Options[];
-  currentUser: User;
+  // currentUser: User;
 
   bsConfig: Partial<BsDatepickerConfig>;
   dpmindate: Date;
   dpmaxdate: Date;
-
+  locale = 'hu';
 
   attendanceRecord = new Attendance();
 
 
   constructor(private dataService: DataService,
-              private authService: AuthLoginService) { }
+              private authService: AuthLoginService,
+              private alertService: AlertService,
+              private bsLocService: BsLocaleService) { }
 
   ngOnInit() {
     this.loadDojos();
@@ -36,17 +38,18 @@ export class TrainingmanregComponent implements OnInit {
     this.dpmaxdate =  new Date();
     this.dpmindate =  new Date();
     this.dpmindate.setMonth(this.dpmindate.getMonth() - 1);
+    this.bsLocService.use(this.locale);
     this.bsConfig = Object.assign({},   {containerClass: 'theme-dark-blue'},
       {maxDate: this.dpmaxdate},
       {minDate: this.dpmindate},
-      {dateInputFormat: 'YYYY-MM-DD'},
-      {showWeekNumbers: false} );
+      {dateInputFormat: 'YYYY-MMM-DD'},
+      {showWeekNumbers: false});
 
     }
 
     private initAttendanceRec() {
-      this.currentUser = this.authService.getCurrentUser();
-      this.attendanceRecord.attendeeID = parseInt(this.currentUser.ID, 10);
+      // this.currentUser = this.authService.getCurrentUser();
+      this.attendanceRecord.attendeeID = parseInt(this.authService.getCurrentUser().ID, 10);
       this.attendanceRecord.attendancetype = 'Registered';
       this.attendanceRecord.eventID = 0;
       this.attendanceRecord.instructorID = 0;
@@ -55,28 +58,32 @@ export class TrainingmanregComponent implements OnInit {
 
   private loadDojos() {
     this.dataService.getdojos()
-                    .subscribe( res => {  this.dojos = res; },
-                                err => {console.log(err); }  ) ;
+                    .subscribe( res => { this.dojos = res; },
+                                err => { this.alertService.error('Dojolista betöltése sikertelen. ' + err.message); }  ) ;
   }
 
   private loadInstructors() {
     this.dataService.getinstructors()
-                    .subscribe( res => {  this.instructors = res; },
-                                err => {console.log(err); }  ) ;
+                    .subscribe( res => { this.instructors = res; },
+                                err => { this.alertService.error('Oktatólista betöltése sikertelen. ' + err.message); }  ) ;
   }
 
   private getPractice() {
     this.dataService.getpracticeByDateByLocID(this.trainingDay.setHours(2), this.locID)
-                    .subscribe( res => {  this.trainings = res; },
-                      err => {console.log(err); }  ) ;
+                    .subscribe( res => {  if (res.length === 0) {
+                      this.alertService.warn('Ezen a napon ebben a dojoban nem volt edzés!');
+                    } else {this.trainings = res; } },
+                      err => {this.alertService.error('Edzéslista betöltése sikertelen. ' + err.message); }  ) ;
   }
 
 
   private addattendance() {
-    console.log('addattendance() was clicked' + JSON.stringify(this.attendanceRecord));
+    if (this.attendanceRecord.attendeeID === this.attendanceRecord.instructorID) {
+      this.alertService.error('Önregisztráció nem megengedett!');
+    } else {
     this.dataService.addattendance(this.attendanceRecord)
-                    .subscribe( res => {  console.log('Attendance successfully added' + res); },
-                                err => {console.log(err); }  ) ;
-
+                    .subscribe( res => {  this.alertService.success('Sikeres utólagos edzésrészvétel rögzítés.'); },
+                                err => { this.alertService.error('Sikertelen utólagos edzésrészvétel rögzítés. ' + err.message); }  ) ;
+    }
   }
 }

@@ -4,5 +4,5 @@ export * from './regdata';
 export * from './options';
 export * from './location';
 export * from './event';
-export * from './errorresp';
+export * from './alert';
 export * from './attendance';

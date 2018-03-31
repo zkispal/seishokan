@@ -1,5 +1,6 @@
 <div class="row">
   <div class="col-md-8 col-md-offset-2">
+    <app-alert></app-alert>
     <dual-list [source]="sempais" 
               [(destination)]="assistants"
               [key]="key" 
@@ -9,16 +10,9 @@
   </div>
 </div>
 <div class="row">
-  <div class="col-md-2 col-md-offset-5">
+  <div class="col-md-2 col-md-offset-5 keep-top">
     <button type="button" 
             class="btn btn-primary"
-            (click)="upload()">Kinevez</button>
+            (click)="upload()">Kinevezés/Visszavonás rögzítése</button>
   </div>
-</div>
-
-
-
-<div>
-  <p>sempais: {{sempais | json}} <br>assistants: {{assistants | json}} <br>selected: {{selected | json}} </p>
-  <p>sempaistring: {{sempaisstring}} <br> records: {{records | json}}</p>
 </div>

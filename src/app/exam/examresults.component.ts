@@ -1,7 +1,7 @@
 import { Options } from './../_models/options';
 import { Component, OnInit } from '@angular/core';
 import * as _ from 'lodash';
-import { DataService, AuthLoginService } from '../_services/index';
+import { DataService, AuthLoginService, AlertService } from '../_services/index';
 import { registerLocaleData } from '@angular/common';
 import localeHu from '@angular/common/locales/hu';
 import { Operator } from 'rxjs/Operator';
@@ -28,7 +28,8 @@ export class ExamresultsComponent implements OnInit {
 
 
   constructor(private dataService: DataService,
-              private authService: AuthLoginService) { }
+              private authService: AuthLoginService,
+              private alertService: AlertService) { }
 
   ngOnInit() {
 
@@ -41,7 +42,7 @@ export class ExamresultsComponent implements OnInit {
     this.dataService.getexamyears()
         .map(resp => resp.map(elem => _.values(elem)))
         .subscribe (data => this.years = _.flatten(data),
-          err => console.log(JSON.stringify(err)));
+          err => this.alertService.error('Sikertelen szerverkapcsolat. ' + err.message));
 
   }
 
@@ -50,7 +51,7 @@ export class ExamresultsComponent implements OnInit {
 
     this.dataService.getpastexams(_year)
         .subscribe(data => this.examsInaYear = data,
-        err => console.log(JSON.stringify(err)));
+        err => this.alertService.error('Sikertelen szerverkapcsolat. ' + err.message));
 
   }
 
@@ -59,7 +60,7 @@ export class ExamresultsComponent implements OnInit {
     this.dataService.getexamregnames(_ID)
         .map(srvresp => srvresp.map(elem => _.extend(elem, {attendancetype: '', certno: '', rankID: 0})))
         .subscribe(  data => {  this.participants = data; },
-          err => {console.log(err); } );
+          err => {this.alertService.error('Sikertelen szerverkapcsolat. ' + err.message); } );
 
 
   }
@@ -67,7 +68,7 @@ export class ExamresultsComponent implements OnInit {
   private loadadultranks() {
     this.dataService.getadultranks()
         .subscribe(  res => {  this.adultRanks = res; },
-                     err => {console.log(err); } );
+                     err => {this.alertService.error('Sikertelen szerverkapcsolat. ' + err.message); } );
   }
 
   updateExamResults(_result) {
@@ -75,17 +76,11 @@ export class ExamresultsComponent implements OnInit {
     if (record.attendancetype === 'Sikertelen') {
       record.rankID = 0;
       record.certno = '';
-
     }
 
-
-    console.log(record);
    this.dataService.updateExamResults(record, this.selectedExam)
-        .subscribe(  data => { console.log(data); },
-          err => {console.log(err); } );
-
-
+        .subscribe( data => { this.alertService.success('Vizsgaeredmények sikeresen regisztrálva.'); },
+                    err => {this.alertService.error('Sikertelen vizsgaeredmény regisztrálás. ' + err.message); } );
   }
-
 
 }

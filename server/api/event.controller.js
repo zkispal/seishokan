@@ -32,6 +32,7 @@ router.get('/getexamyears/', getexamyears);
 router.get('/getpastexams/:_id', getpastexams);
 router.get('/getexamregnames/:_id', getexamregnames);
 router.post('/updateexam/:_id', updateExamResult);
+router.post('/getpracticehistory/:_id', getpracticehistory);
 
 
 module.exports = router;
@@ -352,7 +353,15 @@ function updateExamResult (req, res) {
         });
 
     }
+}
 
+function getpracticehistory (req, res) {
 
-
+    eventservice.getpracticehistory(req)
+    .then(function(history){
+        res.status(200).send(JSON.stringify(history));
+    })
+    .catch(function(err){
+        res.status(400).send(JSON.stringify(err));
+    }); 
 }

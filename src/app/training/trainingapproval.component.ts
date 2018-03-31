@@ -1,7 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { ButtonsModule } from 'ngx-bootstrap/buttons';
 import * as _ from 'lodash';
-import { DataService, AuthLoginService } from '../_services/index';
+import { DataService, AuthLoginService, AlertService } from '../_services/index';
 import { User, Options } from '../_models/index';
 
 
@@ -15,14 +15,16 @@ export class TrainingapprovalComponent implements OnInit {
 
   instructorID = '';
   practiceregs = new Array<any>();
-  panelTitle = '';
+  panelTitleText = '';
+  panelTitleDate: Date = new Date();
   regnames =  new Array<any>();
   allAttended = false;
   activeEvent = {ID: 0, index: 0};
 
 
   constructor(private dataService: DataService,
-              private authService: AuthLoginService) { }
+              private authService: AuthLoginService,
+              private alertService: AlertService) { }
 
   ngOnInit() {
     this.instructorID = this.authService.getCurrentUser().ID;
@@ -32,8 +34,8 @@ export class TrainingapprovalComponent implements OnInit {
   loadPracticeregs() {
       this.allAttended = false;
       this.dataService.getpracticeregs(this.instructorID)
-                      .subscribe( resp => {  console.log(resp); this.practiceregs = resp; },
-                                 err => {console.log(err); }  ) ;
+                      .subscribe( resp => { this.practiceregs = resp; },
+                                 err => {this.alertService.error('Sikertelen adatlekérés! ' + err.message); }  ) ;
   }
 
 
@@ -42,18 +44,18 @@ export class TrainingapprovalComponent implements OnInit {
       this.activeEvent.ID = this.practiceregs[_i].eventID;
       this.activeEvent.index = _i;
 
-      this.panelTitle = ''.concat(this.practiceregs[_i].dojoname, ' ',
-                                  this.practiceregs[_i].practicedate, ' ',
+      this.panelTitleText = ''.concat(this.practiceregs[_i].dojoname, ' ',
                                   this.practiceregs[_i].practice );
+      this.panelTitleDate = this.practiceregs[_i].practicedate;
 
       this.dataService.getpracticeregnames(this.practiceregs[_i].eventID)
                       .map(srvresp => srvresp.map(elem => _.extend(elem, {attended : false})) )
-                      .subscribe(resp => {  console.log(resp); this.regnames = resp; },
-                      err => {console.log(err); });
+                      .subscribe(resp => { this.regnames = resp; },
+                      err => {this.alertService.error('Edzéshez tartozó regisztrációk lekérése sikertelen. ' + err.message); });
   }
 
   selectAll() {
-    console.log('selectAll() was called');
+
     for (let i = 0; i < this.regnames.length; i++) {
       this.regnames[i].attended = this.allAttended;
     }
@@ -68,14 +70,12 @@ export class TrainingapprovalComponent implements OnInit {
 
 
   approveAttendance() {
-    // this.regnames = this.regnames.map(elem => _.pick(elem, ['ID', 'attended']));
-    console.log('approveAttendance() was clicked' );
-    console.log('regnames: ' + JSON.stringify(this.regnames) );
+
     this.dataService.approveAttendance(this.activeEvent.ID, this.regnames.map(elem => _.pick(elem, ['ID', 'attended'])))
-                    .subscribe( srvresp => {console.log (srvresp);
-                                            this.practiceregs.splice( this.activeEvent.index , 1 );
-                                            this.regnames = []; },
-                                err => console.log (err));
+                    .subscribe( srvresp => {this.practiceregs.splice( this.activeEvent.index , 1 );
+                                            this.regnames = [];
+                                            this.alertService.success('Utólagos rögzítés sikeresen jóváhagyva.'); },
+                                err => this.alertService.error('Sikertelen jóváhagyás. ' + err.message) );
   }
 
 
