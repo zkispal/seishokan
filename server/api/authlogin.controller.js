@@ -16,7 +16,7 @@ const router = express.Router();
 
 
 router.post('/authenticate', authenticate);
-router.post('/updateperson', updateperson);
+//router.post('/updateperson', updateperson);
 router.post('/registerperson', registerperson);
 router.get('/getPidFromToken', getPidFromToken);
 module.exports = router;
@@ -72,7 +72,7 @@ function registerperson (req, res){
   }
 }
 
-function updateperson(req,res) {
+/* function updateperson(req,res) {
 
   if(true){ //TO DO test validators
     authLoginService.createPerson(req)
@@ -82,9 +82,7 @@ function updateperson(req,res) {
     res.status(400).send({message:"Bad data received"});
   }
 
-
-
-}
+} */
 
 function getPidFromToken(req,res){
 

@@ -2,7 +2,7 @@ import { NgModule } from '@angular/core';
 import { Routes, RouterModule } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { AppComponent } from './app.component';
-import { HomeComponent } from './home/index';
+import { HomeComponent, AikidoComponent } from './home/index';
 import { LoginComponent, RegisterComponent } from './login/index';
 import { AuthGuard } from './_guards/index';
 import { TrainingqrregComponent, TrainingmanregComponent,
@@ -16,9 +16,10 @@ const appRoutes: Routes = [
     { path: '',
         component: HomeComponent, canActivate: [AuthGuard]
      },
-     { path: 'login', component: LoginComponent },
+    { path: 'login', component: LoginComponent },
     { path: 'register', component: RegisterComponent },
     { path: 'home', component: HomeComponent, canActivate: [AuthGuard] },
+    { path: 'aikido', component: AikidoComponent, canActivate: [AuthGuard] },
     { path: 'qrreg', component: TrainingqrregComponent },
     { path: 'manreg', component: TrainingmanregComponent },
     { path: 'traininghistory', component: TraininghistoryComponent },

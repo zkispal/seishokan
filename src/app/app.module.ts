@@ -36,7 +36,7 @@ import { RegisterComponent } from './login/register.component';
 import { LoginComponent } from './login/login.component';
 import { AuthGuard } from './_guards/index';
 import {  AuthLoginService, AuthHeaderInterceptorService,
-    DataService, AlertService } from './_services/index';
+    DataService, AlertService, MessageService } from './_services/index';
 import { NavigationComponent, NavmenuComponent,
         EventregComponent, AlertComponent } from './_ui/index';
 
@@ -124,6 +124,7 @@ import { EventComponent, NeweventmodalComponent, NewtrainingComponent,
     AuthLoginService,
     DataService,
     AlertService,
+    MessageService,
     BsModalService
   ],
 

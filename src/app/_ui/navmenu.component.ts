@@ -1,4 +1,4 @@
-import { Component, OnInit, Input } from '@angular/core';
+import { Component, OnInit, Input, OnChanges, SimpleChanges, SimpleChange } from '@angular/core';
 import {Navmenu} from '../_models/index';
 
 @Component({
@@ -6,15 +6,20 @@ import {Navmenu} from '../_models/index';
   templateUrl: './navmenu.component.html',
   styleUrls: ['./navmenu.component.css']
 })
-export class NavmenuComponent implements OnInit {
+export class NavmenuComponent implements OnInit, OnChanges {
 
 
-   @Input()  title: String = '';
+   @Input()  title = '';
    @Input()  navmenu: Navmenu[] = [];
 
 
 
   constructor() { }
+
+  ngOnChanges(changes: SimpleChanges) {
+    console.log(JSON.stringify(changes));
+    console.log(this.navmenu);
+  }
 
   ngOnInit() {
   }

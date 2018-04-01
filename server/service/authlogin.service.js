@@ -25,7 +25,7 @@ var authloginservice = {};
 
 authloginservice.authenticate = authenticate;
 authloginservice.createPerson = createPerson;
-authloginservice.updatePerson = updatePerson;
+//authloginservice.updatePerson = updatePerson;
 
 
 
@@ -35,9 +35,9 @@ function createPerson(req){
     var deferred = Q.defer();
 
     knex.select('ID', 'username').from('Person').where('username', req.body.username)
-        .then(function (user){
+        .then(function (founduser){
 
-          if(user.length === 0){
+          if(founduser.length === 0){
             createPersoninDB();
           }
           else{
@@ -51,11 +51,14 @@ function createPersoninDB(){
 
             var computedpasshash = bcrypt.hashSync(req.body.password, 10);
 
+            var DoB = new Date(parseInt(req.body.dateofbirth, 10));
+            var practiceStartDate = new Date(parseInt(req.body.practicestart, 10));
+
             knex.insert({username:req.body.username,
                         passhash:computedpasshash,
                         email:req.body.email,
-                        dateofbirth:req.body.dateofbirth.slice(0,10),
-                        practicestart:req.body.practicestart.slice(0,10),
+                        dateofbirth:DoB,
+                        practicestart:practiceStartDate,
                         rankID:req.body.rankID,
                         homedojoID:req.body.homedojoID,
                         firstname:req.body.firstname,

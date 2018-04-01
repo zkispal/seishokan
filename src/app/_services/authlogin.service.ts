@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 import { HttpClient, HttpResponse } from '@angular/common/http';
-// import { Observable } from 'rxjs/Observable';
-import { User } from '../_models/index';
+import { User, RegData } from '../_models/index';
+import { MessageService } from './message.service';
 
 
 
@@ -9,10 +9,11 @@ import { User } from '../_models/index';
 export class AuthLoginService {
 
 
-    constructor(private http: HttpClient) { }
+    constructor(private http: HttpClient,
+                private messageService: MessageService) { }
 
 
-    createPerson(user: User) {
+    createPerson(user: RegData) {
         return this.http.post('/authlogin/registerperson', user);
     }
 
@@ -24,6 +25,7 @@ export class AuthLoginService {
     logout() {
         // remove user from local storage to log user out
         localStorage.removeItem('currentUser');
+        this.messageService.clearMessage();
     }
 
     setCurrentUser(user) {
@@ -31,8 +33,8 @@ export class AuthLoginService {
     }
 
     getCurrentUser(): User {
-        const currentUser: User = JSON.parse(localStorage.getItem('currentUser'));
-        return currentUser;
+        return  JSON.parse(localStorage.getItem('currentUser'));
+
     }
 
     loggedIn(): boolean {

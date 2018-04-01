@@ -14,11 +14,12 @@
          <div class="collapse navbar-collapse"
               [ngClass]="{ 'in': isIn }">
             <ul class="nav navbar-nav">
-                <li><a>Aikido</a></li>
+                <li><a [routerLink]="['/aikido']">Aikido</a></li>
                 <li><a><app-navmenu [title] = "trainingmenutitle" [navmenu] ="trainingmenu"></app-navmenu></a></li>
                 <li><a><app-navmenu [title] = "exammenutitle" [navmenu]="exammenu"></app-navmenu></a></li>
                 <li><a><app-navmenu [title] = "eventmenutitle" [navmenu]="eventmenu"></app-navmenu></a></li>  
-                <li><a><app-navmenu [title] = "maintmenutitle" [navmenu]="maintmenu"></app-navmenu></a></li>  
+                <li><a><app-navmenu [title] = "maintmenutitle" [navmenu]="maintmenu"></app-navmenu></a></li> 
+                <li><a href="">{{receivedMessage}}</a></li> 
             </ul>
             <ul class="nav navbar-nav navbar-right">
 

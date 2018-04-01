@@ -4,8 +4,8 @@ export class RegData {
     username: string;
     password: string;
     email: string;
-    dateofbirth: Date;
-    practicestart: Date;
+    dateofbirth: number;
+    practicestart: number;
     rankID: number;
     homedojoID: number;
     roleID: number[];
