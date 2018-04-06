@@ -4,6 +4,7 @@ const dataservice = require ('server/service/data.service');
 const knexconfig = require ('server/knexconfig.json');
 const knex = require('knex')(knexconfig);
 const express = require('express');
+const passport = require("passport");
 const router = express.Router();
 const log4js = require('log4js');
  
@@ -11,15 +12,15 @@ const logger = log4js.getLogger('data.controller');
 
 
 
-router.get('/getadultranks', getadultranks);
-router.get('/getweekdays', getweekdays);
-router.get('/getpracticetypes', getpracticetypes);
-router.get('/getsempais', getsempais);
-router.get('/getinstructors', getinstructors);
-router.get('/getpromotableroles', getpromotableroles);
-router.get('/getroleholders/:_id', getroleholders);
-router.delete('/roleholders/:_id', delroleholders);
-router.post('/roleholders/', updtroleholders);
+router.get('/getadultranks', getadultranks); // No JWT authentication as it needs for registration.
+router.get('/getweekdays', passport.authenticate('jwt', { session: false }), getweekdays);
+router.get('/getpracticetypes', passport.authenticate('jwt', { session: false }), getpracticetypes);
+router.get('/getsempais', passport.authenticate('jwt', { session: false }), getsempais);
+router.get('/getinstructors', passport.authenticate('jwt', { session: false }), getinstructors);
+router.get('/getpromotableroles', passport.authenticate('jwt', { session: false }), getpromotableroles);
+router.get('/getroleholders/:_id', passport.authenticate('jwt', { session: false }), getroleholders);
+router.delete('/roleholders/:_id', passport.authenticate('jwt', { session: false }), delroleholders);
+router.post('/roleholders/', passport.authenticate('jwt', { session: false }), updtroleholders);
 
 
 module.exports = router;

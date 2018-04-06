@@ -1,5 +1,6 @@
 require('rootpath')();
 const Q = require('q');
+const passport = require("passport");
 const locationservice = require ('server/service/location.service');
 const dataservice = require ('server/service/data.service');
 const knexconfig = require ('server/knexconfig.json');
@@ -8,19 +9,25 @@ const express = require('express');
 const router = express.Router();
 
 
-router.get('/getdojos', getdojos);
-router.get('/getlocationnames', getlocationnames);
-router.get('/getlocations', getlocations);
-router.get('/getlocationtypes', getlocationtypes);
-router.post('/addlocation', addlocation);
-router.delete('/:_id', deletelocation);
-router.put('/:_id', updatelocation);
+
+router.get('/getdojos', getdojos); // No JWT authentication as it needs for registration.
+router.get('/getlocationnames', passport.authenticate('jwt', { session: false }), getlocationnames);
+router.get('/getlocations', passport.authenticate('jwt', { session: false }), getlocations);
+router.get('/getlocationtypes', passport.authenticate('jwt', { session: false }), getlocationtypes);
+router.post('/addlocation', passport.authenticate('jwt', { session: false }), addlocation);
+router.delete('/:_id', passport.authenticate('jwt', { session: false }), deletelocation);
+router.put('/:_id', passport.authenticate('jwt', { session: false }), updatelocation);
+
+
+
 
 
 
 module.exports = router;
 
 function getdojos(req,res) {
+    
+    console.log(req.get('Authorization'));
     
     var viewname = 'vuDojonames';
 

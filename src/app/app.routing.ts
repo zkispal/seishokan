@@ -4,7 +4,7 @@ import { CommonModule } from '@angular/common';
 import { AppComponent } from './app.component';
 import { HomeComponent, AikidoComponent } from './home/index';
 import { LoginComponent, RegisterComponent } from './login/index';
-import { AuthGuard } from './_guards/index';
+import { AuthGuard, AikidokaGuard, InstructorGuard, DojochoGuard } from './_guards/index';
 import { TrainingqrregComponent, TrainingmanregComponent,
     TraininghistoryComponent, TrainingapprovalComponent } from './training/index';
 import { ExamregComponent, ExamhistoryComponent, ExamresultsComponent } from './exam/index';
@@ -18,21 +18,21 @@ const appRoutes: Routes = [
      },
     { path: 'login', component: LoginComponent },
     { path: 'register', component: RegisterComponent },
-    { path: 'home', component: HomeComponent, canActivate: [AuthGuard] },
-    { path: 'aikido', component: AikidoComponent, canActivate: [AuthGuard] },
-    { path: 'qrreg', component: TrainingqrregComponent },
-    { path: 'manreg', component: TrainingmanregComponent },
-    { path: 'traininghistory', component: TraininghistoryComponent },
-    { path: 'trainingapproval', component: TrainingapprovalComponent },
-    { path: 'examhistory', component: ExamhistoryComponent },
-    { path: 'examresults', component: ExamresultsComponent },
-    { path: 'examregistration', component: ExamregComponent },
-    { path: 'events', component: EventsComponent },
-    { path: 'registeredforevent', component: EventregsComponent },
-    { path: 'examevent', component: EventComponent },
-    { path: 'newtraining', component: NewtrainingComponent },
-    { path: 'location', component: LocationComponent },
-    { path: 'rolechange', component: RolechangeComponent },
+    { path: 'home', component: HomeComponent, canActivate: [AuthGuard, AikidokaGuard] },
+    { path: 'aikido', component: AikidoComponent },
+    { path: 'qrreg', component: TrainingqrregComponent, canActivate: [AuthGuard, InstructorGuard] },
+    { path: 'manreg', component: TrainingmanregComponent, canActivate: [AuthGuard, AikidokaGuard] },
+    { path: 'traininghistory', component: TraininghistoryComponent, canActivate: [AuthGuard, AikidokaGuard] },
+    { path: 'trainingapproval', component: TrainingapprovalComponent, canActivate: [AuthGuard, InstructorGuard] },
+    { path: 'examhistory', component: ExamhistoryComponent, canActivate: [AuthGuard, AikidokaGuard]  },
+    { path: 'examresults', component: ExamresultsComponent, canActivate: [AuthGuard, DojochoGuard] },
+    { path: 'examregistration', component: ExamregComponent, canActivate: [AuthGuard, AikidokaGuard]  },
+    { path: 'events', component: EventsComponent, canActivate: [AuthGuard, AikidokaGuard]  },
+    { path: 'registeredforevent', component: EventregsComponent, canActivate: [AuthGuard, AikidokaGuard]  },
+    { path: 'examevent', component: EventComponent, canActivate: [AuthGuard, DojochoGuard]  },
+    { path: 'newtraining', component: NewtrainingComponent, canActivate: [AuthGuard, DojochoGuard] },
+    { path: 'location', component: LocationComponent, canActivate: [AuthGuard, DojochoGuard]  },
+    { path: 'rolechange', component: RolechangeComponent, canActivate: [AuthGuard, DojochoGuard] },
 
 
 

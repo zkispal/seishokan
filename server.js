@@ -25,7 +25,7 @@ const ExtractJwt = passportJWT.ExtractJwt;
 const JwtStrategy = passportJWT.Strategy;
 
 var jwtOptions = {};
-jwtOptions.jwtFromRequest = ExtractJwt.fromHeader("authorization");
+jwtOptions.jwtFromRequest = ExtractJwt.fromAuthHeaderAsBearerToken() // fromHeader("authorization");
 jwtOptions.secretOrKey = fs.readFileSync('server/private.key').slice(31,1673); //Extract the pure private key
 
 var httpsOptions = { key: fs.readFileSync('server/private.key'),
@@ -35,16 +35,17 @@ var httpsOptions = { key: fs.readFileSync('server/private.key'),
 
 var strategy = new JwtStrategy(jwtOptions, function(jwt_payload, next) {
 
-    knex('User').where({id:jwt_payload.uid}).then((person) =>  {
-        if (person) {
-            next(null, person);
-          } else {
-            next(null, false);
-          }
+    knex('Person').where('ID', jwt_payload.pid)
+                .then((person) =>  { if (person) { 
+                                        next(null, person);
+                                    } else { 
+                                        next(null, false);
+                                    }
 
+                });
     });
-});
 
+    
 passport.use(strategy);
 
 var app = express();
@@ -88,7 +89,5 @@ var server = app.listen(port, function () {
 }); */
 
 
-/* var date1 = new Date(2018, 2, 1, 12, 0, 0);
-var date2 = new Date(2018, 2, 31, 12, 0, 0);
-console.log(date1.valueOf());
-console.log(date2.valueOf()); */
+var centuriesAgo = new Date(1973, 1, 1, 12, 0, 0);
+console.log(centuriesAgo.valueOf());

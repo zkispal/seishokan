@@ -1,5 +1,6 @@
 import { Injectable } from '@angular/core';
 import { HttpClient, HttpResponse } from '@angular/common/http';
+import * as _ from 'lodash';
 import { User, RegData } from '../_models/index';
 import { MessageService } from './message.service';
 
@@ -54,6 +55,16 @@ export class AuthLoginService {
         } else {
             return '0';
         }
+    }
+
+    isRoleHolder(_role): boolean {
+
+        if (_.findIndex(this.getCurrentUser().role, elem => elem === _role) > -1 ) {
+            return true;
+        } else {return false; }
 
     }
+
+
+
 }

@@ -1,4 +1,3 @@
-// import { Alert } from './_models/alert';
 import { NgModule, LOCALE_ID,  } from '@angular/core';
 import { BrowserModule } from '@angular/platform-browser';
 import { FormsModule,    } from '@angular/forms';
@@ -19,7 +18,6 @@ import { AccordionModule } from 'ngx-bootstrap/accordion';
 import { BsModalService } from 'ngx-bootstrap/modal';
 import { BsModalRef } from 'ngx-bootstrap/modal/bs-modal-ref.service';
 import { ModalModule } from 'ngx-bootstrap/modal';
-// import { AlertModule } from 'ngx-bootstrap/alert';
 import { PopoverModule } from 'ngx-bootstrap/popover';
 import { ButtonsModule } from 'ngx-bootstrap/buttons';
 import { PaginationModule } from 'ngx-bootstrap/pagination';
@@ -34,7 +32,7 @@ import { AppComponent } from './app.component';
 import { routing } from './app.routing';
 import { RegisterComponent } from './login/register.component';
 import { LoginComponent } from './login/login.component';
-import { AuthGuard } from './_guards/index';
+import { AuthGuard, AikidokaGuard, InstructorGuard, DojochoGuard } from './_guards/index';
 import {  AuthLoginService, AuthHeaderInterceptorService,
     DataService, AlertService, MessageService } from './_services/index';
 import { NavigationComponent, NavmenuComponent,
@@ -121,6 +119,9 @@ import { EventComponent, NeweventmodalComponent, NewtrainingComponent,
     },
     { provide: LOCALE_ID, useValue: 'hu' },
     AuthGuard,
+    AikidokaGuard,
+    DojochoGuard,
+    InstructorGuard,
     AuthLoginService,
     DataService,
     AlertService,

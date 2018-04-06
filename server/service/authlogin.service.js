@@ -7,17 +7,18 @@ const _ = require('lodash');
 const omitempty= require ('omit-empty');
 const knexconfig = require ('server/knexconfig.json')
 const knex = require('knex')(knexconfig);
-
+const passport = require("passport");
+const passportJWT = require("passport-jwt");
 // const express = require('express');
 
 
 
-//const ExtractJwt = passportJWT.ExtractJwt;
-//const JwtStrategy = passportJWT.Strategy;
+ const ExtractJwt = passportJWT.ExtractJwt;
+ const JwtStrategy = passportJWT.Strategy;
 
-var jwtOptions = {};
-//jwtOptions.jwtFromRequest = ExtractJwt.fromHeader("authorization");
-jwtOptions.secretOrKey = fs.readFileSync('server/private.key').slice(31,1673); //Extract the pure private key
+ var jwtOptions = {};
+ jwtOptions.jwtFromRequest = ExtractJwt.fromHeader("authorization");
+ jwtOptions.secretOrKey = fs.readFileSync('server/private.key').slice(31,1673); //Extract the pure private key
 
 
 

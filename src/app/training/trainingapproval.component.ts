@@ -34,7 +34,12 @@ export class TrainingapprovalComponent implements OnInit {
   loadPracticeregs() {
       this.allAttended = false;
       this.dataService.getpracticeregs(this.instructorID)
-                      .subscribe( resp => { this.practiceregs = resp; },
+                      .subscribe( resp => { if (resp.length === 0 ) {
+                                              this.alertService.info('Nincs jóváhagyásra váró utólagos edzésrögzítés.');
+                                            } else {
+                                              this.practiceregs = resp; }
+
+                                            },
                                  err => {this.alertService.error('Sikertelen adatlekérés! ' + err.message); }  ) ;
   }
 

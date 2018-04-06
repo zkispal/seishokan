@@ -47,7 +47,7 @@ export class RegisterComponent implements OnInit {
                         practicestart : 0,
                         rankID : 0,
                         homedojoID : 0,
-                        roleID : [9]};
+                        roleID : [7, 9]};
 
 
 
@@ -110,6 +110,6 @@ export class RegisterComponent implements OnInit {
             .subscribe( data => { this.authService.setCurrentUser(data);
                                 this.router.navigate(['/login']); },
                         error => { console.log(error);
-                            this.alertService.error('Sikertelen regisztráció! ' + error.error); });
+                            this.alertService.error('Sikertelen regisztráció! ' + error.message); });
         }
     }

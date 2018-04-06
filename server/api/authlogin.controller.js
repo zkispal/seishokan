@@ -13,12 +13,14 @@ const authLoginService = require('server/service/authlogin.service');
 const validatorService = require('server/service/validator.service');
 const express = require('express');
 const router = express.Router();
+const log4js = require('log4js');
+const logger = log4js.getLogger('authlogin.controller');
 
 
-router.post('/authenticate', authenticate);
-//router.post('/updateperson', updateperson);
-router.post('/registerperson', registerperson);
-router.get('/getPidFromToken', getPidFromToken);
+router.post('/authenticate', authenticate); // No JWT authentication as it needs for authentication.
+// router.post('/updateperson', updateperson);
+router.post('/registerperson', registerperson); // No JWT authentication as it needs for registration.
+// router.get('/getPidFromToken', getPidFromToken);
 module.exports = router;
 
 const ExtractJwt = passportJWT.ExtractJwt;
@@ -33,43 +35,86 @@ jwtOptions.secretOrKey =fs.readFileSync('server/private.key').slice(31,1673); //
 
 function authenticate(req, res){
 
-    if(validatorService.usernameIsValid(req.body.username) &&
-      validatorService.passwordIsValid(req.body.password)){ 
+  var valid = validator.isJSON(JSON.stringify(req.body));
 
-      authLoginService.authenticate(req)
-        .then(function(token){
-          res.status(200).send(token);
-        })
-        .catch(function (err) {
-          res.status(401).send(JSON.stringify(err));
-        });
-    }else{
-        res.status(401).json({message:"Please send username and/or password"});
-        //Notify client to send username and/or password.
-    }
+  valid = valid && !validator.isEmpty(req.body.username);
+
+  valid = valid && !validator.isEmpty(req.body.password);
+
+
+  var validatorPromises = [ validatorService.usernameExists(req.body.username),
+                            validatorService.usernameIsValid(req.body.username),
+                            validatorService.passwordIsValid(req.body.password)];
+
+  Q.allSettled(validatorPromises)
+    .then(promiseResults => {
+
+      var allPromiseValid = promiseResults.reduce((all, elem) => all && elem.value, true);
+
+      if(valid &&  allPromiseValid) {
+        authLoginService.authenticate(req)
+          .then(function(token){
+            res.status(200).send(token);
+          })
+          .catch(function (err) {
+            res.status(401).send(JSON.stringify(err));
+          });
+      }else{
+        logger.info('else ág: ')
+          res.status(401).json({message:"Please send username and/or password"});
+          //Notify client to send username and/or password.
+      }
+    })
+    .catch(function (err) {
+      logger.info('catch ág: ' + JSON.stringify(err))
+      res.status(401).send(JSON.stringify(err));
+    });
+
 }
 
 
 
 function registerperson (req, res){
     //Ensure all data is received from client
+ 
+    var valid = validator.isJSON(JSON.stringify(req.body));
+    valid =valid && validator.isEmail(req.body.email); 
 
-  if( validator.isJSON(JSON.stringify(req.body)) ){                        // &&
-                                    // validatorService.usernameIsValid(req.body.username) &&
-                                    //  validatorService.passwordIsValid(req.body.password) &&
-                                    //  validator.isEmail(req.body.email)
-     authLoginService.createPerson(req)
-        .then(function(user){
-          res.status(200).send(user);
-        })
-        .catch(function (err) {
-          res.status(400).send(JSON.stringify(err));
-        });
+    var validatorPromises = [ validatorService.nameIsValid(req.body.firstname, 25),
+                              validatorService.nameIsValid(req.body.lastname, 100),
+                              validatorService.usernameIsValid(req.body.username),
+                              validatorService.passwordIsValid(req.body.password),
+                              validatorService.bDayIsValid(req.body.dateofbirth),
+                              validatorService.practStartDateIsValid(req.body.practicestart),
+                              validatorService.dojoIDIsValid(req.body.homedojoID),
+                              validatorService.rankIDIsValid(req.body.rankID),
+                              validatorService.roleIDsIsValid(req.body.roleID)];
 
-  }else{
-        res.status(400).send({message:"Bad data received"});
 
-  }
+     Q.allSettled(validatorPromises)
+      .then(promiseResults => { 
+
+        var allPromiseValid = promiseResults.reduce((all, elem) => all && elem.value, true);
+
+        if ( valid && allPromiseValid ) {                      
+
+          authLoginService.createPerson(req)
+            .then(function(user){
+              res.status(200).send(user);
+            })
+            .catch(function (err) {
+              res.status(400).send(JSON.stringify(err));
+            });
+      
+        } else {
+          res.status(400).send({message:"Bad data received"});
+        }
+
+      })                         
+      .catch(function (err) {
+        res.status(400).send(JSON.stringify(err));
+      });
+
 }
 
 /* function updateperson(req,res) {
@@ -84,7 +129,7 @@ function registerperson (req, res){
 
 } */
 
-function getPidFromToken(req,res){
+/* function getPidFromToken(req,res){
 
 if(true){
   authLoginService.getPidFromToken(req)
@@ -97,5 +142,5 @@ if(true){
 
 
 
-}
+} */
 
