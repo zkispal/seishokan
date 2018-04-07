@@ -1,5 +1,9 @@
 require('rootpath')();
 const Q = require('q');
+const jwt = require('jsonwebtoken');
+const validator = require('validator');
+const validatorService = require('server/service/validator.service');
+const authLoginService = require('server/service/authlogin.service');
 const eventservice = require ('server/service/event.service');
 const dataservice = require ('server/service/data.service');
 const express = require('express');
@@ -68,10 +72,6 @@ function getevents(req,res) {
 function getpractice(req,res) {
 
 
-    logger.info('param start: ' + req.params.start);
-    logger.info('param locid: ' + req.params.locID);
-    logger.info('query start: ' + req.query.start);
-    logger.info('query locid: ' + req.query.locID);
    eventservice.getpractice(req.query.start, req.query.locID)
    .then(function(practices){
        res.status(200).send(JSON.stringify(practices));
@@ -124,39 +124,64 @@ function addevent(req, res){ //TO DO Validation
     }
 }
 
-function register(req, res){ //TO DO Validation
+function register(req, res){ 
 
-    if(true){ 
+    var valid = validator.isJSON(JSON.stringify(req.body))
+        && validator.isInt(req.body.eventID.toString())
+        && validator.isInt(req.body.attendeeID.toString())
+        && validator.isAlpha(req.body.attendancetype);
+ 
+    
+    authLoginService.getDecodedToken(req)
+        .then(token => {return validatorService.isAikidoka(token.pid)})
+        .then(isAikidoka => {
 
-        eventservice.register(req)
-        .then(function(data){
-          res.status(200).send(data);
-        })
+            if(valid && isAikidoka){ 
+
+            eventservice.register(req)
+            .then(function(data){
+              res.status(200).send(data);
+            })
+            .catch(function (err) {
+              res.status(400).send(err);
+            });
+        }else{
+            res.status(400).json({message:"Please send valid data."});
+    
+        }})
         .catch(function (err) {
-          res.status(400).send(err);
-        });
-    }else{
-        res.status(400).json({message:"Please send valid data."});
-        //Notify client to send valid data.
-    }
+            res.status(400).send(err);
+          });
+
 }
 
-function unregister(req, res){ //TO DO Validation
+function unregister(req, res){ 
 
-    if(true){ 
+    var valid = validator.isJSON(JSON.stringify(req.body))
+        && validator.isInt(req.body.eventID.toString())
+        && validator.isInt(req.body.attendeeID.toString())
+        && validator.isAlpha(req.body.attendancetype);
 
-        eventservice.unregister(req)
-        .then(function(data){
-          res.sendStatus(200).send(data);
+    authLoginService.getDecodedToken(req)
+        .then(token => {return validatorService.isAikidoka(token.pid)})
+        .then(isAikidoka => {   
+            
+            if(valid && isAikidoka){ 
+
+            eventservice.unregister(req)
+            .then(function(data){
+              res.sendStatus(200).send(data);
+            })
+            .catch(function (err) {
+              res.status(400).send(err);
+            });
+            } else {
+                res.status(400).json({message:"Please send valid data."});
+            }
         })
         .catch(function (err) {
-            console.log(err);
-          res.status(400).send(err);
+            res.status(400).send(err);
         });
-    }else{
-        res.status(400).json({message:"Please send valid data."});
-        //Notify client to send valid data.
-    }
 }
 
 function deleteevent(req, res) {
@@ -213,15 +238,31 @@ function addpractice(req,res) { //TO DO  only Dojocho, validation of input
     }); 
 }
 
-function addattendance(req,res) { //TO DO  validation of input
-   
-    eventservice.addattendance(req)
-    .then(function(srvresp){
-        res.status(200).send(JSON.stringify(srvresp));
-    })
-    .catch(function(err){
-        res.status(400).send(JSON.stringify(err));
-    }); 
+function addattendance(req,res) { 
+    var valid = validator.isJSON(JSON.stringify(req.body)); 
+    valid = valid && validator.isInt(req.body.eventID.toString());
+    valid = valid && validator.isAlpha(req.body.attendancetype);
+    valid = valid && validator.isInt(req.body.attendeeID.toString());
+    valid = valid && validator.isInt(req.body.instructorID.toString());
+
+
+    authLoginService.getDecodedToken(req)
+        .then(token => {return validatorService.isAikidoka(token.pid)})
+        .then(isAikidoka => {
+            if (valid && isAikidoka) {
+                eventservice.addattendance(req)
+                .then(function(srvresp){
+                    res.status(200).send(JSON.stringify(srvresp));
+                })
+                .catch(function(err){
+                    logger.info(err);
+                    res.status(400).send(JSON.stringify(err));
+                }); 
+        
+            } else {
+                res.status(400).send('Invalid input');
+            }
+        })
 }
 
 
@@ -334,35 +375,81 @@ function getexamregnames(req,res) {
     }); 
 }
 
+
+
 function updateExamResult (req, res) {
+    logger.info('req.params.id: ' + req.params._id);
+    logger.info('req.body: ' + JSON.stringify(req.body));
 
-    if (req.body.attendancetype === 'Sikertelen') {
-        eventservice.updateExamResult(req)
-        .then(function(srvresp){
-            res.status(200).send(JSON.stringify(srvresp));
-        })
-        .catch(function(err){
-            res.status(400).send(JSON.stringify(err));
-        });
-    } else {
-        eventservice.updateExamResultRank(req)
-        .then(function(srvresp){
-            res.status(200).send(JSON.stringify(srvresp));
-        })
-        .catch(function(err){
-            res.status(400).send(JSON.stringify(err));
-        });
+    var valid = validator.isJSON(JSON.stringify(req.body))
+        && validator.isInt(req.params._id.toString())
+        && validator.isInt(req.body.ID.toString())
+        && validator.isInt(req.body.rankID.toString())
+        && validator.isAlpha(req.body.attendancetype)
+        && validator.isAlphanumeric(req.body.certno);
 
-    }
+
+    authLoginService.getDecodedToken(req)
+        .then(token => {return validatorService.isDojocho(token.pid)})
+        .then(isDojocho => {
+            if (valid && isDojocho){
+                if (req.body.attendancetype === 'Sikertelen') {
+                    eventservice.updateExamResult(req)
+                    .then(function(srvresp){
+                        res.status(200).send(JSON.stringify(srvresp));
+                    })
+                    .catch(function(err){
+                        res.status(400).send(JSON.stringify(err));
+                    });
+                } else {
+                    eventservice.updateExamResultRank(req)
+                    .then(function(srvresp){
+                        res.status(200).send(JSON.stringify(srvresp));
+                    })
+                    .catch(function(err){
+                        res.status(400).send(JSON.stringify(err));
+                    });
+                }
+            }else {
+                res.status(400).send('Invalid input');
+            }
+        })
+        .catch(function(err) {
+            res.status(400).send(JSON.stringify(err))
+        });
 }
 
 function getpracticehistory (req, res) {
+    var valid = validator.isJSON(JSON.stringify(req.body)); // Check if we received a valid JSON
 
-    eventservice.getpracticehistory(req)
-    .then(function(history){
-        res.status(200).send(JSON.stringify(history));
-    })
-    .catch(function(err){
-        res.status(400).send(JSON.stringify(err));
-    }); 
+    req.body.forEach(element => { // Check if all element of the received array is a number
+        valid = valid && validator.isInt(element.toString());
+    });
+
+    var isSamePerson = false;
+
+    authLoginService.getDecodedToken(req)
+        .then(token => { logger.info('token' + JSON.stringify(token));
+            isSamePerson =  req.params._id === token.pid.toString(); // Check if the request id for own data
+        return validatorService.isAikidoka(token.pid);})
+        .then(isAikidoka =>{
+            logger.info('isAikidoka ' + isAikidoka);
+            //logger.info('token2' + JSON.stringify(token));
+            logger.info('valid if előtt ' + valid);
+            if (valid && isAikidoka && isSamePerson) { 
+
+                eventservice.getpracticehistory(req)
+                .then(function(history){
+                    res.status(200).send(JSON.stringify(history));
+                })
+                .catch(function(err){
+                    res.status(400).send(JSON.stringify(err));
+                }); 
+            } else {
+                res.status(400).send('Invalid input');
+            }
+        } )
+        .catch(function(err){
+            res.status(400).send(JSON.stringify(err));
+        });
 }

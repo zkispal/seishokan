@@ -18,9 +18,9 @@ export class ExamresultsComponent implements OnInit {
   examsInaYear: Options[];
   selectedExam: number;
   adultRanks: Options[];
-  allSuccessful = false;
+  // allSuccessful = false;
   participants = [];
-  updateRecord = {eventID: 0,
+  updateRecord = { // eventID: 0,
                   attendeeID: 0,
                   attendancetype: '',
                   certno: '',

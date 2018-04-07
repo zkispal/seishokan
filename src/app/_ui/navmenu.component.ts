@@ -17,20 +17,20 @@ export class NavmenuComponent implements OnInit, OnChanges {
   constructor() { }
 
   ngOnChanges(changes: SimpleChanges) {
-    console.log(JSON.stringify(changes));
-    console.log(this.navmenu);
+    // console.log(JSON.stringify(changes));
+    // console.log(this.navmenu);
   }
 
   ngOnInit() {
   }
   onHidden(): void {
-    console.log('Dropdown is hidden');
+    // console.log('Dropdown is hidden');
   }
   onShown(): void {
-    console.log('Dropdown is shown');
+    // console.log('Dropdown is shown');
   }
   isOpenChange(): void {
-    console.log('Dropdown state is changed');
+    // console.log('Dropdown state is changed');
   }
 
 

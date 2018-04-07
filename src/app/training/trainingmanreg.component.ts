@@ -69,7 +69,7 @@ export class TrainingmanregComponent implements OnInit {
   }
 
   private getPractice() {
-    this.dataService.getpracticeByDateByLocID(this.trainingDay.setHours(2), this.locID)
+    this.dataService.getpracticeByDateByLocID(this.trainingDay.setHours(12), this.locID)
                     .subscribe( res => {  if (res.length === 0) {
                       this.alertService.warn('Ezen a napon ebben a dojoban nem volt edzés!');
                     } else {this.trainings = res; } },

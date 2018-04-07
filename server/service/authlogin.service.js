@@ -9,7 +9,8 @@ const knexconfig = require ('server/knexconfig.json')
 const knex = require('knex')(knexconfig);
 const passport = require("passport");
 const passportJWT = require("passport-jwt");
-// const express = require('express');
+const log4js = require('log4js');
+const logger = log4js.getLogger('authlogin.service');
 
 
 
@@ -26,6 +27,7 @@ var authloginservice = {};
 
 authloginservice.authenticate = authenticate;
 authloginservice.createPerson = createPerson;
+authloginservice.getDecodedToken = getDecodedToken;
 //authloginservice.updatePerson = updatePerson;
 
 
@@ -92,34 +94,27 @@ function createPersoninDB(){
 }
 
 
+function getDecodedToken(req) {
+var deferred = Q.defer();
 
-function getPidFromToken(req) {
-//q=Q.defer();
+var authheader = req.headers.authorization;
 
-
-
-
-var authheader =req.headers.authorization;
 
   if (authheader.split(' ')[0] === 'Bearer'){
       var token = authheader.split(' ')[1];
 
-
-
       var decodedToken;
-
       decodedToken = jwt.verify(token,jwtOptions.secretOrKey);
 
-
-      var pid = decodedToken.pid;
-
-      return pid;
+      //return decodedToken;
+      deferred.resolve(decodedToken);
       
   }else{
-    return 0;
+    //return 0;
+   deferred.reject();
   }
 
-//return q.promise;
+return deferred.promise;
 }
 
 function updatePerson(req) { // IMPROVEMENT add transaction handling
@@ -178,9 +173,6 @@ function updatePerson(req) { // IMPROVEMENT add transaction handling
 
   return deferred.promise;
 }
-
-
-
 
 
 function authenticate(req) {

@@ -23,7 +23,9 @@ validatorservice.rankIDIsValid = rankIDIsValid;
 validatorservice.dojoIDIsValid = dojoIDIsValid;
 validatorservice.nameIsValid = nameIsValid; //to check firstname and lastname
 validatorservice.roleIDsIsValid = roleIDsIsValid;
-
+validatorservice.isAikidoka = isAikidoka;
+validatorservice.isInstructor = isInstructor;
+validatorservice.isDojocho = isDojocho;
 
 module.exports = validatorservice;
 
@@ -214,15 +216,15 @@ function isAikidoka(id) {
 
   knex.from('roles').innerJoin('role', 'roles.roleID', 'role.ID')
       .select('roles.personID')
-      .where('role.name', 'Aikidoka')
+      .where('role.rolename', 'Aikidoka')
       .map(dbresp => dbresp.personID)
       .then(pids => {
-        
+        logger.info(pids);
         isAikidoka = _.includes(pids, id);
         deferred.resolve(isAikidoka);
 
       })
-      .catch(err => deferred.reject());
+      .catch(err =>  {deferred.reject(err);});
 
   return deferred.promise;
 }
@@ -234,8 +236,8 @@ function isInstructor(id) {
 
   knex.from('roles').innerJoin('role', 'roles.roleID', 'role.ID')
       .select('roles.personID')
-      .where('role.name', 'Instructor')
-      .orWhere('role.name', 'Assistant')
+      .where('role.rolename', 'Instructor')
+      .orWhere('role.rolename', 'Assistant')
       .map(dbresp => dbresp.personID)
       .then(pids => {
         
@@ -243,7 +245,7 @@ function isInstructor(id) {
         deferred.resolve(isInstructor);
 
       })
-      .catch(err => deferred.reject());
+      .catch(err => deferred.reject(err));
       
   return deferred.promise;
 }
@@ -256,7 +258,7 @@ function isDojocho(id) {
 
   knex.from('roles').innerJoin('role', 'roles.roleID', 'role.ID')
       .select('roles.personID')
-      .where('role.name', 'Dojocho')
+      .where('role.rolename', 'Dojocho')
       .map(dbresp => dbresp.personID)
       .then(pids => {
         
@@ -264,7 +266,7 @@ function isDojocho(id) {
         deferred.resolve(isDojocho);
 
       })
-      .catch(err => deferred.reject());
+      .catch(err => deferred.reject(err));
 
   return deferred.promise;
 }

@@ -28,6 +28,8 @@ var jwtOptions = {};
 jwtOptions.jwtFromRequest = ExtractJwt.fromAuthHeaderAsBearerToken() // fromHeader("authorization");
 jwtOptions.secretOrKey = fs.readFileSync('server/private.key').slice(31,1673); //Extract the pure private key
 
+
+
 var httpsOptions = { key: fs.readFileSync('server/private.key'),
                     cert: fs.readFileSync('server/server.crt')};
 
@@ -89,5 +91,3 @@ var server = app.listen(port, function () {
 }); */
 
 
-var centuriesAgo = new Date(1973, 1, 1, 12, 0, 0);
-console.log(centuriesAgo.valueOf());

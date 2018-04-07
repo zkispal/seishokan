@@ -73,7 +73,8 @@ loadPracticeHistory() {
     const timerangevalue = this.timerange.map(elem => elem.valueOf());
     console.log(timerangevalue);
     this.dataService.getpracticehistory(this.authService.getCurrentUser().ID, timerangevalue)
-                    .subscribe( data => {this.traininghistory = data; },
+                    .subscribe( data => {this.traininghistory = data;
+                                        this.pagedHistory = this.traininghistory.slice(0, this.itemsPerPage); },
                                 err => this.alertService.error('Sikertelen kapcsolat a szerverhez! ' + err.message) );
 
   }

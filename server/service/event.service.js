@@ -374,15 +374,11 @@ function updateExamResultRank(req) {
 function getpracticehistory (req) {
     var deferred = Q.defer();
 
-    console.log (JSON.stringify(req.body));
-
     var interval = [];
+    
     req.body.forEach(element => {
          interval.push(JSON.stringify(new Date(parseInt(element))).slice(1,11));        
     });
-
-    logger.info(interval[0]);
-    logger.info(interval[1]);
 
     knex('vupracticeattendance')
         .whereBetween('datum', interval)
