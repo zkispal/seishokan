@@ -17,6 +17,11 @@ export class DataService {
     return this.http.get<Array<Options>>('/location/getdojos');
   }
 
+  getroleid(rolename) {
+    return this.http.get<number>('/data/getroleid/' + rolename);
+  }
+
+
   getinstructors() {
     return this.http.get<Array<Options>>('/data/getinstructors');
   }

@@ -171,33 +171,25 @@ function addpractice(req) {
                 var lastPromise = sqlStrings.reduce(function(promise, sql) {
                     return promise.then(function (dbresp) {
     
-    
                         return knex.raw(sql)
-                                .then(dbresp => {logger.info('egyszeri knex: ' + JSON.stringify(dbresp));
+                                .then(dbresp => {
                                     dbresps.push(dbresp); });
                     })
-                    .catch(err => {errresps.push(err);
-                                logger.error('baj van ' + _id + ' nem töltődött le'); });
+                    .catch(err => errresps.push(err));
             
                     },  Q.resolve()) ;
         
                 lastPromise.then(lastresp => {
-                            logger.info('All done');
-                            logger.info('lastresp: ' + JSON.stringify(lastresp));
+
                             dbresps.push(lastresp);
-                            logger.info('dbresps: ' + JSON.stringify(dbresps));
                             deferred.resolve(dbresps);
-        
                             })
-                            .catch( err => {logger.info('valami baj volt a sok között: ' + err);
-                                deferred.reject(err)}); 
-                                logger.info('sqlStrings' + JSON.stringify(sqlStrings));
+                            .catch( err => {deferred.reject(err)}); 
+
 
             })
-            .catch(err => {
-                logger.error( 'Valami nem jó' + JSON.stringify(err));
-                deferred.reject(err);
-            })
+            .catch(err => {deferred.reject(err);
+            });
 
     
     return deferred.promise;    
@@ -206,17 +198,14 @@ function addpractice(req) {
 
 function getpractice(_trainingday, _locid) {
     var deferred = Q.defer();
-        logger.info('_trainingday: ' + _trainingday);
-        var date = new Date(parseInt(_trainingday));
-        logger.info('date: ' + date);
 
+    var date = new Date(parseInt(_trainingday));
 
-        knex('vupractices')
+    knex('vupractices')
         .select('ID', 'name')
         .where('locationID', _locid) 
         .andWhere(knex.raw('DATE(start) = ?;', JSON.stringify(date).slice(1,11) ))
-        .then( dbresp => {logger.info('dbresp' + JSON.stringify(dbresp)); deferred.resolve(dbresp);
-                    })
+        .then( dbresp => {deferred.resolve(dbresp);})
         .catch(err => deferred.reject(err));
 
     return deferred.promise;    
@@ -278,7 +267,7 @@ function approveattendance(req) {
     let attendedIDs = _.flattenDeep(_.remove(req.body, elem => {return elem.attended === true} )
                                      .map(elem => _.omit(elem, 'attended'))
                                      .map(elem => _.values(elem)));
-logger.info(JSON.stringify(attendedIDs));
+
     knex('attendances').update('attendancetype', 'Attended')
                         .whereIn('attendeeID', attendedIDs)    
                         .andWhere('eventID',req.params._id)
@@ -286,16 +275,14 @@ logger.info(JSON.stringify(attendedIDs));
 
                             let notAttendedIDs = _.flattenDeep(req.body.map(elem => _.omit(elem, 'attended'))
                                                                         .map(elem => _.values(elem)));
-                            logger.info(JSON.stringify(notAttendedIDs));
+
                             knex('attendances').whereIn('attendeeID',notAttendedIDs)
                                                 .andWhere('eventID',req.params._id)
                                                 .del()
                                                 .then(dbsrvresp1 => deferred.resolve(dbsrvresp1))
-                                                .catch(err => {logger.info(JSON.stringify(err)); 
-                                                    deferred.reject(err); });
+                                                .catch(err => {deferred.reject(err); });
                         } )
-                        .catch(err => {logger.info(JSON.stringify(err)); 
-                                        deferred.reject(err); });
+                        .catch(err => {deferred.reject(err); });
         
     return deferred.promise;    
 }

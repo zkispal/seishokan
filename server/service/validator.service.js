@@ -26,6 +26,7 @@ validatorservice.roleIDsIsValid = roleIDsIsValid;
 validatorservice.isAikidoka = isAikidoka;
 validatorservice.isInstructor = isInstructor;
 validatorservice.isDojocho = isDojocho;
+validatorservice.validString = validString;
 
 module.exports = validatorservice;
 
@@ -185,26 +186,25 @@ function nameIsValid(name, maxlen){
 
   valid = !validator.isEmpty(name);
 
-
-  valid = valid && (2 <= name.length  <= maxlen);//should be between 2 and @param maxlen characters
-
+  valid = valid && !findOne(name, uglyChars);
+  
+  valid = valid && validator.isLength(name, {min:2, max: maxlen});//should be between 2 and @param maxlen characters
 
   if ( _.includes(name, '-')) {
     var nameparts = name.split('-'); // if name contains a hyphen then split the name
     // by the hyphen and ensure the individual pieces are Hungarian characters only
-    nameparts.forEach(elem => {valid = valid && validator.isAlpha(elem, 'hu-HU')});
+    nameparts.forEach(elem => {
+      valid = valid && validator.isAlpha(elem, 'hu-HU');
+      deferred.resolve(valid);
+  });
 
   } else { 
 
-  // if name doesn't include hyphen then ensure Hungarian characters only
-  valid = valid && validator.isAlpha(name, 'hu-HU');
+    // if name doesn't include hyphen then ensure Hungarian characters only
+    valid = valid && validator.isAlpha(name, 'hu-HU');
+    deferred.resolve(valid);
   }
-
-  uglyChars.forEach(elem  => {
-    valid = valid && (_.findIndex(name, elem) === -1); // No special characters in name
-  })
-
-  deferred.resolve(valid);
+  
   return deferred.promise;
 
 }
@@ -219,7 +219,7 @@ function isAikidoka(id) {
       .where('role.rolename', 'Aikidoka')
       .map(dbresp => dbresp.personID)
       .then(pids => {
-        logger.info(pids);
+
         isAikidoka = _.includes(pids, id);
         deferred.resolve(isAikidoka);
 
@@ -230,6 +230,7 @@ function isAikidoka(id) {
 }
 
 function isInstructor(id) {
+  logger.info(id);
   var deferred = Q.defer();
 
   var isInstructor = false;
@@ -240,7 +241,7 @@ function isInstructor(id) {
       .orWhere('role.rolename', 'Assistant')
       .map(dbresp => dbresp.personID)
       .then(pids => {
-        
+        logger.info(pids);
         isInstructor = _.includes(pids, id);
         deferred.resolve(isInstructor);
 
@@ -271,6 +272,25 @@ function isDojocho(id) {
   return deferred.promise;
 }
 
+
+function validString(_string, maxlen) {
+  var deferred = Q.defer();
+  
+  var valid = false;
+
+  valid = !validator.isEmpty(_string);
+
+  valid = valid && !findOne(_string, uglyChars);
+  
+  valid = valid && validator.isLength(_string, {min: 1, max: maxlen});
+
+  deferred.resolve(valid);
+   
+  return deferred.promise;
+  
+}
+
+
 //Helper function to check if all elements of an array exists in an other array
 function arrayContainsArray (superset, subset) {
   if (0 === subset.length) {
@@ -280,3 +300,9 @@ function arrayContainsArray (superset, subset) {
     return (superset.indexOf(value) >= 0);
     });
   } 
+//Helper function to check if any elements of an array exists in an other array
+  var findOne = function (haystack, arr) {
+    return arr.some(function (v) {
+        return haystack.indexOf(v) >= 0;
+    });
+};

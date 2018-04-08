@@ -44,7 +44,8 @@ function createPerson(req){
             createPersoninDB();
           }
           else{
-            deferred.reject('Username: ' + req.body.username + ' already taken.');
+            var message = ''.concat('A ', req.body.username,' felhasználónév már foglalt.')
+            deferred.reject({message : message});
           }
         })
         .catch(function(err){
@@ -78,9 +79,6 @@ function createPersoninDB(){
                     .catch((err) => {deferred.reject(err); });
                   });
                   
-
-
-
                   var payload = {pid:id[0]};
                   var token = jwt.sign(payload, jwtOptions.secretOrKey, {expiresIn: '1d'});//Create JWT
                   deferred.resolve({token:token});
@@ -176,7 +174,7 @@ function updatePerson(req) { // IMPROVEMENT add transaction handling
 
 
 function authenticate(req) {
-  var q = Q.defer();
+  var deferred = Q.defer();
 
   knex('Person').where('username', req.body.username).select('ID', 'passhash', 'firstname', 'lastname')
   .then((res) => {
@@ -195,30 +193,30 @@ function authenticate(req) {
             })
 
 
-            q.resolve({ID:res[0].ID,
+            deferred.resolve({ID:res[0].ID,
               lastname:res[0].lastname,
               firstname:res[0].firstname,
               role:roles,
               token:token});
 
           })
-          .catch ((err) => {q.reject(err);} );          
+          .catch ((err) => {deferred.reject(err);} );          
         })
-        .catch ((err) => {q.reject(err);} );
+        .catch ((err) => {deferred.reject(err);} );
       } else {
-        q.reject(err);
+        deferred.reject({message : 'Hibás felhasználónév vagy jelszó'});
       }
   })
-  .catch((err) => {q.reject(err);});
+  .catch((err) => {deferred.reject(err);});
     
 
-  return q.promise;
+  return deferred.promise;
 }
 
 
-function createToken(pid) { // IMPROVEMENT put token creation into a service
+function createToken(pid) { 
 
-    var q = Q.defer();
+    var deferred = Q.defer();
 
     var payload = {};
     payload.pid =pid;
@@ -226,7 +224,7 @@ function createToken(pid) { // IMPROVEMENT put token creation into a service
     payload.pof= [];// start populating payload
 
     knex('Roles').select('roleid').where('personID', pid)
-    .catch((err) => {q.reject(err);})
+    .catch((err) => {deferred.reject(err);})
     .then((res)=>{
         
       for (let i=0; i< res.length; i++){
@@ -234,16 +232,16 @@ function createToken(pid) { // IMPROVEMENT put token creation into a service
        }
 
         knex('Person').select('id').where('parentid', pid)
-        .catch((err) => {q.reject(err);})
+        .catch((err) => {deferred.reject(err);})
         .then((kids) => {
           for (let i=0; i< kids.length; i++){
             payload.rol.push(res[i].ID);
           }
 
           var token = jwt.sign(payload, jwtOptions.secretOrKey, {expiresIn: '1d'}); //Create token
-          q.resolve(token);
+          deferred.resolve(token);
 
         })
     });
-    return q.promise;
+    return deferred.promise;
   }

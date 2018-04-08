@@ -1,26 +1,29 @@
 require('rootpath')();
 const Q = require('q');
 const dataservice = require ('server/service/data.service');
+const authLoginService = require('server/service/authlogin.service');
+const validatorService = require('server/service/validator.service');
 const knexconfig = require ('server/knexconfig.json');
 const knex = require('knex')(knexconfig);
 const express = require('express');
 const passport = require("passport");
+const validator = require('validator');
 const router = express.Router();
 const log4js = require('log4js');
- 
 const logger = log4js.getLogger('data.controller');
 
 
 
 router.get('/getadultranks', getadultranks); // No JWT authentication as it needs for registration.
+router.get('/getroleid/:_role', getroleid);
 router.get('/getweekdays', passport.authenticate('jwt', { session: false }), getweekdays);
 router.get('/getpracticetypes', passport.authenticate('jwt', { session: false }), getpracticetypes);
 router.get('/getsempais', passport.authenticate('jwt', { session: false }), getsempais);
 router.get('/getinstructors', passport.authenticate('jwt', { session: false }), getinstructors);
 router.get('/getpromotableroles', passport.authenticate('jwt', { session: false }), getpromotableroles);
 router.get('/getroleholders/:_id', passport.authenticate('jwt', { session: false }), getroleholders);
-router.delete('/roleholders/:_id', passport.authenticate('jwt', { session: false }), delroleholders);
-router.post('/roleholders/', passport.authenticate('jwt', { session: false }), updtroleholders);
+router.delete('/roleholders/:_id', passport.authenticate('jwt', { session: false }), delroleholders); //Validation done
+router.post('/roleholders/', passport.authenticate('jwt', { session: false }), updtroleholders); //Validation done
 
 
 module.exports = router;
@@ -39,6 +42,18 @@ function getadultranks(req,res) {
     }); 
 }
 
+
+function getroleid (req,res) {
+    dataservice.getroleid(req.params._role)
+    .then(function(id){
+        res.status(200).send(id);
+    })
+    .catch(function(err){
+        res.status(400).send(err);
+    }); 
+}
+
+
 function getweekdays(req,res) {
 
     var viewname = 'vuweekdays';
@@ -52,6 +67,7 @@ function getweekdays(req,res) {
     }); 
 }
 
+
 function getpracticetypes(req,res) {
 
     var viewname = 'vupracticetypes';
@@ -64,6 +80,7 @@ function getpracticetypes(req,res) {
         res.status(400).send(err);
     }); 
 }
+
 
 function getsempais(req,res) {
 
@@ -92,6 +109,7 @@ function getinstructors(req,res) {
     }); 
 }
 
+
 function getpromotableroles(req,res) {
 
     var viewname = 'vupromotableroles';
@@ -105,6 +123,7 @@ function getpromotableroles(req,res) {
     }); 
 }
 
+
 function getroleholders(req,res) {
 
     dataservice.getroleholders(req.params._id)
@@ -116,35 +135,57 @@ function getroleholders(req,res) {
     }); 
 }
 
+
 function delroleholders(req,res) {
-    dataservice.delroleholders(req.params._id)
-    .then(function(dbres) {
-        console.log('Sent 200' + JSON.stringify(dbres));
-        res.status(200).send(JSON.stringify(dbres));
-    })
-    .catch(function(err){
-        console.log('Sent 400' + JSON.stringify(err));
-        res.status(400).send(JSON.stringify(err));
-    }); 
+    
+    var valid = validator.isInt(req.params._id.toString());
 
+    authLoginService.getDecodedToken(req)
+        .then(token => { validatorService.isDojocho(token.pid)})
+        .then(isDojocho => {
+            if (valid && isDojocho) {
 
-}
-
-
-function updtroleholders(req,res) { //TO DO Validation
-
-     if(true) {
-        console.log('roleid: ' + JSON.stringify(req.body[0].roleID));
-        dataservice.updtroleholders(req)
-        .then(function(dbres) {
-            console.log('Sent 200' + JSON.stringify(dbres));
-            res.status(200).send(JSON.stringify(dbres));
+                dataservice.delroleholders(req.params._id)
+                .then(function(dbres) {
+                    res.status(200).send(JSON.stringify(dbres));
+                })
+                .catch(function(err){
+                    res.status(400).send(JSON.stringify(err));
+                }); 
+            } else {
+                res.status(400).send({message : 'Érvénytelen input vagy nincs jogosultság!'});
+            }
         })
-        .catch(function(err){
-            console.log('Sent 400 ' + JSON.stringify(err));
-            res.status(400).send(JSON.stringify(err));
-        }); 
+        .catch(err => {res.status(400).send(JSON.stringify(err)); });
 
-    }
+
+
+
 }
 
+
+function updtroleholders(req,res) { 
+
+    var valid = validator.isJSON(JSON.stringify(req.body));
+
+    valid = valid && req.body.every(elem => validator.isInt(elem.personID.toString()));
+    valid = valid && req.body.every(elem => validator.isInt(elem.roleID.toString()));
+
+    authLoginService.getDecodedToken(req)
+        .then(token => validatorService.isDojocho(token.pid))
+        .then(isDojocho => {
+            if(valid && isDojocho) {
+                dataservice.updtroleholders(req)
+                .then(function(dbres) {
+                    res.status(200).send(JSON.stringify(dbres));
+                })
+                .catch(function(err){
+                    res.status(400).send(JSON.stringify(err));
+                }); 
+            }
+        })
+        .catch(function (err) {
+            res.status(400).send(JSON.stringify(err));
+          });
+
+}

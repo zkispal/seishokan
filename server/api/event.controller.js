@@ -19,25 +19,25 @@ router.get('/getevents', passport.authenticate('jwt', { session: false }), getev
 router.get('/getallevents', passport.authenticate('jwt', { session: false }), getallevents);
 router.get('/getfutureexams',passport.authenticate('jwt', { session: false }),  getfutureexams);
 router.get('/getpractice', passport.authenticate('jwt', { session: false }), getpractice);
-router.post('/addevent', passport.authenticate('jwt', { session: false }), addevent);
-router.post('/register', passport.authenticate('jwt', { session: false }), register);
-router.post('/unregister', passport.authenticate('jwt', { session: false }), unregister);
-router.delete('/:_id', passport.authenticate('jwt', { session: false }), deleteevent);
-router.put('/:_id', passport.authenticate('jwt', { session: false }), updateevent);
+router.post('/addevent', passport.authenticate('jwt', { session: false }), addevent); // Validation done
+router.post('/register', passport.authenticate('jwt', { session: false }), register); // Validation done
+router.post('/unregister', passport.authenticate('jwt', { session: false }), unregister); // Validation done
+router.delete('/:_id', passport.authenticate('jwt', { session: false }), deleteevent); // Validation done
+router.put('/:_id', passport.authenticate('jwt', { session: false }), updateevent); // Validation done
 router.get('/getreginfo/:_id', passport.authenticate('jwt', { session: false }), getreginfo);
-router.post('/addpractice', passport.authenticate('jwt', { session: false }), addpractice);
+router.post('/addpractice', passport.authenticate('jwt', { session: false }), addpractice); // Validation done
 router.post('/addattendance', passport.authenticate('jwt', { session: false }), addattendance);
 router.get('/getpracticeregs/:_id', passport.authenticate('jwt', { session: false }), getpracticeregs);
 router.get('/getpracticeregnames/:_id', passport.authenticate('jwt', { session: false }), getpracticeregnames);
 router.get('/geteventregs/', passport.authenticate('jwt', { session: false }), geteventregs);
 router.get('/geteventregnames/:_id', passport.authenticate('jwt', { session: false }), geteventregnames);
 router.get('/getexamhistory/:_id', passport.authenticate('jwt', { session: false }), getexamhistory);
-router.post('/approveattendance/:_id', passport.authenticate('jwt', { session: false }), approveattendance);
+router.post('/approveattendance/:_id', passport.authenticate('jwt', { session: false }), approveattendance); // Validation done
 router.get('/getexamyears/', passport.authenticate('jwt', { session: false }), getexamyears);
 router.get('/getpastexams/:_id', passport.authenticate('jwt', { session: false }), getpastexams);
 router.get('/getexamregnames/:_id', passport.authenticate('jwt', { session: false }), getexamregnames);
-router.post('/updateexam/:_id', passport.authenticate('jwt', { session: false }), updateExamResult);
-router.post('/getpracticehistory/:_id', passport.authenticate('jwt', { session: false }), getpracticehistory);
+router.post('/updateexam/:_id', passport.authenticate('jwt', { session: false }), updateExamResult); // Validation done
+router.post('/getpracticehistory/:_id', passport.authenticate('jwt', { session: false }), getpracticehistory); // Validation done
 
 
 module.exports = router;
@@ -107,21 +107,47 @@ function getfutureexams(req,res) {
    }); 
 }
 
-function addevent(req, res){ //TO DO Validation
+function addevent(req, res){ 
+    logger.info(JSON.stringify(req.body));
+    var valid = validator.isJSON(JSON.stringify(req.body));
 
-    if(true){ 
+    valid = valid && validator.isInt(req.body.eventtypeID.toString())
+        && validator.isInt(req.body.locationID.toString())
+        && validator.isISO8601(req.body.start.toString())
+        && validator.isISO8601(req.body.end.toString());
 
-        eventservice.addevent(req)
-        .then(function(data){
-          res.status(200).send(data);
+
+
+    validatorService.validString(req.body.name, 50)
+        .then(nameIsValid => {
+            valid = valid && nameIsValid;
+            logger.info(valid);
+        })
+        .then(() => {
+            return authLoginService.getDecodedToken(req);
+        })
+        .then(token => {
+            return validatorService.isDojocho(token.pid);
+        })
+        .then(isDojocho => {
+ 
+            if(valid && isDojocho){ 
+
+                eventservice.addevent(req)
+                .then(function(data){
+                  res.status(200).send(data);
+                })
+                .catch(function (err) {
+                  res.status(400).send(err);
+                });
+            }else{
+                res.status(400).json({message:"Please send valid data."});
+            }
         })
         .catch(function (err) {
-          res.status(400).send(err);
-        });
-    }else{
-        res.status(400).json({message:"Please send valid data."});
-        //Notify client to send valid data.
-    }
+            res.status(400).send();
+          });
+
 }
 
 function register(req, res){ 
@@ -185,35 +211,78 @@ function unregister(req, res){
 }
 
 function deleteevent(req, res) {
-    eventservice.deleteevent(req.params._id)
-        .then(function (resp) {
-            console.log(resp);
-            res.sendStatus(200);
+
+    var valid = validator.isInt(req.params._id.toString());
+
+
+    authLoginService.getDecodedToken(req)
+        .then(token => {return validatorService.isDojocho(token.pid) })
+        .then(isDojocho => {
+
+            if (valid && isDojocho) {
+
+                eventservice.deleteevent(req.params._id)
+                .then(function (resp) {
+                    console.log(resp);
+                    res.sendStatus(200);
+                })
+                .catch(function (err) {
+                    console.log(err);
+                    res.sendStatus(400).send(err);
+                });
+            } else {
+                res.status(400).json({message:"Please send valid data."});
+            }
         })
         .catch(function (err) {
-            console.log(err);
-            res.sendStatus(400).send(err);
+            res.status(400).send();
         });
 }
 
-function updateevent(req, res){ //TO DO Validation
- 
+function updateevent(req, res){ 
 
-    if(true){ 
+    logger.info(JSON.stringify(req.body));
 
-        eventservice.updateevent(req)
-        .then(function(data){
-            console.log(JSON.stringify(data));
-          res.sendStatus(200).send(data);
+    var valid = validator.isJSON(JSON.stringify(req.body));
+
+    valid = valid && validator.isInt(req.body.eventtypeID.toString())
+        && validator.isInt(req.body.ID.toString())
+        && validator.isInt(req.body.locationID.toString())
+        && validator.isISO8601(req.body.start.toString())
+        && validator.isISO8601(req.body.end.toString());
+    logger.info(valid);
+   
+    validatorService.validString(req.body.name, 50)
+        .then(nameIsValid => {
+            valid = valid && nameIsValid;
+            logger.info(valid);
+        })
+        .then(() => {
+            return authLoginService.getDecodedToken(req);
+        })
+        .then(token => {
+            return validatorService.isDojocho(token.pid);
+        })
+        .then(isDojocho => {
+
+            if(valid && isDojocho){ 
+
+                eventservice.updateevent(req)
+                .then(function(data){
+                    console.log(JSON.stringify(data));
+                res.sendStatus(200).send(data);
+                })
+                .catch(function (err) {
+                    console.log(JSON.stringify(err));
+                res.sendStatus(400).send(err);
+                });
+            }else{
+                res.sendStatus(400).json({message:"Please send valid data."});
+            } 
         })
         .catch(function (err) {
-            console.log(JSON.stringify(err));
-          res.sendStatus(400).send(err);
+            res.status(400).send();
         });
-    }else{
-        res.sendStatus(400).json({message:"Please send valid data."});
-        //Notify client to send valid data.
-    }
 }
 
 function getreginfo(req,res) {
@@ -227,15 +296,37 @@ function getreginfo(req,res) {
     }); 
 }
 
-function addpractice(req,res) { //TO DO  only Dojocho, validation of input
-    
-    eventservice.addpractice(req)
-    .then(function(srvresp){
-        res.status(200).send(JSON.stringify(srvresp));
-    })
-    .catch(function(err){
-        res.status(400).send(JSON.stringify(err));
-    }); 
+function addpractice(req,res) { 
+
+    var valid = validator.isJSON(JSON.stringify(req.body))
+
+    valid = valid && validator.isInt(req.body.eventtypeID.toString())
+        && validator.isInt(req.body.locationID.toString())
+        && req.body.timerange.every(validator.isISO8601)
+        && validator.isIn(req.body.practicelength.toString(), ['45', '60', '90'])
+        && req.body.weekdayID.map(elem => elem.toString()).every(validator.isInt);
+
+    authLoginService.getDecodedToken(req)
+        .then(token => {
+            return validatorService.isDojocho(token.pid);
+        })
+        .then(isDojocho => {
+            if (valid && isDojocho) {
+
+                eventservice.addpractice(req)
+                .then(function(srvresp){
+                    res.status(200).send(JSON.stringify(srvresp));
+                })
+                .catch(function(err){
+                    res.status(400).send(JSON.stringify(err));
+                }); 
+            } else {
+                res.status(400).json({message: 'Nem elfogadható adatbevitel'});
+            }
+        })
+        .catch(function (err) {
+            res.status(400).send(JSON.stringify(err));
+        });
 }
 
 function addattendance(req,res) { 
@@ -329,14 +420,40 @@ function getexamhistory(req,res) {
 
 
 function approveattendance(req,res) {
-   
-    eventservice.approveattendance(req)
-    .then(function(srvresp){
-        res.status(200).send(JSON.stringify(srvresp));
-    })
-    .catch(function(err){
-        res.status(400).send(err);
-    }); 
+
+    var valid = validator.isJSON(JSON.stringify(req.body));
+    valid = valid && validator.isInt(req.params._id.toString());
+    req.body.forEach(elem => {
+        valid = valid && validator.isInt(elem.ID.toString());
+    });
+    req.body.forEach(elem => {
+        valid = valid && validator.isBoolean(elem.attended.toString());
+    });
+
+    authLoginService.getDecodedToken(req)
+        .then(token => {return validatorService.isInstructor(token.pid)})
+        .then(isInstructor => {
+            logger.info('valid ' + valid);
+            logger.info('isInstructor ' + isInstructor);
+            if(valid && isInstructor) {
+
+                eventservice.approveattendance(req)
+                .then(function(srvresp){
+                    res.status(200).send(JSON.stringify(srvresp));
+                })
+                .catch(function(err){
+                    logger.info(JSON.stringify(err));
+                    res.status(400).send(err);
+                });
+
+            } else {
+                res.status(400).send('Send valid data');
+            }
+        })
+        .catch(function(err){
+            logger.info(JSON.stringify(err));
+            res.status(400).send(err);
+        }); 
 }
 
 function getexamyears(req,res) {
@@ -378,8 +495,7 @@ function getexamregnames(req,res) {
 
 
 function updateExamResult (req, res) {
-    logger.info('req.params.id: ' + req.params._id);
-    logger.info('req.body: ' + JSON.stringify(req.body));
+
 
     var valid = validator.isJSON(JSON.stringify(req.body))
         && validator.isInt(req.params._id.toString())

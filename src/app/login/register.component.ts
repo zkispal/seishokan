@@ -47,7 +47,7 @@ export class RegisterComponent implements OnInit {
                         practicestart : 0,
                         rankID : 0,
                         homedojoID : 0,
-                        roleID : [7, 9]};
+                        roleID : []};
 
 
 
@@ -63,6 +63,8 @@ export class RegisterComponent implements OnInit {
 
         this.loadDojos();
         this.loadadultranks();
+        this.loadRole('Visitor');
+        this.loadRole('Aikidoka');
 
         this.today = new Date();
         this.bsLocService.use(this.locale);
@@ -87,17 +89,22 @@ export class RegisterComponent implements OnInit {
 
 
     private loadDojos() {
-        this.dataService
-            .getdojos()
+        this.dataService.getdojos()
             .subscribe( res => {  this.dojos = res; },
                         err => {console.log(err); }  ) ;
     }
 
     private loadadultranks() {
-        this.dataService
-            .getadultranks()
+        this.dataService.getadultranks()
             .subscribe(  res => {  this.ranks = res; },
                         err => {console.log(err); } );
+    }
+
+    private loadRole(_rolename) {
+        this.dataService.getroleid(_rolename)
+            .subscribe(  res => {  console.log(res);
+                this.regdata.roleID.push(res); },
+                err => {console.log(err); });
     }
 
     register() {
@@ -109,7 +116,7 @@ export class RegisterComponent implements OnInit {
         this.authService.createPerson(this.regdata)
             .subscribe( data => { this.authService.setCurrentUser(data);
                                 this.router.navigate(['/login']); },
-                        error => { console.log(error);
-                            this.alertService.error('Sikertelen regisztráció! ' + error.message); });
+                        err => { console.log(JSON.stringify(err));
+                            this.alertService.error('Sikertelen regisztráció! ' + err.error.message); });
         }
     }

@@ -16,8 +16,9 @@ var dataservice = {};
 dataservice.getview = getview;
 dataservice.getviewSelectByID = getviewSelectByID;
 dataservice.getroleholders = getroleholders;
+dataservice.getroleid = getroleid;
+dataservice.updtroleholders = updtroleholders;
 dataservice.delroleholders = delroleholders;
-dataservice.updtroleholders = updtroleholders
 
 
 
@@ -70,6 +71,25 @@ function getroleholders(_id) {
 
     return deferred.promise;
 }
+
+function getroleid(_role) {
+    var deferred = Q.defer();
+
+    knex('role').select('ID').where('rolename',_role)
+    .then(function (res){
+        if(res.length === 1) {
+            deferred.resolve(JSON.stringify(res[0].ID));
+        } else {
+            deferred.reject('No data');
+        }
+    })
+    .catch(function(err){
+        deferred.reject(err);
+    });
+
+    return deferred.promise;   
+}
+
 
 function delroleholders(_id) {
 

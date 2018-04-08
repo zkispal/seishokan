@@ -37,8 +37,9 @@ export class LoginComponent implements OnInit {
                 this.authService.setCurrentUser(data);
                 this.router.navigate([this.returnUrl]);
               },
-              err => {
-                this.alertService.error('Érvénytelen felhasználónév vagy jelszó\n' + err.message);
+              err => { console.log(JSON.stringify(err));
+                const message = 'Sikertelen bejelentkezés. '.concat(err.error.message, ' ', err.message);
+                this.alertService.error(message);
                 this.loading = false;
               });
   }

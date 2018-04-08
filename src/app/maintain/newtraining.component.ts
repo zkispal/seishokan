@@ -84,7 +84,9 @@ export class NewtrainingComponent implements OnInit {
 
     this.dataService.addtraining(this.newPractice)
                     .subscribe( res => {this.alertService.success('Sikeres edzésmeghirdtés.'); },
-                                err => {this.alertService.error('Sikertelen edzésmeghirdetés ' + err.message); }  ) ;
+                                err => {console.log(JSON.stringify(err));
+
+                                  this.alertService.error('Sikertelen edzésmeghirdetés ' + err.error.message + ' ' + err.message); }  ) ;
   }
 
 }
