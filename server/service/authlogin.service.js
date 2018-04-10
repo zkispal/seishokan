@@ -26,22 +26,47 @@ const logger = log4js.getLogger('authlogin.service');
 var authloginservice = {};
 
 authloginservice.authenticate = authenticate;
-authloginservice.createPerson = createPerson;
+authloginservice.register = register;
 authloginservice.getDecodedToken = getDecodedToken;
-//authloginservice.updatePerson = updatePerson;
+
 
 
 
 module.exports = authloginservice;
 
-function createPerson(req){
+function register(req){
     var deferred = Q.defer();
-
+    var reqbody = req.body;
+    logger.info('inside register ' + JSON.stringify(req.body));
     knex.select('ID', 'username').from('Person').where('username', req.body.username)
-        .then(function (founduser){
+        .then(founduser => {
 
           if(founduser.length === 0){
-            createPersoninDB();
+
+            insertPerson(req)
+            .then(id => {
+              createToken(id)
+              .then(token => {
+
+                assemblyUser(id, token)
+                .then(user => {logger.info(JSON.stringify(user));
+                   deferred.resolve(user); })
+                .catch(function(err){
+
+                  deferred.reject(err);
+                });
+              })
+              .catch(function(err){
+
+                deferred.reject(err);
+              });
+            
+            })
+            .catch(function(err){
+
+              deferred.reject(err);
+            });
+
           }
           else{
             var message = ''.concat('A ', req.body.username,' felhasználónév már foglalt.')
@@ -49,199 +74,151 @@ function createPerson(req){
           }
         })
         .catch(function(err){
+          logger.info(JSON.stringify(err));
           deferred.reject(err);
         });
-function createPersoninDB(){
-
-            var computedpasshash = bcrypt.hashSync(req.body.password, 10);
-
-            var DoB = new Date(parseInt(req.body.dateofbirth, 10));
-            var practiceStartDate = new Date(parseInt(req.body.practicestart, 10));
-
-            knex.insert({username:req.body.username,
-                        passhash:computedpasshash,
-                        email:req.body.email,
-                        dateofbirth:DoB,
-                        practicestart:practiceStartDate,
-                        rankID:req.body.rankID,
-                        homedojoID:req.body.homedojoID,
-                        firstname:req.body.firstname,
-                        lastname:req.body.lastname}
-                      )
-                .into('Person')
-                .then(function(id){
-
-                  req.body.roleID.forEach(function (elem) {
-                    
-                    var rolerecord = {personID:id, roleID:elem};
-
-                    knex.insert(rolerecord).into('Roles')
-                    .catch((err) => {deferred.reject(err); });
-                  });
-                  
-                  var payload = {pid:id[0]};
-                  var token = jwt.sign(payload, jwtOptions.secretOrKey, {expiresIn: '1d'});//Create JWT
-                  deferred.resolve({token:token});
-                })
-                .catch((err) => {deferred.reject(err); 
-
-                });
-          }
-
-  return deferred.promise;
-}
-
-
-function getDecodedToken(req) {
-var deferred = Q.defer();
-
-var authheader = req.headers.authorization;
-
-
-  if (authheader.split(' ')[0] === 'Bearer'){
-      var token = authheader.split(' ')[1];
-
-      var decodedToken;
-      decodedToken = jwt.verify(token,jwtOptions.secretOrKey);
-
-      //return decodedToken;
-      deferred.resolve(decodedToken);
-      
-  }else{
-    //return 0;
-   deferred.reject();
-  }
-
-return deferred.promise;
-}
-
-function updatePerson(req) { // IMPROVEMENT add transaction handling
-  var deferred = Q.defer();
-
-
-  knex('Person').where({lastname:req.body.lastname, // We assume that the birthdate, firstname, lastname
-                        firstname:req.body.firstname,// triplet identifies a person.
-                        dateofbirth:req.body.dateofbirth}).select('ID')
-  .then((res) => {
-
-    if (res.length === 0){
-      updatePersonInDB();
-    }else{deferred.reject('Person: ' + req.body.firstname +' '+ req.body.lastname +' already taken.');}
-  })
-  .catch((err) => {
-
-    deferred.reject(err);});
-
-
-    function updatePersonInDB(){
-      var person = omitempty(_.omit((req.body), 'roleID'));
-
-      knex('Person').insert(person)
-      .then((pid) => {
-
-
-        knex('User').where('ID', getUidFromToken(req)) //Update user table
-        .update('personid',pid[0])
-        .then(() => {
-
-          req.body["roleID"].forEach(elem =>{
-            var roleRecords =[];
-            roleRecords.push({'personID':pid[0], 'roleID':elem});
-            knex("Roles").insert(roleRecords)
-            .then (() =>{
-                var token = createToken(getUidFromToken(req.header.auth));
-
-            })
-            .catch((err) => {
-
-              deferred.reject(err);});
-          })
-        })
-        .catch((err) => {
-
-          deferred.reject(err);});
-      })
-      .catch((err) => {
-
-        deferred.reject(err);})
-
-  }
-
-
-
-  return deferred.promise;
+    return deferred.promise;
 }
 
 
 function authenticate(req) {
   var deferred = Q.defer();
 
-  knex('Person').where('username', req.body.username).select('ID', 'passhash', 'firstname', 'lastname')
+  knex('Person').where('username', req.body.username).select('ID', 'passhash')
   .then((res) => {
 
-      if(bcrypt.compareSync(req.body.password, res[0].passhash)){
- 
-        createToken(res[0].ID)
-        .then(function (token) {
+    if(bcrypt.compareSync(req.body.password, res[0].passhash)){
 
-          knex('vupersonsroles').where('personID',res[0].ID)
-          .then(function (roledata) {
-
-            var roles =[];
-            roledata.forEach(function (elem){
-              roles.push(elem.rolename);
-            })
-
-
-            deferred.resolve({ID:res[0].ID,
-              lastname:res[0].lastname,
-              firstname:res[0].firstname,
-              role:roles,
-              token:token});
-
-          })
-          .catch ((err) => {deferred.reject(err);} );          
-        })
-        .catch ((err) => {deferred.reject(err);} );
-      } else {
-        deferred.reject({message : 'Hibás felhasználónév vagy jelszó'});
-      }
+      createToken(res[0].ID)
+      .then(token => {
+         assemblyUser(res[0].ID, token)
+        .then(user => deferred.resolve(user))
+        .catch ((err) => {deferred.reject(err);} );          
+      })
+      .catch ((err) => {deferred.reject(err);} );
+    } else {
+      deferred.reject({message : 'Hibás felhasználónév vagy jelszó'});
+    }
   })
   .catch((err) => {deferred.reject(err);});
-    
 
   return deferred.promise;
 }
 
 
-function createToken(pid) { 
+function insertPerson(req){
 
-    var deferred = Q.defer();
+  var deferred = Q.defer();
 
-    var payload = {};
-    payload.pid =pid;
-    payload.rol =[];
-    payload.pof= [];// start populating payload
+  var computedpasshash = bcrypt.hashSync(req.body.password, 10);
+  var DoB = new Date(parseInt(req.body.dateofbirth, 10));
+  var practiceStartDate = new Date(parseInt(req.body.practicestart, 10));
 
-    knex('Roles').select('roleid').where('personID', pid)
+  var personRecord = {username:req.body.username,
+                      passhash:computedpasshash,
+                      email:req.body.email,
+                      dateofbirth:DoB,
+                      practicestart:practiceStartDate,
+                      rankID:req.body.rankID,
+                      homedojoID:req.body.homedojoID,
+                      firstname:req.body.firstname,
+                      lastname:req.body.lastname};
+  var personID = 0;
+  knex.transaction(trx => {
+
+    return trx.insert(personRecord).into('Person')
+              .then(pid => {
+
+                personID = pid[0];
+                var roleRecords = req.body.roleID.map(elem => _.assign({personID:pid[0], roleID:elem}));
+
+                return trx.insert(roleRecords).into('roles');
+              })
+
+  })
+  .then(dbresp => {deferred.resolve(personID); })
+  .catch(err => { deferred.reject(err);} );
+
+  return deferred.promise;
+}
+
+
+function createToken(_pid) { 
+
+  var deferred = Q.defer();
+
+  var JWTPayload = {pid :_pid,
+                    rol : [],
+                    pof : []};  // start populating payload
+
+    knex('Roles').select('roleid').where('personID', _pid)
     .catch((err) => {deferred.reject(err);})
     .then((res)=>{
-        
-      for (let i=0; i< res.length; i++){
-         payload.rol.push(res[i].roleid);
-       }
 
-        knex('Person').select('id').where('parentid', pid)
+        JWTPayload.rol = res.map(elem => elem.roleid);
+
+        knex('Person').select('ID').where('parentid', _pid)
         .catch((err) => {deferred.reject(err);})
         .then((kids) => {
-          for (let i=0; i< kids.length; i++){
-            payload.rol.push(res[i].ID);
-          }
 
-          var token = jwt.sign(payload, jwtOptions.secretOrKey, {expiresIn: '1d'}); //Create token
+          JWTPayload.pof = kids.map(elem => elem.ID)
+
+          var token = jwt.sign(JWTPayload, jwtOptions.secretOrKey, {expiresIn: '1d'}); //Create token
           deferred.resolve(token);
 
         })
     });
     return deferred.promise;
+}
+
+
+function assemblyUser(pid, token) {
+  var deferred = Q.defer();
+
+  var User = {ID:pid,
+              lastname:'',
+              firstname:'',
+              role:[],
+              token:token};
+  knex('Person').where('ID', pid).select('firstname', 'lastname')
+  .then(dbresp => {
+
+    User.lastname = dbresp[0].lastname;
+    User.firstname = dbresp[0].firstname;
+
+    knex('vupersonsroles').where('personID', pid)
+    .then(roledata => {
+
+      User.role = roledata.map(elem => elem.rolename);
+
+      deferred.resolve(User);
+    })
+    .catch(err => deferred.reject(err));
+  })
+  .catch(err => deferred.reject(err));
+
+  return deferred.promise;
+}
+
+function getDecodedToken(req) {
+  var deferred = Q.defer();
+  
+  var authheader = req.headers.authorization;
+  
+  
+    if (authheader.split(' ')[0] === 'Bearer'){
+        var token = authheader.split(' ')[1];
+  
+        var decodedToken;
+        decodedToken = jwt.verify(token,jwtOptions.secretOrKey);
+  
+        //return decodedToken;
+        deferred.resolve(decodedToken);
+        
+    }else{
+      //return 0;
+     deferred.reject();
+    }
+  
+  return deferred.promise;
   }

@@ -18,9 +18,9 @@ const logger = log4js.getLogger('authlogin.controller');
 
 
 router.post('/authenticate', authenticate); // No JWT authentication as it needs for authentication.
-// router.post('/updateperson', updateperson);
+
 router.post('/registerperson', registerperson); // No JWT authentication as it needs for registration.
-// router.get('/getPidFromToken', getPidFromToken);
+
 module.exports = router;
 
 const ExtractJwt = passportJWT.ExtractJwt;
@@ -73,7 +73,6 @@ function authenticate(req, res){
 }
 
 
-
 function registerperson (req, res){
     //Ensure all data is received from client
  
@@ -98,16 +97,17 @@ function registerperson (req, res){
 
         if ( valid && allPromiseValid ) {                      
 
-          authLoginService.createPerson(req)
+          authLoginService.register(req)
             .then(function(user){
               res.status(200).send(user);
             })
             .catch(function (err) {
+              logger.info(JSON.stringify(err))
               res.status(400).send(JSON.stringify(err));
             });
       
         } else {
-          res.status(400).send({message:"Bad data received"});
+          res.status(400).send({message:'Hibás regisztrációs adat!'});
         }
 
       })                         
@@ -116,31 +116,3 @@ function registerperson (req, res){
       });
 
 }
-
-/* function updateperson(req,res) {
-
-  if(true){ //TO DO test validators
-    authLoginService.createPerson(req)
-      .then((token) => res.status(200).send(token))
-      .catch((err) => res.status(400).send(JSON.stringify(err)))
-  }else{
-    res.status(400).send({message:"Bad data received"});
-  }
-
-} */
-
-/* function getPidFromToken(req,res){
-
-if(true){
-  authLoginService.getPidFromToken(req)
-  .then((pid) => res.status(200).send(pid))
-  .catch((err) => res.status(400).send(JSON.stringify(err)))
-}else{
-
-  res.status(400).send({message:"Bad data received"});
-}
-
-
-
-} */
-

@@ -80,30 +80,10 @@ function getlocationtypes(req,res) {
 
 function addlocation(req, res){ //TO DO Validation
 
-    if(true){ 
-
-        locationservice.addlocation(req)
-        .then(function(data){
-          res.status(200).send(data);
-        })
-        .catch(function (err) {
-          res.status(400).send(JSON.stringify(err));
-        });
-    }else{
-        res.status(400).json({message:"Please send valid data."});
-        //Notify client to send valid data.
-    }
-}
-
-
-function updatelocation(req, res){ 
-    logger.info(JSON.stringify(req.body));
-
+    logger.info('new location: ' + JSON.stringify(req.body));
 
     var valid = !validator.isEmpty(JSON.stringify(req.body));
     valid = validator.isJSON(JSON.stringify(req.body));
-    valid = valid && validator.isInt(req.body.ID.toString());
-    valid = valid && validator.isIn(req.body.locationtype, ['Dojo','Eseményhelyszín']);
     valid = valid && validator.isDecimal(req.body.lat.toString());
     valid = valid && validator.isDecimal(req.body.lon.toString());
 
@@ -112,7 +92,60 @@ function updatelocation(req, res){
                             validatorService.validString(req.body.city, 45),
                             validatorService.validString(req.body.zipcode, 4),
                             validatorService.validString(req.body.address, 45),
-                            validatorService.validString(req.body.building, 80)];
+                            validatorService.validString(req.body.building, 80),
+                            validatorService.locTypeIsValid(req.body.locationtype)];
+    var allPromiseValid = false;
+
+    Q.allSettled(stringPromises)
+    .then(promiseResults => {
+        allPromiseValid =  promiseResults.reduce((all, elem) => all && elem.value, true);
+
+    })
+    .then(() => authLoginService.getDecodedToken(req))
+    .then(token => validatorService.isDojocho(token.pid))
+    .then(isDojocho => {
+
+        if(valid && allPromiseValid && isDojocho){ 
+
+            locationservice.addlocation(req)
+            .then(function(data){
+              res.status(200).send(data);
+            })
+            .catch(function (err) {
+              res.status(400).send(JSON.stringify(err));
+            });
+        }else{
+            res.status(400).send({message:"Please send valid data."});
+            //Notify client to send valid data.
+        }
+    })
+    .catch(err => {
+        res.sendStatus(400).send(err);
+    });
+
+
+
+
+
+
+}
+
+
+function updatelocation(req, res){ 
+
+    var valid = !validator.isEmpty(JSON.stringify(req.body));
+    valid = validator.isJSON(JSON.stringify(req.body));
+    valid = valid && validator.isInt(req.body.ID.toString());
+    valid = valid && validator.isDecimal(req.body.lat.toString());
+    valid = valid && validator.isDecimal(req.body.lon.toString());
+
+
+    var stringPromises = [  validatorService.validString(req.body.name, 50),
+                            validatorService.validString(req.body.city, 45),
+                            validatorService.validString(req.body.zipcode, 4),
+                            validatorService.validString(req.body.address, 45),
+                            validatorService.validString(req.body.building, 80),
+                            validatorService.locTypeIsValid(req.body.locationtype)];
     var allPromiseValid = false;
 
     Q.allSettled(stringPromises)

@@ -2,6 +2,7 @@ require('rootpath')();
 const validator = require('validator');
 const Q = require('q');
 const knexconfig = require ('server/knexconfig.json')
+const locationservice = require ('server/service/location.service');
 const knex = require('knex')(knexconfig);
 const datefns = require ('date-fns');
 const _ = require ('lodash');
@@ -27,6 +28,7 @@ validatorservice.isAikidoka = isAikidoka;
 validatorservice.isInstructor = isInstructor;
 validatorservice.isDojocho = isDojocho;
 validatorservice.validString = validString;
+validatorservice.locTypeIsValid = locTypeIsValid;
 
 module.exports = validatorservice;
 
@@ -52,10 +54,8 @@ function usernameExists(username)  {
 
   knex('person').select('ID').where('username', username)
     .then(dbresp => {
-      logger.info('dbresp: ' + JSON.stringify(dbresp));
-      logger.info('dbresp.length: ' + dbresp.length);
-      var exists = dbresp.length === 1;
-      deferred.resolve(exists);
+
+      deferred.resolve(dbresp.length === 1);
     })
     .catch(err => deferred.reject(err));
 
@@ -154,22 +154,22 @@ function roleIDsIsValid(roles) {
   var valid = false;
 
   valid = (roles.length > 0); //Shouldn't be an empty array
-  logger.info('valid after length check: ' + valid);
+
 
   roles.forEach(function(element){
-    logger.info('element in foreach: ' + element);
+
       valid = valid && validator.isInt(element.toString()); //All rolesids should be an integer
-      logger.info('valid in foreach: ' + valid);
+
   });
 
   knex.select('ID').from('Role')
       .map(dbresp => dbresp.ID) //All element of roles array should exist in DB
       .then(function (resp) {
-        logger.info(JSON.stringify(resp));
+
         var arrayInArray = arrayContainsArray(resp,roles);
-        logger.info('arrayInArray: ' + arrayInArray);
-        valid = valid && arrayInArray
-        logger.info('valid within knex then: ' + valid);
+
+        valid = valid && arrayInArray;
+
         deferred.resolve(valid);
       })
       .catch(function(err){
@@ -230,7 +230,7 @@ function isAikidoka(id) {
 }
 
 function isInstructor(id) {
-  logger.info(id);
+
   var deferred = Q.defer();
 
   var isInstructor = false;
@@ -241,7 +241,7 @@ function isInstructor(id) {
       .orWhere('role.rolename', 'Assistant')
       .map(dbresp => dbresp.personID)
       .then(pids => {
-        logger.info(pids);
+
         isInstructor = _.includes(pids, id);
         deferred.resolve(isInstructor);
 
@@ -290,6 +290,20 @@ function validString(_string, maxlen) {
   
 }
 
+
+function locTypeIsValid(_loctype) {
+
+  var deferred = Q.defer();
+  
+  locationservice.getlocationtypes()
+    .then(loctypes => {
+      deferred.resolve(validator.isIn(_loctype, loctypes));
+    })
+    .catch(err => deferred.reject(err));
+
+  return deferred.promise;
+  
+}
 
 //Helper function to check if all elements of an array exists in an other array
 function arrayContainsArray (superset, subset) {

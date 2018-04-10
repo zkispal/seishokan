@@ -115,7 +115,7 @@ export class RegisterComponent implements OnInit {
 
         this.authService.createPerson(this.regdata)
             .subscribe( data => { this.authService.setCurrentUser(data);
-                                this.router.navigate(['/login']); },
+                                this.router.navigate(['/home']); },
                         err => { console.log(JSON.stringify(err));
                             this.alertService.error('Sikertelen regisztráció! ' + err.error.message); });
         }

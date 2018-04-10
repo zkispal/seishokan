@@ -1,11 +1,10 @@
 require('rootpath')();
-//const jwt = require('jsonwebtoken');
 const Q = require('q');
 const _ = require('lodash');
-//const omitempty= require ('omit-empty');
 const knexconfig = require ('server/knexconfig.json')
 const knex = require('knex')(knexconfig);
-
+const log4js = require('log4js');
+const logger = log4js.getLogger('location.service');
 
 var locationservice = {};
 
@@ -55,15 +54,11 @@ function getlocationtypes() {
     
     var deferred = Q.defer();
 
-    knex('Location').distinct('locationtype').select()
-    .then(function (res){
+    knex('calendar').select('locationtypes')
+    .whereNotNull('locationtypes')
+    .then(function (dbresp){
 
-        var locationtypes = [];
-        res.forEach(element => {
-            locationtypes.push(element.locationtype);            
-        });
-
-        deferred.resolve(JSON.stringify(locationtypes));
+        deferred.resolve(JSON.stringify(dbresp.map(elem => elem.locationtypes)));
     })
     .catch(function(err){
         deferred.reject(err);
