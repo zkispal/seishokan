@@ -22,8 +22,8 @@ router.get('/getsempais', passport.authenticate('jwt', { session: false }), gets
 router.get('/getinstructors', passport.authenticate('jwt', { session: false }), getinstructors);
 router.get('/getpromotableroles', passport.authenticate('jwt', { session: false }), getpromotableroles);
 router.get('/getroleholders/:_id', passport.authenticate('jwt', { session: false }), getroleholders);
-router.delete('/roleholders/:_id', passport.authenticate('jwt', { session: false }), delroleholders); //Validation done
-router.post('/roleholders/', passport.authenticate('jwt', { session: false }), updtroleholders); //Validation done
+router.delete('/roleholders/:_id', passport.authenticate('jwt', { session: false }), delroleholders); 
+router.post('/roleholders/', passport.authenticate('jwt', { session: false }), updtroleholders); 
 
 
 module.exports = router;
@@ -177,7 +177,7 @@ function updtroleholders(req,res) {
             if(valid && isDojocho) {
                 dataservice.updtroleholders(req)
                 .then(function(dbres) {
-                    res.status(200).send(JSON.stringify(dbres));
+                        res.status(200).send(JSON.stringify(dbres));
                 })
                 .catch(function(err){
                     res.status(400).send(JSON.stringify(err));

@@ -77,13 +77,14 @@ export class TrainingmanregComponent implements OnInit {
   }
 
 
-  private addattendance() {
+  private addattendancereg() {
     if (this.attendanceRecord.attendeeID === this.attendanceRecord.instructorID) {
       this.alertService.error('Önregisztráció nem megengedett!');
     } else {
-    this.dataService.addattendance(this.attendanceRecord)
+    this.dataService.addattendancereg(this.attendanceRecord)
                     .subscribe( res => {  this.alertService.success('Sikeres utólagos edzésrészvétel rögzítés.'); },
-                                err => { this.alertService.error('Sikertelen utólagos edzésrészvétel rögzítés. ' + err.message); }  ) ;
+                                err => { console.log(JSON.stringify(err));
+                                  this.alertService.error('Sikertelen utólagos edzésrészvétel rögzítés. ' + err.message); }  ) ;
     }
   }
 }

@@ -105,9 +105,9 @@ function updatelocation(req) {
     var deferred = Q.defer();
 
     knex('Location').where('ID', req.body.ID).update(_.omit(req.body, 'ID'))
-    .then(function(res){
+    .then(function(dbresp){
   
-        deferred.resolve(res);
+        deferred.resolve(dbresp);
     })
     .catch(function(err){
 

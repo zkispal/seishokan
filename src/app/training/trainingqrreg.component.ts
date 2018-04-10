@@ -49,7 +49,7 @@ export class TrainingqrregComponent implements OnInit {
 
   ngOnInit() {
 
-    this.trainingDay = new Date(2018, 3, 7, 12, 0, 0);
+    this.trainingDay = new Date();
     this.loadDojos();
     this.initAttendanceRec();
     this.scanner.camerasFound.subscribe((devices: MediaDeviceInfo[]) => {
@@ -143,7 +143,8 @@ export class TrainingqrregComponent implements OnInit {
                     .subscribe( res => {this.allAttendance = [];
                                         this.allAttendeeNames = [];
                                         this.alertService.success('Edzésrészvétel sikeresen rögzítve.'); },
-                                err => {this.alertService.error('Sikertelen edzésrögzítés. ' + err.message); }  ) ;
+                                err => {console.log(JSON.stringify(err));
+                                  this.alertService.error('Sikertelen edzésrögzítés. ' + err.message); }  ) ;
 
   }
 

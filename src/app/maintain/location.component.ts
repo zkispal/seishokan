@@ -68,11 +68,11 @@ export class LocationComponent implements OnInit {
 
   updateloc(i) {
     this.locToUpdate = this.locs[i];
-    this.dataService
-        .updateloc(this.locToUpdate)
+    this.dataService.updateloc(this.locToUpdate)
         .subscribe( data => { this.loadLocations();
                               this.alertService.success('Helyszín sikeresen módosítva.'); },
-                    err => { this.alertService.error('Helyszín módosítása sikertelen! ' + err.message); });
+                    err => {
+                      this.alertService.error('Helyszín módosítása sikertelen! ' + err.error.message); });
   }
 
 }

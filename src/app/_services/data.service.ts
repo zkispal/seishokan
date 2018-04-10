@@ -69,9 +69,9 @@ export class DataService {
   }
 
   updateloc (loc) {
-    return this.http.put('/location/' + loc.ID, loc,
-      { headers: new HttpHeaders().set('Content-Type', 'application/json'),
-        responseType: 'text'} // Needed because of Angular bug #18396
+    return this.http.post('/location/' + loc.ID, loc,
+/*       { headers: new HttpHeaders().set('Content-Type', 'application/json'),
+        responseType: 'text'} // Needed because of Angular bug #18396 */
     );
   }
 
@@ -162,9 +162,12 @@ export class DataService {
 
   }
 
-  addattendance(_attendanceRec) {
-    return this.http.post('/event/addattendance/', _attendanceRec);
+  addattendance(_attendanceRecArray) {
+    return this.http.post('/event/addattendance/', _attendanceRecArray);
+  }
 
+  addattendancereg(_attendanceRec) {
+    return this.http.post('/event/addattendancereg/', _attendanceRec);
   }
 
   getpracticeregs (_instructorID) {

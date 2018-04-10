@@ -19,25 +19,26 @@ router.get('/getevents', passport.authenticate('jwt', { session: false }), getev
 router.get('/getallevents', passport.authenticate('jwt', { session: false }), getallevents);
 router.get('/getfutureexams',passport.authenticate('jwt', { session: false }),  getfutureexams);
 router.get('/getpractice', passport.authenticate('jwt', { session: false }), getpractice);
-router.post('/addevent', passport.authenticate('jwt', { session: false }), addevent); // Validation done
-router.post('/register', passport.authenticate('jwt', { session: false }), register); // Validation done
-router.post('/unregister', passport.authenticate('jwt', { session: false }), unregister); // Validation done
-router.delete('/:_id', passport.authenticate('jwt', { session: false }), deleteevent); // Validation done
-router.put('/:_id', passport.authenticate('jwt', { session: false }), updateevent); // Validation done
+router.post('/addevent', passport.authenticate('jwt', { session: false }), addevent); 
+router.post('/register', passport.authenticate('jwt', { session: false }), register); 
+router.post('/unregister', passport.authenticate('jwt', { session: false }), unregister); 
+router.delete('/:_id', passport.authenticate('jwt', { session: false }), deleteevent); 
+router.put('/:_id', passport.authenticate('jwt', { session: false }), updateevent); 
 router.get('/getreginfo/:_id', passport.authenticate('jwt', { session: false }), getreginfo);
-router.post('/addpractice', passport.authenticate('jwt', { session: false }), addpractice); // Validation done
+router.post('/addpractice', passport.authenticate('jwt', { session: false }), addpractice); 
 router.post('/addattendance', passport.authenticate('jwt', { session: false }), addattendance);
+router.post('/addattendancereg', passport.authenticate('jwt', { session: false }), addattendancereg); 
 router.get('/getpracticeregs/:_id', passport.authenticate('jwt', { session: false }), getpracticeregs);
 router.get('/getpracticeregnames/:_id', passport.authenticate('jwt', { session: false }), getpracticeregnames);
 router.get('/geteventregs/', passport.authenticate('jwt', { session: false }), geteventregs);
 router.get('/geteventregnames/:_id', passport.authenticate('jwt', { session: false }), geteventregnames);
 router.get('/getexamhistory/:_id', passport.authenticate('jwt', { session: false }), getexamhistory);
-router.post('/approveattendance/:_id', passport.authenticate('jwt', { session: false }), approveattendance); // Validation done
+router.post('/approveattendance/:_id', passport.authenticate('jwt', { session: false }), approveattendance); 
 router.get('/getexamyears/', passport.authenticate('jwt', { session: false }), getexamyears);
 router.get('/getpastexams/:_id', passport.authenticate('jwt', { session: false }), getpastexams);
 router.get('/getexamregnames/:_id', passport.authenticate('jwt', { session: false }), getexamregnames);
-router.post('/updateexam/:_id', passport.authenticate('jwt', { session: false }), updateExamResult); // Validation done
-router.post('/getpracticehistory/:_id', passport.authenticate('jwt', { session: false }), getpracticehistory); // Validation done
+router.post('/updateexam/:_id', passport.authenticate('jwt', { session: false }), updateExamResult); 
+router.post('/getpracticehistory/:_id', passport.authenticate('jwt', { session: false }), getpracticehistory); 
 
 
 module.exports = router;
@@ -329,33 +330,66 @@ function addpractice(req,res) {
         });
 }
 
+
 function addattendance(req,res) { 
+    var valid = validator.isJSON(JSON.stringify(req.body));
+    valid = valid && req.body.every(elem => validator.isInt(elem.eventID.toString()));
+    valid = valid && req.body.every(elem => validator.isAlpha(elem.attendancetype));
+    valid = valid && req.body.every(elem => validator.isInt(elem.attendeeID.toString()));
+    valid = valid && req.body.every(elem => validator.isInt(elem.instructorID.toString()));
+
+    authLoginService.getDecodedToken(req)
+    .then(token => {return validatorService.isInstructor(token.pid)})
+    .then(isInstructor => {
+        if (valid && isInstructor) {
+            eventservice.addattendance(req)
+            .then(function(srvresp){
+                res.status(200).send(JSON.stringify(srvresp));
+            })
+            .catch(function(err){
+                logger.info(err);
+                res.status(400).send(JSON.stringify(err));
+            }); 
+    
+        } else {
+            res.status(400).send({message : 'Érvénytelen adat!'});
+        }
+    })
+    .catch(function (err) {
+        res.status(400).send(JSON.stringify(err));
+    });
+
+}
+
+
+function addattendancereg(req,res) {
+
     var valid = validator.isJSON(JSON.stringify(req.body)); 
     valid = valid && validator.isInt(req.body.eventID.toString());
     valid = valid && validator.isAlpha(req.body.attendancetype);
     valid = valid && validator.isInt(req.body.attendeeID.toString());
     valid = valid && validator.isInt(req.body.instructorID.toString());
 
-
     authLoginService.getDecodedToken(req)
-        .then(token => {return validatorService.isAikidoka(token.pid)})
-        .then(isAikidoka => {
-            if (valid && isAikidoka) {
-                eventservice.addattendance(req)
-                .then(function(srvresp){
-                    res.status(200).send(JSON.stringify(srvresp));
-                })
-                .catch(function(err){
-                    logger.info(err);
-                    res.status(400).send(JSON.stringify(err));
-                }); 
-        
-            } else {
-                res.status(400).send('Invalid input');
-            }
-        })
+    .then(token => {return validatorService.isAikidoka(token.pid)})
+    .then(isAikidoka => {
+        if (valid && isAikidoka) {
+            eventservice.addattendance(req)
+            .then(function(srvresp){
+                res.status(200).send(JSON.stringify(srvresp));
+            })
+            .catch(function(err){
+                res.status(400).send(JSON.stringify(err));
+            }); 
+    
+        } else {
+            res.status(400).send({message : 'Érvénytelen adat!'});
+        }
+    })
+    .catch(function (err) {
+        res.status(400).send(JSON.stringify(err));
+    });
 }
-
 
 function getpracticeregs(req,res) {
    
@@ -562,7 +596,7 @@ function getpracticehistory (req, res) {
                     res.status(400).send(JSON.stringify(err));
                 }); 
             } else {
-                res.status(400).send('Invalid input');
+                res.status(400).send({message : 'Érvénytelen bejövő adat!'});
             }
         } )
         .catch(function(err){

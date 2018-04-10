@@ -10,7 +10,7 @@ const logger = log4js.getLogger('validator.service');
 
 
 
-const uglyChars = ['<', '>', '!', '{', '}', '(', ')', '§', '/', '\'', '\$', '\\'];
+const uglyChars = ['<', '>', '!', '{', '}', '(', ')', '§', '\'', '\$', '\\'];
 
 var validatorservice = {};
 
