@@ -12,6 +12,7 @@ import { callLifecycleHooksChildrenFirst } from '@angular/core/src/view/provider
 })
 export class RolechangeComponent implements OnInit {
 
+assistantID = 0;
 
 sempais: Array<Options>;
 assistants: Array<Options>;
@@ -25,7 +26,7 @@ format =  { add: 'Kinevez',
             direction: 'left-to-right',
             draggable: true };
 records: Array<{personID: number, roleID: number}> = [];
-assistantID = 0;
+
 
 
 
@@ -46,7 +47,7 @@ assistantID = 0;
 loadasssistant() */
   loadRole(_rolename) {
     return this.dataService.getroleid(_rolename).toPromise();
-}
+  }
 
   loadsempais() {
 

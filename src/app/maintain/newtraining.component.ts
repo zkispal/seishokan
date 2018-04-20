@@ -17,7 +17,7 @@ export class NewtrainingComponent implements OnInit {
   dojos: Options[];
   practicetypes: Options[];
   weekdays: Array<any>;
-  ngselectmodel = {ID: 'id', name: 'text'};
+
   newPractice = {timerange: [new Date(), new Date()],
                  eventtypeID: 0,
                  locationID: 0,
@@ -72,15 +72,15 @@ export class NewtrainingComponent implements OnInit {
   }
 
   publishPractice() {
-    this.newPractice.weekdayID = [];
-    this.newPractice.timerange[1].setHours(this.newPractice.timerange[1].getHours() + 23);
 
+    this.newPractice.weekdayID = [];
     this.weekdays.forEach(elem => {
       if (elem.isPracticeDay) {
         this.newPractice.weekdayID.push(elem.ID);
       }
-
     });
+
+    this.newPractice.timerange[1].setHours(this.newPractice.timerange[1].getHours() + 23);
 
     this.dataService.addtraining(this.newPractice)
                     .subscribe( res => {this.alertService.success('Sikeres edzésmeghirdtés.'); },

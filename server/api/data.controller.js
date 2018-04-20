@@ -141,32 +141,33 @@ function delroleholders(req,res) {
     var valid = validator.isInt(req.params._id.toString());
 
     authLoginService.getDecodedToken(req)
-        .then(token => { validatorService.isDojocho(token.pid)})
+        .then(token => { return validatorService.isDojocho(token.pid);})
         .then(isDojocho => {
+
             if (valid && isDojocho) {
 
                 dataservice.delroleholders(req.params._id)
                 .then(function(dbres) {
                     res.status(200).send(JSON.stringify(dbres));
                 })
-                .catch(function(err){
+                .catch(function(err){ 
                     res.status(400).send(JSON.stringify(err));
                 }); 
             } else {
                 res.status(400).send({message : 'Érvénytelen input vagy nincs jogosultság!'});
             }
         })
-        .catch(err => {res.status(400).send(JSON.stringify(err)); });
+        .catch(err => { res.status(400).send(JSON.stringify(err)); });
 
 
 
 
 }
 
-
 function updtroleholders(req,res) { 
 
-    var valid = validator.isJSON(JSON.stringify(req.body));
+    var valid = !validator.isEmpty(JSON.stringify(req.body));
+    valid = valid &&  validator.isJSON(JSON.stringify(req.body));
 
     valid = valid && req.body.every(elem => validator.isInt(elem.personID.toString()));
     valid = valid && req.body.every(elem => validator.isInt(elem.roleID.toString()));

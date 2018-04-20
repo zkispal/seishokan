@@ -122,7 +122,7 @@ function addevent(req, res){
     validatorService.validString(req.body.name, 50)
         .then(nameIsValid => {
             valid = valid && nameIsValid;
-            logger.info(valid);
+
         })
         .then(() => {
             return authLoginService.getDecodedToken(req);
@@ -142,11 +142,11 @@ function addevent(req, res){
                   res.status(400).send(err);
                 });
             }else{
-                res.status(400).json({message:"Please send valid data."});
+                res.status(400).send({message:"Érvénytelen adat."});
             }
         })
         .catch(function (err) {
-            res.status(400).send();
+            res.status(400).send(err);
           });
 
 }
@@ -232,7 +232,7 @@ function deleteevent(req, res) {
                     res.sendStatus(400).send(err);
                 });
             } else {
-                res.status(400).json({message:"Please send valid data."});
+                res.status(400).json({message:"Hibás beérkezett adat!"});
             }
         })
         .catch(function (err) {
@@ -242,8 +242,6 @@ function deleteevent(req, res) {
 
 function updateevent(req, res){ 
 
-    logger.info(JSON.stringify(req.body));
-
     var valid = validator.isJSON(JSON.stringify(req.body));
 
     valid = valid && validator.isInt(req.body.eventtypeID.toString())
@@ -251,12 +249,10 @@ function updateevent(req, res){
         && validator.isInt(req.body.locationID.toString())
         && validator.isISO8601(req.body.start.toString())
         && validator.isISO8601(req.body.end.toString());
-    logger.info(valid);
    
     validatorService.validString(req.body.name, 50)
         .then(nameIsValid => {
             valid = valid && nameIsValid;
-            logger.info(valid);
         })
         .then(() => {
             return authLoginService.getDecodedToken(req);
@@ -298,14 +294,21 @@ function getreginfo(req,res) {
 }
 
 function addpractice(req,res) { 
-
-    var valid = validator.isJSON(JSON.stringify(req.body))
-
-    valid = valid && validator.isInt(req.body.eventtypeID.toString())
-        && validator.isInt(req.body.locationID.toString())
-        && req.body.timerange.every(validator.isISO8601)
-        && validator.isIn(req.body.practicelength.toString(), ['45', '60', '90'])
-        && req.body.weekdayID.map(elem => elem.toString()).every(validator.isInt);
+logger.info('req.body: ' + JSON.stringify(req.body));
+    var valid = !validator.isEmpty(JSON.stringify(req.body));
+logger.info(valid);
+    valid = valid && validator.isJSON(JSON.stringify(req.body));
+    logger.info(valid);
+    valid = valid    && validator.isInt(req.body.eventtypeID.toString());
+    logger.info(valid);
+    valid = valid    && validator.isInt(req.body.locationID.toString());
+    logger.info(valid);
+    valid = valid    && req.body.timerange.every(validator.isISO8601);
+    logger.info(valid);
+    valid = valid     && validator.isIn(req.body.practicelength.toString(), ['45', '60', '90']);
+    logger.info(valid);
+    valid = valid    && req.body.weekdayID.map(elem => elem.toString()).every(validator.isInt);
+    logger.info(valid);
 
     authLoginService.getDecodedToken(req)
         .then(token => {
@@ -332,7 +335,8 @@ function addpractice(req,res) {
 
 
 function addattendance(req,res) { 
-    var valid = validator.isJSON(JSON.stringify(req.body));
+    var valid = !validator.isEmpty(JSON.stringify(req.body));
+    valid = valid && validator.isJSON(JSON.stringify(req.body));
     valid = valid && req.body.every(elem => validator.isInt(elem.eventID.toString()));
     valid = valid && req.body.every(elem => validator.isAlpha(elem.attendancetype));
     valid = valid && req.body.every(elem => validator.isInt(elem.attendeeID.toString()));
@@ -363,8 +367,8 @@ function addattendance(req,res) {
 
 
 function addattendancereg(req,res) {
-
-    var valid = validator.isJSON(JSON.stringify(req.body)); 
+    var valid = !validator.isEmpty(JSON.stringify(req.body));
+    valid = valid && validator.isJSON(JSON.stringify(req.body)); 
     valid = valid && validator.isInt(req.body.eventID.toString());
     valid = valid && validator.isAlpha(req.body.attendancetype);
     valid = valid && validator.isInt(req.body.attendeeID.toString());

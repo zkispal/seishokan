@@ -1,5 +1,6 @@
 <div class="col-xs-8 col-xs-offset-2 col-sm-8 col-sm-offset-2 col-md-8 col-md-offset-2">
     <app-alert></app-alert>
+
     <form  class="form-inline form-inline-qr"
            name="QRattendance"
             #QRattendance="ngForm"
@@ -85,7 +86,7 @@
         </div>
 
         <div [hidden]="!hasCameras"> 
-            <h2 *ngIf="!this.selectedDevice">Nincs kiválasztott kamera.</h2>        
+            <h3 *ngIf="!this.selectedDevice">Nincs kiválasztott kamera.</h3>        
             <zxing-scanner #scanner
                             class="test-class"
                             start="true"

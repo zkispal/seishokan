@@ -90,18 +90,17 @@ function getroleid(_role) {
     return deferred.promise;   
 }
 
-
 function delroleholders(_id) {
 
     var deferred = Q.defer();
 
     knex('roles').where('roleID', _id).del()
     .then(function (res){
-        console.log('Adatbázis válasz: ' + JSON.stringify(res));
+
         deferred.resolve(res + _id);        
     })
     .catch(function(err){
-        console.log('Ez az error: ' + JSON.stringify(err));
+
         deferred.reject(err);
     });
 
@@ -114,17 +113,13 @@ function updtroleholders(req) {
 
     knex('roles').where('roleID', req.body[0].roleID).del()
     .then( () => {
+
         knex('roles').insert(req.body)
-        .then( res => {deferred.resolve(res);
-            console.log('Adatbázis válasz: ' + JSON.stringify(res));
-        })
-        .catch(err => {deferred.reject(err); 
-            console.log('Ez az error az updateből: ' + JSON.stringify(err));
-        });
+        .then( res => deferred.resolve(res))
+        .catch(err => deferred.reject(err));
     })
-    .catch(function(err){
-        console.log('Ez az error a deleteből : ' + JSON.stringify(err));
-        deferred.reject(err);
+    .catch(function(err){ 
+        deferred.reject(err); 
     });
 
     return deferred.promise;

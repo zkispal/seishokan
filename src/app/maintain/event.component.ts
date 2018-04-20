@@ -24,8 +24,6 @@ export class EventComponent implements OnInit {
   events: Event[];
   eventToUpdate: Event;
 
-  bsModalRef: BsModalRef;
-
   today: Date;
 
   bsConfig: Partial<BsDatepickerConfig>;
@@ -33,6 +31,7 @@ export class EventComponent implements OnInit {
   dpmaxdate: Date;
   locale = 'hu';
 
+  bsModalRef: BsModalRef;
 
   constructor(private dataService: DataService,
               private modalService: BsModalService,
@@ -41,13 +40,14 @@ export class EventComponent implements OnInit {
 
   ngOnInit() {
 
+    this.loadEventTypes();
+    this.loadLocationNames();
+    this.loadEvents();
 
     this.dpmindate = new Date();
     this.dpmaxdate = new Date();
     this.today = new Date();
-    this.loadEventTypes();
-    this.loadLocationNames();
-    this.loadEvents();
+
     this.dpmindate.setFullYear(this.today.getFullYear() - 1);
     this.dpmaxdate.setFullYear(this.today.getFullYear() + 5);
     this.bsLocService.use(this.locale);
@@ -56,7 +56,6 @@ export class EventComponent implements OnInit {
                                       {minDate: this.dpmindate},
                                       {dateInputFormat: 'YYYY-MMM-DD'},
                                       {showWeekNumbers: false} );
-
   }
 
   private loadEventTypes() {
@@ -76,14 +75,12 @@ export class EventComponent implements OnInit {
                               err => this.alertService.error('Egyesületi események betöltése sikertelen! ' + err.message));
   }
 
-  openNeweventModal() {
-    this.bsModalRef = this.modalService.show(NeweventmodalComponent);
-    this.bsModalRef.content.title = 'Új vizsga/esemény hozzáadása';
-    this.bsModalRef.content.eventtypes = this.eventtypes;
-    this.bsModalRef.content.locationnames = this.locationnames;
-    this.bsModalRef.content.bsConfig = this.bsConfig;
-    this.bsModalRef.content.closed.take(1).subscribe(this.loadEvents.bind(this));
-
+  updateevent(i) {
+    this.eventToUpdate = this.events[i];
+    this.dataService.updateevent(this.eventToUpdate)
+                    .subscribe( data => {this.loadEvents();
+                                          this.alertService.success('Esemény módosítása sikeres.'); },
+                                err => {this.alertService.error( 'Esemény módosítása sikertelen! ' + err.message) ; });
   }
 
   deleteevent(id: number) {
@@ -96,12 +93,13 @@ export class EventComponent implements OnInit {
     }
 
 
-  updateevent(i) {
-    this.eventToUpdate = this.events[i];
-    this.dataService.updateevent(this.eventToUpdate)
-                    .subscribe( data => {this.loadEvents();
-                                          this.alertService.success('Esemény módosítása sikeres.'); },
-                                err => {this.alertService.error( 'Esemény módosítása sikertelen! ' + err.message) ; });
+  openNeweventModal() {
+    this.bsModalRef = this.modalService.show(NeweventmodalComponent);
+    this.bsModalRef.content.title = 'Új vizsga/esemény hozzáadása';
+    this.bsModalRef.content.eventtypes = this.eventtypes;
+    this.bsModalRef.content.locationnames = this.locationnames;
+    this.bsModalRef.content.bsConfig = this.bsConfig;
+    this.bsModalRef.content.closed.take(1).subscribe(this.loadEvents.bind(this));
   }
 
 }

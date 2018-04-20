@@ -18,10 +18,11 @@ import { NewlocmodalComponent } from './newlocmodal.component';
 export class LocationComponent implements OnInit {
 
   locs: Location[];
-  loctypes: string[];
-  loading: boolean;
-  bsModalRef: BsModalRef;
   locToUpdate: Location;
+
+  loctypes: string[];
+  bsModalRef: BsModalRef;
+
 
 
   constructor(private dataService: DataService,
@@ -48,25 +49,7 @@ export class LocationComponent implements OnInit {
                     err => this.alertService.error('Helyszíntípusok betöltése sikertelen! ' + err.message));
   }
 
-
-  openNewlocModal() {
-
-    this.bsModalRef = this.modalService.show(NewlocmodalComponent);
-    this.bsModalRef.content.title = 'Új helyszín hozzáadása';
-    this.bsModalRef.content.loctypes = this.loctypes;
-    this.bsModalRef.content.closed.take(1).subscribe(this.loadLocations.bind(this));
-  }
-
-
-  deleteloc(_id: string) {
-    this.dataService
-        .deleteloc(_id)
-        .subscribe(srvresp => { this.loadLocations();
-                                this.alertService.success('Helyszín sikeresen törölve.'); },
-                  err => this.alertService.error('Helyszín törlése sikertelen! ' + err.message) );
-  }
-
-  updateloc(i) {
+  private updateloc(i) {
     this.locToUpdate = this.locs[i];
     this.dataService.updateloc(this.locToUpdate)
         .subscribe( data => { this.loadLocations();
@@ -75,4 +58,20 @@ export class LocationComponent implements OnInit {
                       this.alertService.error('Helyszín módosítása sikertelen! ' + err.error.message); });
   }
 
+  private deleteloc(_id: string) {
+    this.dataService
+        .deleteloc(_id)
+        .subscribe(srvresp => { this.loadLocations();
+                                this.alertService.success('Helyszín sikeresen törölve.'); },
+                  err => this.alertService.error('Helyszín törlése sikertelen! ' + err.message) );
+  }
+
+  openNewlocModal() {
+
+    this.bsModalRef = this.modalService.show(NewlocmodalComponent);
+    this.bsModalRef.content.title = 'Új helyszín hozzáadása';
+    this.bsModalRef.content.loctypes = this.loctypes;
+    this.bsModalRef.content.closed.take(1).subscribe(this.loadLocations.bind(this));
+  }
 }
+

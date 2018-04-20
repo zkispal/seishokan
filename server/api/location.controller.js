@@ -78,9 +78,7 @@ function getlocationtypes(req,res) {
 }
 
 
-function addlocation(req, res){ //TO DO Validation
-
-    logger.info('new location: ' + JSON.stringify(req.body));
+function addlocation(req, res){
 
     var valid = !validator.isEmpty(JSON.stringify(req.body));
     valid = validator.isJSON(JSON.stringify(req.body));
@@ -122,12 +120,6 @@ function addlocation(req, res){ //TO DO Validation
     .catch(err => {
         res.sendStatus(400).send(err);
     });
-
-
-
-
-
-
 }
 
 
@@ -176,7 +168,6 @@ function updatelocation(req, res){
         });
 
 }
-
 
 function deletelocation(req, res) {
     

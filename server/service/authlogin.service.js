@@ -36,7 +36,7 @@ module.exports = authloginservice;
 
 function register(req){
     var deferred = Q.defer();
-    var reqbody = req.body;
+
     logger.info('inside register ' + JSON.stringify(req.body));
     knex.select('ID', 'username').from('Person').where('username', req.body.username)
         .then(founduser => {
@@ -74,7 +74,7 @@ function register(req){
           }
         })
         .catch(function(err){
-          logger.info(JSON.stringify(err));
+
           deferred.reject(err);
         });
     return deferred.promise;
@@ -136,7 +136,7 @@ function insertPerson(req){
               })
 
   })
-  .then(dbresp => {deferred.resolve(personID); })
+  .then(dbresp => { deferred.resolve(personID); })
   .catch(err => { deferred.reject(err);} );
 
   return deferred.promise;
@@ -204,19 +204,14 @@ function getDecodedToken(req) {
   var deferred = Q.defer();
   
   var authheader = req.headers.authorization;
-  
-  
-    if (authheader.split(' ')[0] === 'Bearer'){
-        var token = authheader.split(' ')[1];
-  
-        var decodedToken;
-        decodedToken = jwt.verify(token,jwtOptions.secretOrKey);
-  
-        //return decodedToken;
-        deferred.resolve(decodedToken);
+ 
+    if (authheader.split(' ')[0] === 'Bearer') {
         
-    }else{
-      //return 0;
+      var token = authheader.split(' ')[1];
+      var decodedToken = jwt.verify(token,jwtOptions.secretOrKey);
+      deferred.resolve(decodedToken);
+        
+    } else {
      deferred.reject();
     }
   

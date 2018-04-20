@@ -14,7 +14,7 @@ export class LoginComponent implements OnInit {
 
   submitData: any = {};
   // currentUser: User;
-  loading = false;
+
   returnUrl: string;
 
   constructor(private route: ActivatedRoute,
@@ -30,7 +30,7 @@ export class LoginComponent implements OnInit {
   }
 
   login() {
-      this.loading = true;
+
       this.authService.login( this.submitData.username, this.submitData.password)
           .subscribe(
               data => {
@@ -40,7 +40,6 @@ export class LoginComponent implements OnInit {
               err => { console.log(JSON.stringify(err));
                 const message = 'Sikertelen bejelentkezés. '.concat(err.error.message, ' ', err.message);
                 this.alertService.error(message);
-                this.loading = false;
               });
   }
 }

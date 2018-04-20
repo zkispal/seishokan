@@ -82,7 +82,6 @@ function addevent(req) {
     return deferred.promise;
 }
 
-
 function deleteevent(_id){
     var deferred = Q.defer();
 
@@ -97,7 +96,6 @@ function deleteevent(_id){
 
     return deferred.promise;
 }
-
 
 function updateevent(req) {
     var deferred = Q.defer();
@@ -121,7 +119,6 @@ function updateevent(req) {
     return deferred.promise;
 }
 
-
 function register(req) {
     var deferred = Q.defer();
 
@@ -131,7 +128,6 @@ function register(req) {
     
     return deferred.promise;    
 }
-
 
 function unregister(req) {
     var deferred = Q.defer();
@@ -145,7 +141,6 @@ function unregister(req) {
     
     return deferred.promise;    
 }
-
 
 function getreginfo(_id) {
     var deferred = Q.defer();

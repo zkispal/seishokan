@@ -25,7 +25,6 @@ export class TrainingqrregComponent implements OnInit {
   hasCameras = false;
   hasPermission: boolean;
   qrResultString: string;
-
   availableDevices: MediaDeviceInfo[];
   selectedDevice: MediaDeviceInfo;
 
@@ -41,9 +40,11 @@ export class TrainingqrregComponent implements OnInit {
   allAttendance: Attendance[] = [];
   allAttendeeNames: string[] = [];
 
+
+
   constructor (private dataService: DataService,
               private authService: AuthLoginService,
-              private alertService: AlertService) {
+              private alertService: AlertService ) {
 
   }
 
@@ -52,13 +53,10 @@ export class TrainingqrregComponent implements OnInit {
     this.trainingDay = new Date();
     this.loadDojos();
     this.initAttendanceRec();
+
     this.scanner.camerasFound.subscribe((devices: MediaDeviceInfo[]) => {
       this.hasCameras = true;
-
-      console.log('Devices: ', devices);
       this.availableDevices = devices;
-
-
     });
 
     this.scanner.camerasNotFound.subscribe((devices: MediaDeviceInfo[]) => {
@@ -68,8 +66,6 @@ export class TrainingqrregComponent implements OnInit {
     this.scanner.permissionResponse.subscribe((answer: boolean) => {
       this.hasPermission = answer;
     });
-
-
 
   }
 
@@ -100,13 +96,13 @@ export class TrainingqrregComponent implements OnInit {
   }
 
   handleQrCodeResult(resultString: string) {
-    console.log('Result: ', resultString);
+
     this.qrResultString = resultString;
 
     try {
       this.currentAttendee = JSON.parse(resultString);
     } catch (err) {
-        console.log('Invalid JSON given\n\n' + resultString );
+      this.alertService.error(JSON.stringify(err));
     }
 
     this.addAttendee(this.currentAttendee);
@@ -143,8 +139,9 @@ export class TrainingqrregComponent implements OnInit {
                     .subscribe( res => {this.allAttendance = [];
                                         this.allAttendeeNames = [];
                                         this.alertService.success('Edzésrészvétel sikeresen rögzítve.'); },
-                                err => {console.log(JSON.stringify(err));
-                                  this.alertService.error('Sikertelen edzésrögzítés. ' + err.message); }  ) ;
+                                err => {
+                                  this.alertService.error('Sikertelen edzésrögzítés. ' + err.message);
+                                });
 
   }
 

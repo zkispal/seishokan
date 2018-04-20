@@ -48,7 +48,7 @@ export class TrainingmanregComponent implements OnInit {
     }
 
     private initAttendanceRec() {
-      // this.currentUser = this.authService.getCurrentUser();
+
       this.attendanceRecord.attendeeID = parseInt(this.authService.getCurrentUser().ID, 10);
       this.attendanceRecord.attendancetype = 'Registered';
       this.attendanceRecord.eventID = 0;

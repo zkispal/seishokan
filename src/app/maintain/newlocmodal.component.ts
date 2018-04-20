@@ -16,7 +16,6 @@ import { DataService, AlertService} from '../_services/index';
 
   export class NewlocmodalComponent implements OnInit {
 
-    loading: boolean;
     newlocation: Location;
     title: string;
     loctypes: string[];
@@ -32,7 +31,6 @@ import { DataService, AlertService} from '../_services/index';
 
 
   addlocation () {
-    this.loading = true;
     this.dataService
         .addlocation(_.omit(this.newlocation, 'id'))
         .subscribe( data => { this.resetNewLoc ();

@@ -1,3 +1,4 @@
+import { MessageService } from './../_services/message.service';
 import { Component, OnInit } from '@angular/core';
 import { NgModule } from '@angular/core';
 import { BrowserModule } from '@angular/platform-browser';
@@ -5,8 +6,6 @@ import { Router } from '@angular/router';
 import { AuthLoginService, DataService, AlertService } from '../_services/index';
 import { Options, RegData } from '../_models/index';
 import { BsDatepickerModule, BsDatepickerConfig, BsLocaleService } from 'ngx-bootstrap/datepicker';
-
-
 import { Console } from '@angular/core/src/console';
 
 
@@ -24,7 +23,6 @@ export class RegisterComponent implements OnInit {
 
 
     dojos: Options[];
-
     ranks: Options[];
 
     dpColorTheme = 'theme-dark-blue';
@@ -67,10 +65,11 @@ export class RegisterComponent implements OnInit {
         this.loadRole('Aikidoka');
 
         this.today = new Date();
-        this.bsLocService.use(this.locale);
+
         this.birthdaymindate  = new Date();
         this.birthdaymindate.setFullYear(this.today.getFullYear() - 100);
 
+        this.bsLocService.use(this.locale);
         this.practicestartmindate =  new Date();
         this.practicestartmindate.setFullYear(this.today.getFullYear() - 60);
 
@@ -91,20 +90,21 @@ export class RegisterComponent implements OnInit {
     private loadDojos() {
         this.dataService.getdojos()
             .subscribe( res => {  this.dojos = res; },
-                        err => {console.log(err); }  ) ;
+                        err => {this.alertService.error('Dojoinformációk betöltése sikertelen!'); }
+            ) ;
     }
 
     private loadadultranks() {
         this.dataService.getadultranks()
             .subscribe(  res => {  this.ranks = res; },
-                        err => {console.log(err); } );
+                        err => {this.alertService.error('Aikido fokozat információk betöltése sikertelen!'); });
     }
 
     private loadRole(_rolename) {
         this.dataService.getroleid(_rolename)
             .subscribe(  res => {  console.log(res);
                 this.regdata.roleID.push(res); },
-                err => {console.log(err); });
+                err => {this.alertService.error('Szerepkör azonosítók betöltése sikertelen!'); });
     }
 
     register() {

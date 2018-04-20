@@ -27,9 +27,6 @@
             <div *ngIf="f.submitted && !locationselect.valid" class="help-block">Kötelező választani egy helyszínt!</div>
         </div>
 
-
-
-
       <div class="form-group row" [ngClass]="{ 'has-error': f.submitted && !startdp.valid }">
         <div class="col-8 col-sm-8 col-md-8">
           <label for="sddp">Kezdési dátum/idő:</label>
@@ -53,9 +50,6 @@
         
         <div *ngIf="f.submitted && !startdp.valid" class="help-block">Kötelező megadni a kezdési időt!</div>
       </div>
-
-
-
 
       <div  class="form-group row" [ngClass]="{ 'has-error': f.submitted && !enddp.valid }">
           <div class="col-8 col-sm-8 col-md-8">
@@ -91,15 +85,8 @@
             </select>
             <div *ngIf="f.submitted && !eventtypeselect.valid" class="help-block">Kötelező választani egy eseménytípust!</div>
         </div>
-
-
-
-
       </form>  
-
-  <p>{{newevent | json}}</p>
 </div>
-
 <div class="modal-footer">
     <button  [disabled] = "!f.form.valid" class="btn btn-primary" (click)="addevent()">Hozzáadás</button>
     <button type="button" class="btn btn-default" (click)="closeModal()">Bezár</button>

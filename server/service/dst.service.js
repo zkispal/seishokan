@@ -18,9 +18,8 @@ module.exports = dstservice;
 
 
 function createDSTDays(_startYear, _endYear) {
-    console.log('Kapott start év: ' + _startYear);
-    console.log('Kapott end év: ' + _endYear);
-    var q = Q.defer();
+
+    var deferred = Q.defer();
 
     var DSTDays = [];
     var month = 0;
@@ -44,23 +43,23 @@ function createDSTDays(_startYear, _endYear) {
             DSTDays.push( new Date (year, month, day, hms[0], hms[1], hms[2]));
         }
 
-        q.resolve(DSTDays);
+        // formula from http://www.webexhibits.org/daylightsaving/i.html
+
+        deferred.resolve(DSTDays);
 
     } else {
-        q.reject('Invalid input');
+        deferred.reject('Invalid input');
     }
 
-    return q.promise;
+    return deferred.promise;
 
 }
 
 
 function chopByDST (_start, _end, _DSTdays){
-    var q = Q.defer();
-    console.log('Kapott start time: ' + _start);
-    console.log('Kapott end time: ' + _end);
+    var deferred = Q.defer();
 
-    if (_DSTdays.length>0 &&
+    if (_DSTdays.length>=4 &&
         _start<_end &&
         _start.getFullYear() === _DSTdays[0].getFullYear() && 
         _end.getFullYear()+1 === _DSTdays[_DSTdays.length-1].getFullYear()) {
@@ -82,7 +81,7 @@ function chopByDST (_start, _end, _DSTdays){
             }
             ranges[1].push(_end);
 
-            q.resolve(ranges);
+            deferred.resolve(ranges);
 
         } else {
             if (_start > _DSTdays[1]) {
@@ -98,12 +97,12 @@ function chopByDST (_start, _end, _DSTdays){
             }
             ranges[1].push(_end);
 
-            q.resolve(ranges);
+            deferred.resolve(ranges);
         }
     } else {
-        q.reject('Bad input')
+        deferred.reject('Bad input')
     }
-    return q.promise;
+    return deferred.promise;
 }
 
 
@@ -132,7 +131,6 @@ function createProcCalls(req) {
                                                 req.body.locationID + ', ' + req.body.eventtypeID +');';
 
                             sqlStrings.push(sqlString);
-                            logger.info(JSON.stringify(sqlString));
                          
                         }
                     } 

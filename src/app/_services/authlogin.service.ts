@@ -47,16 +47,6 @@ export class AuthLoginService {
          }
       }
 
-    getToken(): string {
-        const currentUser = this.getCurrentUser();
-
-        if (currentUser && currentUser.token) {
-            return currentUser.token;
-        } else {
-            return '0';
-        }
-    }
-
     isRoleHolder(_role): boolean {
 
         if (_.findIndex(this.getCurrentUser().role, elem => elem === _role) > -1 ) {

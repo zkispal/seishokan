@@ -70,28 +70,28 @@ function getlocationtypes() {
 function addlocation(req) {
     var deferred = Q.defer();
 
-knex('Location').select('address', 'city', 'zipcode')
-    .where({address:req.body.address, city:req.body.city, zipcode:req.body.zipcode })
-    .then(function(loc){
-        if(loc.length === 0) {
+    knex('Location').select('address', 'city', 'zipcode')
+        .where({address:req.body.address, city:req.body.city, zipcode:req.body.zipcode })
+        .then(function(loc){
+            if(loc.length === 0) {
+        
+                knex('Location')
+                .insert(req.body)
+                .then(function(res){
     
-            knex('Location')
-            .insert(req.body)
-            .then(function(res){
-  
-                deferred.resolve(res);
-            })
-            .catch(function(err){
-   
-                deferred.reject(err);
-            });
+                    deferred.resolve(res);
+                })
+                .catch(function(err){
+    
+                    deferred.reject(err);
+                });
 
-        }
-        else{deferred.reject('Location already exists');}
-    })
-    .catch(function(err){
-        deferred.reject(err);
-    });
+            }
+            else { deferred.reject({message : 'Ez a helyszín már létezik!'}); }
+        })
+        .catch(function(err){
+            deferred.reject(err);
+        });
 
     return deferred.promise;
 }

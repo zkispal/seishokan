@@ -21,7 +21,7 @@ export class TraininghistoryComponent implements OnInit {
   bsrpConfig: Partial<BsDatepickerConfig>;
   dpmindate: Date;
   dpmaxdate: Date;
-   timerange: Date[] = [];
+  timerange: Date[] = [];
 
   traininghistory = [];
   pagedHistory = [];
@@ -71,7 +71,7 @@ loadPracticeHistory() {
   getpracticehistory() {
 
     const timerangevalue = this.timerange.map(elem => elem.valueOf());
-    console.log(timerangevalue);
+
     this.dataService.getpracticehistory(this.authService.getCurrentUser().ID, timerangevalue)
                     .subscribe( data => {this.traininghistory = data;
                                         this.pagedHistory = this.traininghistory.slice(0, this.itemsPerPage); },
@@ -81,7 +81,7 @@ loadPracticeHistory() {
 
 
   pageChanged(event: PageChangedEvent): void {
-    console.log(event);
+
     const startItem = (event.page - 1) * event.itemsPerPage;
     const endItem = event.page * event.itemsPerPage;
     this.pagedHistory = this.traininghistory.slice(startItem, endItem);
