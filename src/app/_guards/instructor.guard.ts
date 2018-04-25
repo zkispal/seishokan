@@ -13,10 +13,9 @@ export class InstructorGuard implements CanActivate {
     next: ActivatedRouteSnapshot,
     state: RouterStateSnapshot): Observable<boolean> | Promise<boolean> | boolean {
 
-    if (this.authLoginSrvc.isRoleHolder('Instructor') ||
-        this.authLoginSrvc.isRoleHolder('Assistant')) { return true;
-    } else {
-      return false;
-    }
+    const hasRole = this.authLoginSrvc.isRoleHolder('Instructor') ||
+                    this.authLoginSrvc.isRoleHolder('Assistant');
+
+    return hasRole;
   }
 }

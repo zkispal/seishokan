@@ -471,8 +471,7 @@ function approveattendance(req,res) {
     authLoginService.getDecodedToken(req)
         .then(token => {return validatorService.isInstructor(token.pid)})
         .then(isInstructor => {
-            logger.info('valid ' + valid);
-            logger.info('isInstructor ' + isInstructor);
+
             if(valid && isInstructor) {
 
                 eventservice.approveattendance(req)

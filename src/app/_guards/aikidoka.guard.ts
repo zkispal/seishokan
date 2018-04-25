@@ -11,11 +11,7 @@ export class AikidokaGuard implements CanActivate {
     next: ActivatedRouteSnapshot,
     state: RouterStateSnapshot): Observable<boolean> | Promise<boolean> | boolean {
 
-    if (this.authLoginSrvc.isRoleHolder('Aikidoka')) {
-      return true;
-    }else {
-      return false;
-    }
+      return this.authLoginSrvc.isRoleHolder('Aikidoka');
 
   }
 }

@@ -329,7 +329,6 @@ function updateExamResult(req) {
 function updateExamResultRank(req) {
     var deferred = Q.defer();
 
-    console.log(JSON.stringify(_.pick(req.body,['attendancetype', 'certno'])));
     knex.transaction(trx => {
 
         return trx.update(_.pick(req.body,['attendancetype', 'certno']))

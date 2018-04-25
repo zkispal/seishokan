@@ -1,7 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { Router, ActivatedRoute } from '@angular/router';
 import { AlertComponent } from '../_ui/index';
-import { AuthLoginService, AlertService } from '../_services/index';
+import { AuthLoginService, AlertService, MessageService} from '../_services/index';
 import { User } from '../_models/index';
 
 @Component({
@@ -20,7 +20,8 @@ export class LoginComponent implements OnInit {
   constructor(private route: ActivatedRoute,
               private router: Router,
               private authService: AuthLoginService,
-              private alertService: AlertService) { }
+              private alertService: AlertService,
+              private messageService: MessageService) { }
 
   ngOnInit() {
       // reset login status
@@ -33,9 +34,10 @@ export class LoginComponent implements OnInit {
 
       this.authService.login( this.submitData.username, this.submitData.password)
           .subscribe(
-              data => {
-                this.authService.setCurrentUser(data);
-                this.router.navigate([this.returnUrl]);
+              userData => { this.messageService.clearMessage();
+                            this.messageService.sendMessage(userData.role);
+                            this.authService.setCurrentUser(userData);
+                            this.router.navigate([this.returnUrl]);
               },
               err => { console.log(JSON.stringify(err));
                 const message = 'Sikertelen bejelentkezés. '.concat(err.error.message, ' ', err.message);
@@ -43,10 +45,3 @@ export class LoginComponent implements OnInit {
               });
   }
 }
-
-
-
-
-
-
-

@@ -29,6 +29,17 @@ export class AlertService {
     return this.subject.asObservable();
 }
 
+alert(type: AlertType, message: string, keepAfterRouteChange = false) {
+    this.keepAfterRouteChange = keepAfterRouteChange;
+    this.subject.next(<Alert>{ type: type, message: message });
+}
+
+clear() {
+    // clear alerts
+    this.subject.next();
+}
+
+
 success(message: string, keepAfterRouteChange = false) {
     this.alert(AlertType.Success, message, keepAfterRouteChange);
 }
@@ -45,15 +56,7 @@ warn(message: string, keepAfterRouteChange = false) {
     this.alert(AlertType.Warning, message, keepAfterRouteChange);
 }
 
-alert(type: AlertType, message: string, keepAfterRouteChange = false) {
-    this.keepAfterRouteChange = keepAfterRouteChange;
-    this.subject.next(<Alert>{ type: type, message: message });
-}
 
-clear() {
-    // clear alerts
-    this.subject.next();
-}
 
 
 }

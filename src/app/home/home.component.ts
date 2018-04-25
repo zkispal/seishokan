@@ -1,5 +1,4 @@
 import { Component, OnInit } from '@angular/core';
-
 import { User } from '../_models/index';
 import {  AuthLoginService, MessageService} from '../_services/index';
 
@@ -18,20 +17,16 @@ export class HomeComponent implements OnInit {
 
     }
 
+
     ngOnInit() {
         this.currentUser = this.authService.getCurrentUser();
-        this.messageService.clearMessage();
-        this.messageService.sendMessage(this.currentUser.role);
-
+/*         this.messageService.clearMessage();
+        this.messageService.sendMessage(this.currentUser.role); */
     }
-
-
-
 
 
     logout() {
         this.authService.logout();
     }
-
 
 }

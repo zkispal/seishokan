@@ -10,11 +10,7 @@ export class DojochoGuard implements CanActivate {
     next: ActivatedRouteSnapshot,
     state: RouterStateSnapshot): Observable<boolean> | Promise<boolean> | boolean {
 
-    if (this.authLoginSrvc.isRoleHolder('Dojocho')) {
-      return true;
-    }else {
-      return false;
-    }
+      return this.authLoginSrvc.isRoleHolder('Dojocho');
 
   }
 }

@@ -23,7 +23,7 @@ export class EventregComponent implements OnInit {
               attendeeID: string,
               attendancetype: string };
   today = new Date();
-  locinfo = 'Ez az épület \n Utca, házszám \n IRSZ, Város';
+  // locinfo = 'Ez az épület \n Utca, házszám \n IRSZ, Város';
 
 
 
@@ -39,6 +39,14 @@ export class EventregComponent implements OnInit {
     this.loadAlreadyRegged();
 
   }
+
+  loadAlreadyRegged() {
+    this.dataService.getreginfo(this.authService.getCurrentUser().ID)
+        .map(data => data.map(elem => _.get(elem, 'eventID')))
+        .subscribe(data => { this.userAlreadyRegged = data;  }
+          , err => this.alertService.error('Korábbi regisztrációk letöltése sikertelen! ' + err.message));
+  }
+
 
   register(_id) {
     this.regRecord.eventID = _id;
@@ -56,13 +64,7 @@ export class EventregComponent implements OnInit {
                    err => this.alertService.error('Sikertelen lejelentkezés. ' + err.message));
   }
 
-  loadAlreadyRegged() {
-    this.dataService.getreginfo(this.authService.getCurrentUser().ID)
-        .map(data => data.map(elem => _.get(elem, 'eventID')))
-        .subscribe(data => { this.userAlreadyRegged = data;  }
-          , err => this.alertService.error('Korábbi regisztrációk letöltése sikertelen! ' + err.message));
 
-  }
 
 
 

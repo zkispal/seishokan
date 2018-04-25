@@ -22,9 +22,7 @@ export class NavigationComponent implements OnDestroy {
                   private messageService: MessageService) {
       this.subscription = this.messageService
                               .getMessage()
-                              .subscribe(message => { console.log('message received: ' + JSON.stringify(message));
-                                                      this.initNavMenu(message.roles);
-
+                              .subscribe(message => {this.initNavMenu(message.roles);
                                                      this.receivedMessage = message.roles; });
     }
 
@@ -62,7 +60,7 @@ export class NavigationComponent implements OnDestroy {
       if (_.indexOf(_roles, 'Aikidoka') > -1) {
         this.setAikidokaMenu();
       }
-      if (_.indexOf(_roles, 'Instructor') > -1 || _.indexOf(_roles, 'Assistant') > 0) {
+      if (_.indexOf(_roles, 'Instructor') > -1 || _.indexOf(_roles, 'Assistant') > -1) {
         this.setInstructorMenu();
       }
       if (_.indexOf(_roles, 'Dojocho') > -1) {

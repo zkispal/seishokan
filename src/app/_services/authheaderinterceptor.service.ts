@@ -26,7 +26,7 @@ export class AuthHeaderInterceptorService implements HttpInterceptor  {
     intercept(req: HttpRequest<any>, next: HttpHandler): Observable<HttpEvent<any>> {
 
         if (this.exceptions.some(x => x === req.url)) {
-            console.log('Excluded request: ' + req.url);
+
             return next.handle(req);
         } else {
             this.loadToken();
@@ -35,7 +35,7 @@ export class AuthHeaderInterceptorService implements HttpInterceptor  {
                 Authorization: `Bearer ${this.token}`
                 }
             });
-            console.log('Intercepted request: ' + req.url);
+
             return next.handle(req);
         }
     }
