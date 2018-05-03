@@ -10,12 +10,10 @@ import { TrainingqrregComponent, TrainingmanregComponent,
 import { ExamregComponent, ExamhistoryComponent, ExamresultsComponent } from './exam/index';
 import { EventsComponent, EventregsComponent } from './event/index';
 import { EventComponent, NewtrainingComponent,
-        LocationComponent, RolechangeComponent } from './maintain/index';
+        LocationComponent, RolechangeComponent, PasswordchangeComponent } from './maintain/index';
 
 const appRoutes: Routes = [
-    { path: '',
-        component: HomeComponent, canActivate: [AuthGuard]
-     },
+    { path: '', component: HomeComponent, canActivate: [AuthGuard]},
     { path: 'login', component: LoginComponent },
     { path: 'register', component: RegisterComponent },
     { path: 'home', component: HomeComponent, canActivate: [AuthGuard, AikidokaGuard] },
@@ -33,6 +31,7 @@ const appRoutes: Routes = [
     { path: 'newtraining', component: NewtrainingComponent, canActivate: [AuthGuard, DojochoGuard] },
     { path: 'location', component: LocationComponent, canActivate: [AuthGuard, DojochoGuard]  },
     { path: 'rolechange', component: RolechangeComponent, canActivate: [AuthGuard, DojochoGuard] },
+    { path: 'passwordchange', component: PasswordchangeComponent, canActivate: [AuthGuard, AikidokaGuard]},
 
 
 

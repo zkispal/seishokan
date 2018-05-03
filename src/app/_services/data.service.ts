@@ -216,6 +216,7 @@ export class DataService {
     return this.http.post<Array<any>>('/event/getpracticehistory/' + _id, _timerange);
   }
 
+
 }
 
 

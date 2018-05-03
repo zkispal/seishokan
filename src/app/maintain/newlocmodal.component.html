@@ -13,43 +13,43 @@
         
           <div class="form-group" [ngClass]="{ 'has-error': f.submitted && !locname.valid }">
               <label for="locname">Helyszín megnevezése</label>
-              <input type="text" class="form-control" name="locname" [(ngModel)]="newlocation.name" #locname="ngModel" required />
+              <input type="text" class="form-control" id="locname" name="locname" [(ngModel)]="newlocation.name" #locname="ngModel" required />
               <div *ngIf="f.submitted && !locname.valid" class="help-block">Kötelező megadni egy elnevezést!</div>
           </div>
           
           <div class="form-group" [ngClass]="{ 'has-error': f.submitted && !building.valid }">
               <label for="building">Épület</label>
-              <input type="text" class="form-control" name="building" [(ngModel)]="newlocation.building" #locbuilding="ngModel" required />
+              <input type="text" class="form-control" id="building" name="building" [(ngModel)]="newlocation.building" #building="ngModel" required />
               <div *ngIf="f.submitted && !building.valid" class="help-block">Kötelező megadni egy épületnevet!</div>
           </div>
   
           <div class="form-group" [ngClass]="{ 'has-error': f.submitted && !address.valid }">
               <label for="address">Cím</label>
-              <input type="text" class="form-control" name="address" [(ngModel)]="newlocation.address" #locaddress="ngModel" required />
+              <input type="text" class="form-control" id="address" name="address" [(ngModel)]="newlocation.address" #address="ngModel" required />
               <div *ngIf="f.submitted && !address.valid" class="help-block">Kötelező megadni egy címet!</div>
           </div>
   
           <div class="form-group" [ngClass]="{ 'has-error': f.submitted && !city.valid }">
               <label for="city">Város</label>
-              <input type="text" class="form-control" name="city" [(ngModel)]="newlocation.city" #loccity="ngModel" required />
+              <input type="text" class="form-control" id="city" name="city" [(ngModel)]="newlocation.city" #city="ngModel" required />
               <div *ngIf="f.submitted && !city.valid" class="help-block">Kötelező megadni egy várost!</div>
           </div>
   
           <div class="form-group" [ngClass]="{ 'has-error': f.submitted && !zipcode.valid }">
               <label for="zipcode">Irányítószám</label>
-              <input type="text" class="form-control" name="zipcode" [(ngModel)]="newlocation.zipcode" #loczipcode="ngModel" required />
+              <input type="text" class="form-control" id="zipcode" name="zipcode" [(ngModel)]="newlocation.zipcode" #zipcode="ngModel" required />
               <div *ngIf="f.submitted && !zipcode.valid" class="help-block">Kötelező megadni egy irányítószámot!</div>
           </div>
   
           <div class="form-group" [ngClass]="{ 'has-error': f.submitted && !lon.valid }">
               <label for="lon">Földrajzi hosszúság</label>
-              <input type="number" class="form-control" name="lon" [(ngModel)]="newlocation.lon" #loclon="ngModel" step="0.00005"required />
+              <input type="number" class="form-control" id="lon" name="lon" [(ngModel)]="newlocation.lon" #lon="ngModel" step="0.00005"required />
               <div *ngIf="f.submitted && !lon.valid" class="help-block">Kötelező megadni a földrajzi hosszúságot!</div>
           </div>
   
           <div class="form-group" [ngClass]="{ 'has-error': f.submitted && !lat.valid }">
               <label for="lat">Földrajzi szélesség</label>
-              <input type="number" class="form-control" name="lat" [(ngModel)]="newlocation.lat" #loclat="ngModel"  step="0.00005" required />
+              <input type="number" class="form-control" id="lat" name="lat" [(ngModel)]="newlocation.lat" #lat="ngModel"  step="0.00005" required />
               <div *ngIf="f.submitted && !lat.valid" class="help-block">Kötelező megadni földrajzi szélességet!</div>
           </div>
   

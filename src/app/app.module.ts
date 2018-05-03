@@ -33,7 +33,9 @@ import { TrainingqrregComponent, TrainingmanregComponent,
 import { ExamregComponent, ExamhistoryComponent, ExamresultsComponent } from './exam/index';
 import { EventsComponent, EventregsComponent } from './event/index';
 import { EventComponent, NeweventmodalComponent, NewtrainingComponent,
-        LocationComponent, NewlocmodalComponent, RolechangeComponent } from './maintain/index';
+        LocationComponent, NewlocmodalComponent, RolechangeComponent,
+        PasswordchangeComponent } from './maintain/index';
+
 defineLocale('hu', huLocale);
 
 @NgModule({
@@ -61,7 +63,8 @@ defineLocale('hu', huLocale);
     NewlocmodalComponent,
     NeweventmodalComponent,
     EventregComponent,
-    AlertComponent
+    AlertComponent,
+    PasswordchangeComponent
 
 
 

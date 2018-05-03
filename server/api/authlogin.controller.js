@@ -18,7 +18,7 @@ const logger = log4js.getLogger('authlogin.controller');
 
 
 router.post('/authenticate', authenticate); // No JWT authentication as it needs for authentication.
-
+router.post('/passwordchange', passwordChange);
 router.post('/registerperson', registerperson); // No JWT authentication as it needs for registration.
 
 module.exports = router;
@@ -57,6 +57,7 @@ function authenticate(req, res){
             res.status(200).send(token);
           })
           .catch(function (err) {
+
             res.status(401).send(JSON.stringify(err));
           });
       }else{
@@ -72,6 +73,34 @@ function authenticate(req, res){
 
 }
 
+function passwordChange(req, res) {
+
+  var valid = validator.isJSON(JSON.stringify(req.body));
+
+  var validatorPromises = [ validatorService.passwordIsValid(req.body.password),
+                            validatorService.passwordIsValid(req.body.newpass)];
+
+  Q.allSettled(validatorPromises)
+    .then( promiseResults => {
+      var allPromiseValid = promiseResults.reduce((all, elem) => all && elem.value, true);
+
+      if (valid && allPromiseValid) {
+
+        authLoginService.changePassword(req)
+        .then((resp) => {
+          res.status(200).send();
+        })
+        .catch( (err) => {
+          res.status(400).send(JSON.stringify(err));
+        });
+      } else {
+        res.status(400).send({message: 'Érvénytelen jelszó'});
+      }
+    })
+    .catch( (err) => {
+      res.status(400).send(JSON.stringify(err));
+    });
+}
 
 function registerperson (req, res){
     //Ensure all data is received from client

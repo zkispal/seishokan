@@ -37,7 +37,7 @@ var httpsOptions = { key: fs.readFileSync('server/private.key'),
 
 var strategy = new JwtStrategy(jwtOptions, function(jwt_payload, next) {
 
-    knex('Person').where('ID', jwt_payload.pid)
+    knex('person').where('ID', jwt_payload.pid)
                 .then((person) =>  { if (person) { 
                                         next(null, person);
                                     } else { 

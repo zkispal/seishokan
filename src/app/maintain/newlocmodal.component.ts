@@ -27,6 +27,7 @@ import { DataService, AlertService} from '../_services/index';
 
     ngOnInit() {
       this.resetNewLoc ();
+      this.title = 'Új helyszín';
     }
 
 

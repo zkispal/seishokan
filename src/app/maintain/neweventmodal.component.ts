@@ -15,7 +15,7 @@ import { DataService, AlertService} from '../_services/index';
 })
 export class NeweventmodalComponent implements OnInit {
 
-
+  title: string;
   closed: EventEmitter<any> = new EventEmitter();
   newevent: Event;
   eventtypes: Options[];
@@ -28,6 +28,7 @@ export class NeweventmodalComponent implements OnInit {
 
   ngOnInit() {
     this.resetNewEvent();
+    this.title = 'Új esemény';
   }
 
 

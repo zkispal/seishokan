@@ -4,3 +4,4 @@ export * from './newtraining.component';
 export * from './rolechange.component';
 export * from './newlocmodal.component';
 export * from './neweventmodal.component';
+export * from './passwordchange.component';

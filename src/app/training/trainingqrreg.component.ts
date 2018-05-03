@@ -84,7 +84,7 @@ export class TrainingqrregComponent implements OnInit {
 
   }
 
-  private getPractice() {
+  getPractice() {
     this.trainings = [];
     this.dataService.getpracticeByDateByLocID(this.trainingDay.valueOf(), this.selectedDojo.ID)
                     .subscribe( res => {

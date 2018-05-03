@@ -29,6 +29,10 @@ export class AuthLoginService {
         this.messageService.clearMessage();
     }
 
+    changePassword(_passwords) {
+        return this.http.post('/authlogin/passwordchange/', _passwords);
+    }
+
     setCurrentUser(user) {
         localStorage.setItem('currentUser', JSON.stringify(user));
     }

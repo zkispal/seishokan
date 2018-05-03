@@ -40,7 +40,7 @@ function getlocationnames() {
 function getlocations() {
     var deferred = Q.defer();
 
-    knex('Location')
+    knex('location')
     .then(function (locations){
         deferred.resolve(JSON.stringify(locations));
     })
@@ -70,12 +70,12 @@ function getlocationtypes() {
 function addlocation(req) {
     var deferred = Q.defer();
 
-    knex('Location').select('address', 'city', 'zipcode')
+    knex('location').select('address', 'city', 'zipcode')
         .where({address:req.body.address, city:req.body.city, zipcode:req.body.zipcode })
         .then(function(loc){
             if(loc.length === 0) {
         
-                knex('Location')
+                knex('location')
                 .insert(req.body)
                 .then(function(res){
     
@@ -99,7 +99,7 @@ function addlocation(req) {
 function updatelocation(req) {
     var deferred = Q.defer();
 
-    knex('Location').where('ID', req.body.ID).update(_.omit(req.body, 'ID'))
+    knex('location').where('ID', req.body.ID).update(_.omit(req.body, 'ID'))
     .then(function(dbresp){
   
         deferred.resolve(dbresp);
@@ -116,7 +116,7 @@ function updatelocation(req) {
 function deletelocation (_id){
     var deferred = Q.defer();
 
-    knex('Location').where('ID', _id).del()
+    knex('location').where('ID', _id).del()
     .then( function(res) {
         deferred.resolve(res);
     })

@@ -27,6 +27,7 @@ var authloginservice = {};
 
 authloginservice.authenticate = authenticate;
 authloginservice.register = register;
+authloginservice.changePassword = changePassword;
 authloginservice.getDecodedToken = getDecodedToken;
 
 
@@ -37,8 +38,8 @@ module.exports = authloginservice;
 function register(req){
     var deferred = Q.defer();
 
-    logger.info('inside register ' + JSON.stringify(req.body));
-    knex.select('ID', 'username').from('Person').where('username', req.body.username)
+
+    knex.select('ID', 'username').from('person').where('username', req.body.username)
         .then(founduser => {
 
           if(founduser.length === 0){
@@ -80,11 +81,10 @@ function register(req){
     return deferred.promise;
 }
 
-
 function authenticate(req) {
   var deferred = Q.defer();
 
-  knex('Person').where('username', req.body.username).select('ID', 'passhash')
+  knex('person').where('username', req.body.username).select('ID', 'passhash')
   .then((res) => {
 
     if(bcrypt.compareSync(req.body.password, res[0].passhash)){
@@ -104,7 +104,6 @@ function authenticate(req) {
 
   return deferred.promise;
 }
-
 
 function insertPerson(req){
 
@@ -126,7 +125,7 @@ function insertPerson(req){
   var personID = 0;
   knex.transaction(trx => {
 
-    return trx.insert(personRecord).into('Person')
+    return trx.insert(personRecord).into('person')
               .then(pid => {
 
                 personID = pid[0];
@@ -142,6 +141,46 @@ function insertPerson(req){
   return deferred.promise;
 }
 
+function changePassword(req) {
+
+  var deferred = Q.defer();
+
+  getDecodedToken(req)
+  .then(
+    (token) => {
+      knex('person').select('ID', 'passhash').where('ID', token.pid)
+      .then( (dbresp) => {
+        if (bcrypt.compareSync(req.body.password, dbresp[0].passhash)) {
+
+          const newPassHash = bcrypt.hashSync(req.body.newpass, 10);
+
+          knex('person').where('ID', token.pid).update('passhash', newPassHash)
+          .then((resp) => {
+            deferred.resolve();
+          })
+          .catch(err => {
+            console.log(JSON.stringify(err));
+            deferred.reject(err);
+          });
+
+        } else {
+          deferred.reject({message : 'Helytelen jelszó!'})
+        }
+
+      })
+      .catch(err => {
+        console.log(JSON.stringify(err));
+        deferred.reject(err);
+      });
+
+    })
+  .catch(err => {
+    console.log(JSON.stringify(err));
+    deferred.reject(err);
+  });
+
+  return deferred.promise;
+}
 
 function createToken(_pid) { 
 
@@ -151,13 +190,13 @@ function createToken(_pid) {
                     rol : [],
                     pof : []};  // start populating payload
 
-    knex('Roles').select('roleid').where('personID', _pid)
+    knex('roles').select('roleid').where('personID', _pid)
     .catch((err) => {deferred.reject(err);})
     .then((res)=>{
 
         JWTPayload.rol = res.map(elem => elem.roleid);
 
-        knex('Person').select('ID').where('parentid', _pid)
+        knex('person').select('ID').where('parentid', _pid)
         .catch((err) => {deferred.reject(err);})
         .then((kids) => {
 
@@ -171,7 +210,6 @@ function createToken(_pid) {
     return deferred.promise;
 }
 
-
 function assemblyUser(pid, token) {
   var deferred = Q.defer();
 
@@ -180,7 +218,7 @@ function assemblyUser(pid, token) {
               firstname:'',
               role:[],
               token:token};
-  knex('Person').where('ID', pid).select('firstname', 'lastname')
+  knex('person').where('ID', pid).select('firstname', 'lastname')
   .then(dbresp => {
 
     User.lastname = dbresp[0].lastname;

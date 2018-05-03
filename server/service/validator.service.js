@@ -162,7 +162,7 @@ function roleIDsIsValid(roles) {
 
   });
 
-  knex.select('ID').from('Role')
+  knex.select('ID').from('role')
       .map(dbresp => dbresp.ID) //All element of roles array should exist in DB
       .then(function (resp) {
 

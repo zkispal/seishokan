@@ -68,7 +68,7 @@ export class TrainingmanregComponent implements OnInit {
                                 err => { this.alertService.error('Oktatólista betöltése sikertelen. ' + err.message); }  ) ;
   }
 
-  private getPractice() {
+  getPractice() {
     this.dataService.getpracticeByDateByLocID(this.trainingDay.setHours(12), this.locID)
                     .subscribe( res => {  if (res.length === 0) {
                       this.alertService.warn('Ezen a napon ebben a dojoban nem volt edzés!');
@@ -77,7 +77,7 @@ export class TrainingmanregComponent implements OnInit {
   }
 
 
-  private addattendancereg() {
+  addattendancereg() {
     if (this.attendanceRecord.attendeeID === this.attendanceRecord.instructorID) {
       this.alertService.error('Önregisztráció nem megengedett!');
     } else {

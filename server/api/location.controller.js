@@ -30,9 +30,9 @@ module.exports = router;
 
 function getdojos(req,res) {
     
-    console.log(req.get('Authorization'));
+
     
-    var viewname = 'vuDojonames';
+    var viewname = 'vudojonames';
 
     dataservice.getview(viewname)
     .then(function(dojos){

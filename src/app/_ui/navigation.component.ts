@@ -1,5 +1,5 @@
-import { Component, ElementRef, Renderer, OnDestroy } from '@angular/core';
-// import { NgIf } from '@angular/common';
+import { Component, ElementRef, Renderer, OnDestroy, OnInit } from '@angular/core';
+import { NgIf } from '@angular/common';
 import { Subscription } from 'rxjs/Subscription';
 import { BsDropdownModule } from 'ngx-bootstrap/dropdown';
 import * as _ from 'lodash';
@@ -16,33 +16,42 @@ import { AuthLoginService, MessageService } from '../_services/index';
 
 
 
-export class NavigationComponent implements OnDestroy {
+export class NavigationComponent implements OnDestroy, OnInit {
+
+  isIn = false;
+  loggedin: boolean;
+  subscription: Subscription;
+
+  trainingmenutitle = '';
+  trainingmenu = [];
+
+  exammenutitle = '';
+  exammenu = [];
+
+  eventmenutitle = '';
+  eventmenu = [];
+
+  maintmenutitle = '';
+  maintmenu = [];
+
+
 
     constructor ( private authService: AuthLoginService,
                   private messageService: MessageService) {
       this.subscription = this.messageService
                               .getMessage()
-                              .subscribe(message => {this.initNavMenu(message.roles);
-                                                     this.receivedMessage = message.roles; });
+                              .subscribe(message => {
+                                  this.initNavMenu(message.roles);
+                              });
     }
 
-    isIn = false;
-    loggedin: boolean;
-    receivedMessage = [];
-    subscription: Subscription;
 
-    trainingmenutitle = '';
-    trainingmenu = [];
 
-    exammenutitle = '';
-    exammenu = [];
-
-    eventmenutitle = '';
-    eventmenu = [];
-
-    maintmenutitle = '';
-    maintmenu = [];
-
+    ngOnInit() {
+      if (this.authService.loggedIn()) {  // If user hits F5 then the nav menu will not disappear
+        this.initNavMenu(this.authService.getCurrentUser().role);
+      }
+    }
 
     initNavMenu(_roles) {
 
@@ -55,45 +64,37 @@ export class NavigationComponent implements OnDestroy {
         this.exammenu = [];
         this.eventmenu = [];
         this.maintmenu = [];
-      }
-
-      if (_.indexOf(_roles, 'Aikidoka') > -1) {
-        this.setAikidokaMenu();
-      }
-      if (_.indexOf(_roles, 'Instructor') > -1 || _.indexOf(_roles, 'Assistant') > -1) {
-        this.setInstructorMenu();
-      }
-      if (_.indexOf(_roles, 'Dojocho') > -1) {
-        this.setDojochoMenu();
+      } else {
+        this.setNavbarMenuTitles();
+        if (_.indexOf(_roles, 'Aikidoka') > -1) {
+          this.setAikidokaMenu();
+        }
+        if (_.indexOf(_roles, 'Instructor') > -1 || _.indexOf(_roles, 'Assistant') > -1) {
+          this.setInstructorMenu();
+        }
+        if (_.indexOf(_roles, 'Dojocho') > -1) {
+          this.setDojochoMenu();
+        }
       }
     }
 
-    setEventPractExamMenuTitle() {
-      if (this.trainingmenutitle === '') {
+    setNavbarMenuTitles() {
         this.trainingmenutitle = 'Edzések';
-      }
-      if (this.exammenutitle === '') {
         this.exammenutitle = 'Vizsgák';
-      }
-      if (this.eventmenutitle === '') {
         this.eventmenutitle = 'Események';
-      }
+        this.maintmenutitle = 'Karbantartás';
     }
 
-    setMaintMenuTitle () {
-      if (this.maintmenutitle === '') {
-      this.maintmenutitle = 'Karbantartás';
-      }
-    }
 
-    setAikidokaMenu () {
-      this.setEventPractExamMenuTitle();
+    setAikidokaMenu() {
+      this.setNavbarMenuTitles();
       this.trainingmenu = _.concat(this.trainingmenu, [{'item': 'Utólagos edzésrögzítés', 'link': 'manreg'},
                                   {'item': 'Edzéstörténet', 'link': 'traininghistory'}]);
       this.exammenu = _.concat(this.exammenu, [{'item': 'Vizsgatörténet', 'link': 'examhistory'},
                               {'item': 'Vizsgajelentkezés', 'link': 'examregistration'}] );
       this.eventmenu = _.concat(this.eventmenu, [{'item': 'Meghirdetett események', 'link': 'events'},
                                 {'item': 'Regisztráltak listája', 'link': 'registeredforevent'}] );
+      this.maintmenu = _.concat(this.maintmenu, [{'item': 'Jelszóváltoztatás', 'link': 'passwordchange'}]);
 
     }
 
@@ -103,7 +104,7 @@ export class NavigationComponent implements OnDestroy {
     }
 
     setDojochoMenu() {
-      this.setMaintMenuTitle();
+
       this.exammenu =  _.concat(this.exammenu, [{'item': 'Vizsgaeredmények', 'link': 'examresults'}]);
       this.maintmenu = _.concat(this.maintmenu, [{'item': 'Vizsgák/Események', 'link': 'examevent'},
                                 {'item': 'Edzéstervezés', 'link': 'newtraining'},
