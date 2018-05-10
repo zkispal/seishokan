@@ -309,6 +309,7 @@ logger.info(valid);
     logger.info(valid);
     valid = valid    && req.body.weekdayID.map(elem => elem.toString()).every(validator.isInt);
     logger.info(valid);
+    valid = valid && req.body.weekdayID.length > 0;
 
     authLoginService.getDecodedToken(req)
         .then(token => {
@@ -586,9 +587,7 @@ function getpracticehistory (req, res) {
             isSamePerson =  req.params._id === token.pid.toString(); // Check if the request id for own data
         return validatorService.isAikidoka(token.pid);})
         .then(isAikidoka =>{
-            logger.info('isAikidoka ' + isAikidoka);
-            //logger.info('token2' + JSON.stringify(token));
-            logger.info('valid if előtt ' + valid);
+
             if (valid && isAikidoka && isSamePerson) { 
 
                 eventservice.getpracticehistory(req)

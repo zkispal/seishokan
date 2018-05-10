@@ -20,16 +20,22 @@
                 <accordion-group #group *ngFor="let event of events; let i=index" heading={{event.name}} >
                     <form name="eventform" #f="ngForm" (ngSubmit)="f.form.valid && updateevent(i)" novalidate>
                             
-                        <div class="form-group" [ngClass]="{ 'has-error': f.submitted && !eventname.valid }">
+                        <div class="form-group" [ngClass]="{ 'has-error': !eventname.pristine && !eventname.valid }">
                         <label for="name">Esemény megnevezése</label>
-                        <input type="text" class="form-control" name="name" [(ngModel)]="event.name" #eventname="ngModel" required />
+                        <input type="text" 
+                                class="form-control" 
+                                name="name"
+                                id="name"
+                                [(ngModel)]="event.name" 
+                                #eventname="ngModel" required />
                         <div *ngIf="!eventname.valid" class="help-block">Kötelező megadni egy elnevezést!</div>            
                         </div>
 
-                        <div  class="form-group" [ngClass]="{ 'has-error': f.submitted && !locationselect.valid }">
+                        <div  class="form-group" [ngClass]="{ 'has-error': !locationselect.pristine && !locationselect.valid }">
                             <label for="locselect">Esemény helyszíne</label>
                             <select class="form-control" 
-                                    name="locselect"               
+                                    name="locselect"
+                                    id="locselect"               
                                     [(ngModel)]="event.locationID" 
                                     #locationselect="ngModel"  required>
                             <option  *ngFor="let locname  of locationnames" [ngValue]="locname.ID">{{locname.name}}</option>
@@ -103,14 +109,7 @@
                             <button  type="submit" [disabled] = "!f.form.valid" class="btn btn-primary">Módosítás</button>
                             <button type="button" (click) = "deleteevent(event.ID)" class="btn btn-primary pull-right">Törlés</button>
                         </div>
-
-
-
-                    
-
-
                     </form>    
-
                     </accordion-group>
             </accordion>
         </div>

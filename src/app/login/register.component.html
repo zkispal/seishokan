@@ -1,9 +1,9 @@
 
 <div class="col-md-6 col-md-offset-3">
-    <app-alert></app-alert>
+
     <h2>Regisztráció</h2>
     <form name="form" (ngSubmit)="f.form.valid && register()" #f="ngForm" novalidate>
-        <div class="form-group" [ngClass]="{ 'has-error': f.submitted && !lastname.valid }">
+        <div class="form-group" [ngClass]="{ 'has-error': !lastname.pristine && !lastname.valid }">
             <label for="lastname">Vezetéknév</label>
             <input type="text" 
                     class="form-control"
@@ -11,9 +11,9 @@
                     name="lastname" 
                     [(ngModel)]="regdata.lastname" 
                     #lastname="ngModel" required />
-            <div *ngIf="f.submitted && !lastname.valid" class="help-block">Kötelező megadni egy vezetéknevet!</div>
+            <div *ngIf="!lastname.pristine && !lastname.valid" class="help-block">Kötelező megadni egy vezetéknevet!</div>
         </div>
-        <div class="form-group" [ngClass]="{ 'has-error': f.submitted && !firstname.valid }">
+        <div class="form-group" [ngClass]="{ 'has-error': !firstname.pristine && !firstname.valid }">
             <label for="firstname">Keresztnév</label>
             <input type="text" 
                     class="form-control"
@@ -21,9 +21,9 @@
                     name="firstname" 
                     [(ngModel)]="regdata.firstname" 
                     #firstname="ngModel" required />
-            <div *ngIf="f.submitted && !firstname.valid" class="help-block">Kötelező megadni egy vezetéknevet!</div>
+            <div *ngIf="!firstname.pristine && !firstname.valid" class="help-block">Kötelező megadni egy vezetéknevet!</div>
         </div>
-        <div class="form-group" [ngClass]="{ 'has-error': f.submitted && !username.valid }">
+        <div class="form-group" [ngClass]="{ 'has-error': !username.pristine && !username.valid }">
             <label for="username">Felhasználónév</label>
             <input type="text" 
                     class="form-control"
@@ -31,9 +31,9 @@
                     name="username" 
                     [(ngModel)]="regdata.username" 
                     #username="ngModel" required />
-            <div *ngIf="f.submitted && !username.valid" class="help-block">Kötelező megadni egy felhasználónevet!</div>
+            <div *ngIf="!username.pristine && !username.valid" class="help-block">Kötelező megadni egy felhasználónevet!</div>
         </div>
-        <div class="form-group" [ngClass]="{ 'has-error': f.submitted && !email.valid }">
+        <div class="form-group" [ngClass]="{ 'has-error': !email.pristine && !email.valid }">
             <label for="email">E-mail cím</label>
             <input type="text" 
                     class="form-control"
@@ -42,9 +42,9 @@
                     [(ngModel)]="regdata.email" 
                     #email="ngModel" required />
             <small id="emailHelp" class="form-text text-muted">Nem adjuk ki az e-mail címet senkinek.</small>
-            <div *ngIf="f.submitted && !username.valid" class="help-block">Kötelező megadni egy e-mail címet!</div>
+            <div *ngIf="!email.pristine && !email.valid" class="help-block">Kötelező megadni egy e-mail címet!</div>
         </div>
-        <div class="form-group" [ngClass]="{ 'has-error': f.submitted && !password.valid }">
+        <div class="form-group" [ngClass]="{ 'has-error': !password.pristine && !password.valid }">
             <label for="password">Jelszó</label>
             <input type="password" 
                     class="form-control"
@@ -52,9 +52,9 @@
                     name="password" 
                     [(ngModel)]="regdata.password" 
                     #password="ngModel" required />
-            <div *ngIf="f.submitted && !password.valid" class="help-block">Kötelező megadni egy jelszót!</div>
+            <div *ngIf="!password.pristine && !password.valid" class="help-block">Kötelező megadni egy jelszót!</div>
         </div>
-        <div  class="form-group" [ngClass]="{ 'has-error': f.submitted && !homedojoselect.valid }">
+        <div  class="form-group" [ngClass]="{ 'has-error': !homedojoselect.pristine && !homedojoselect.valid }">
             <label for="dojoselect">Melyik dojohoz tartozol?</label>
             <select class="form-control" 
                     name="homedojoselect" 
@@ -62,17 +62,17 @@
                     #homedojoselect="ngModel" required>
             <option  *ngFor="let dojo  of dojos" [value]="dojo.ID">{{dojo.name  }}</option>
             </select>
-            <div *ngIf="f.submitted && !homedojoselect.valid" class="help-block">Kötelező választani egy dojot!</div>
+            <div *ngIf="!homedojoselect.pristine && !homedojoselect.valid" class="help-block">Kötelező választani egy dojot!</div>
         </div>
-        <div  class="form-group" [ngClass]="{ 'has-error': f.submitted && !rankselect.valid }">
+        <div  class="form-group" [ngClass]="{ 'has-error': !rankselect.pristine && !rankselect.valid }">
                 <label for="rankselect">Aikido fokozatod?</label>
                 <select class="form-control" 
                         name="rankselect" 
                         [(ngModel)]="regdata.rankID" 
-                        #rankselect  required>
+                        #rankselect="ngModel"  required>
                 <option  *ngFor="let rank  of ranks" [value]="rank.ID">{{rank.name}}</option>
                 </select>
-                <div *ngIf="f.submitted && !rankselect.valid" class="help-block">Kötelező választani egy fokozatot!</div>
+                <div *ngIf="!rankselect.pristine && !rankselect.valid" class="help-block">Kötelező választani egy fokozatot!</div>
             </div>
  
 
@@ -103,9 +103,10 @@
                 <div *ngIf="f.submitted && !psdp.valid" class="help-block">Kötelező megadni hogy mikor kezdtél gyakorolni!</div>
             </div>
 
-
+            <app-alert></app-alert>
         <div class="form-group">
-            <button class="btn btn-primary">Regisztrálok</button>
+            <button class="btn btn-primary"
+                    [disabled]="!f.form.valid">Regisztrálok</button>
             
             <a [routerLink]="['/login']" class="btn btn-link">Vissza</a>
         </div>

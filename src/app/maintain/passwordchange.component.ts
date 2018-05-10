@@ -30,8 +30,8 @@ export class PasswordchangeComponent implements OnInit {
           .subscribe((data) => {
             this.alertSrvc.success('Jelszó sikeresen megváltoztatva.');
            },
-                      (err) => {
-            this.alertSrvc.error('Jelszóváltoztatás sikertelen!' + err);
+                      (err) => { console.log(JSON.stringify(err));
+            this.alertSrvc.error('Jelszóváltoztatás sikertelen! ' + err.error.message);
            });
 
     } else {

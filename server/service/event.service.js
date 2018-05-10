@@ -364,6 +364,7 @@ function getpracticehistory (req) {
     knex('vupracticeattendance')
         .whereBetween('datum', interval)
         .andWhere('attendeeID', req.params._id)
+        .orderBy('datum')
         .then( dbresp => deferred.resolve(dbresp) )
         .catch(err => { console.log(JSON.stringify(err)); 
                         deferred.reject(err);});

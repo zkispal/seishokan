@@ -67,7 +67,7 @@ function passwordIsValid(password) {
   var deferred = Q.defer();
   var valid = false;
 
-  valid = (validator.isLength(password, {min:6}));
+  valid = (validator.isLength(password, {min:6, max:40}));
   // Minimum password length 6.
   deferred.resolve(valid);
   return deferred.promise;
