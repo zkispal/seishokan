@@ -22,9 +22,11 @@ export class TrainingqrregComponent implements OnInit {
   @ViewChild('scanner')
   scanner: ZXingScannerComponent;
 
-  hasCameras = false;
+  hasDevices: boolean;
+  hasCameras: boolean;
   hasPermission: boolean;
   qrResultString: string;
+  qrResult: Result;
   availableDevices: MediaDeviceInfo[];
   selectedDevice: MediaDeviceInfo;
 
@@ -59,11 +61,18 @@ export class TrainingqrregComponent implements OnInit {
       this.availableDevices = devices;
     });
 
+
     this.scanner.camerasNotFound.subscribe((devices: MediaDeviceInfo[]) => {
+      this.alertService.error('Nem található kamera az eszközön!');
           console.error('An error has occurred when trying to enumerate your video-stream-enabled devices.');
     });
 
+    this.scanner.scanComplete.subscribe((result: Result) => this.qrResult = result);
+
     this.scanner.permissionResponse.subscribe((answer: boolean) => {
+      if (!answer) {
+        this.alertService.warn('Kamerahozzáférés megtagadva. QR kód beolvasás lehetetlen.');
+      }
       this.hasPermission = answer;
     });
 
@@ -89,7 +98,7 @@ export class TrainingqrregComponent implements OnInit {
     this.dataService.getpracticeByDateByLocID(this.trainingDay.valueOf(), this.selectedDojo.ID)
                     .subscribe( res => {
                       if (res.length === 0) {
-                        this.alertService.warn('Ezen a napon ebben a dojoban nincs edzés!');
+                        this.alertService.warn('A mai napon ebben a dojoban nincs edzés!');
                       } else {this.trainings = res; } },
                                 err => {this.alertService.error(err.message); }  ) ;
 

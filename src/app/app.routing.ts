@@ -3,7 +3,7 @@ import { Routes, RouterModule } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { AppComponent } from './app.component';
 import { HomeComponent, AikidoComponent } from './home/index';
-import { LoginComponent, RegisterComponent } from './login/index';
+import { LoginComponent, RegisterComponent, RregisterComponent } from './login/index';
 import { AuthGuard, AikidokaGuard, InstructorGuard, DojochoGuard } from './_guards/index';
 import { TrainingqrregComponent, TrainingmanregComponent,
     TraininghistoryComponent, TrainingapprovalComponent } from './training/index';
@@ -16,6 +16,7 @@ const appRoutes: Routes = [
     { path: '', component: HomeComponent, canActivate: [AuthGuard]},
     { path: 'login', component: LoginComponent },
     { path: 'register', component: RegisterComponent },
+    { path: 'rregister', component: RregisterComponent },
     { path: 'home', component: HomeComponent, canActivate: [AuthGuard, AikidokaGuard] },
     { path: 'aikido', component: AikidoComponent },
     { path: 'qrreg', component: TrainingqrregComponent, canActivate: [AuthGuard, InstructorGuard] },

@@ -44,7 +44,7 @@ function addevent(req) {
     var deferred = Q.defer();
 
 
-    knex('Event').select('ID')
+    knex('event').select('ID')
         .where('locationID', req.body.locationID)
         .andWhere(knex.raw('YEAR(start) = ?', moment(req.body.start).year()))
         .andWhere(knex.raw('DAYOFYEAR(start) = ?', moment(req.body.start).dayOfYear()))
@@ -86,7 +86,7 @@ function deleteevent(_id){
     var deferred = Q.defer();
 
 
-    knex('Event').where('ID', _id).del()
+    knex('event').where('ID', _id).del()
     .then( function(res) {
         deferred.resolve(res);
     })
@@ -100,7 +100,7 @@ function deleteevent(_id){
 function updateevent(req) {
     var deferred = Q.defer();
 
-    knex('Event').where('ID', req.body.ID)
+    knex('event').where('ID', req.body.ID)
     .update({   name: req.body.name,
                 start: req.body.start.slice(0, 23),
                 end: req.body.end.slice(0,23),
@@ -225,7 +225,8 @@ function getpracticeregs(_id) {
         .select('eventID', 'dojoname', 'practicedate', 'practice', 'noofregistered')
         .where('instructorID', _id)     
         .then( res => deferred.resolve(res) )
-        .catch(err => deferred.reject(err));
+        .catch(err => { logger.info(JSON.stringify(err));
+            deferred.reject(err); });
     
     return deferred.promise;    
 }

@@ -1,6 +1,6 @@
 import { NgModule, LOCALE_ID,  } from '@angular/core';
 import { BrowserModule } from '@angular/platform-browser';
-import { FormsModule,    } from '@angular/forms';
+import { FormsModule, ReactiveFormsModule} from '@angular/forms';
 import { registerLocaleData  } from '@angular/common';
 import localeHu from '@angular/common/locales/hu';
 import { HttpClientModule, HTTP_INTERCEPTORS } from '@angular/common/http';
@@ -21,7 +21,7 @@ import { AngularDualListBoxModule } from 'angular-dual-listbox';
 import { ZXingScannerModule } from '@zxing/ngx-scanner';
 import { AppComponent } from './app.component';
 import { routing } from './app.routing';
-import { RegisterComponent, LoginComponent } from './login/index';
+import { RregisterComponent, RegisterComponent, LoginComponent } from './login/index';
 import { AuthGuard, AikidokaGuard, InstructorGuard, DojochoGuard } from './_guards/index';
 import {  AuthLoginService, AuthHeaderInterceptorService,
     DataService, AlertService, MessageService } from './_services/index';
@@ -35,6 +35,7 @@ import { EventsComponent, EventregsComponent } from './event/index';
 import { EventComponent, NeweventmodalComponent, NewtrainingComponent,
         LocationComponent, NewlocmodalComponent, RolechangeComponent,
         PasswordchangeComponent } from './maintain/index';
+
 
 defineLocale('hu', huLocale);
 
@@ -64,7 +65,8 @@ defineLocale('hu', huLocale);
     NeweventmodalComponent,
     EventregComponent,
     AlertComponent,
-    PasswordchangeComponent
+    PasswordchangeComponent,
+    RregisterComponent
 
 
 
@@ -79,6 +81,7 @@ defineLocale('hu', huLocale);
   imports: [
     BrowserModule,
     FormsModule,
+    ReactiveFormsModule,
     HttpClientModule,
     routing,
     BsDropdownModule.forRoot(),

@@ -48,10 +48,14 @@ function authenticate(req, res){
 
   Q.allSettled(validatorPromises)
     .then(promiseResults => {
-
+      logger.info('promiseResults: ' + JSON.stringify(promiseResults));
       var allPromiseValid = promiseResults.reduce((all, elem) => all && elem.value, true);
 
+      logger.info('valid: ' + valid);
+      logger.info('allPromiseValid ' + allPromiseValid);
+
       if(valid &&  allPromiseValid) {
+
         authLoginService.authenticate(req)
           .then(function(token){
             res.status(200).send(token);
@@ -121,6 +125,7 @@ function registerperson (req, res){
 
      Q.allSettled(validatorPromises)
       .then(promiseResults => { 
+        logger.info('Validator promise result: ' + promiseResults.toString);
 
         var allPromiseValid = promiseResults.reduce((all, elem) => all && elem.value, true);
 

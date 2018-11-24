@@ -61,9 +61,6 @@
               
                 <h3>Kamerahozzáférés engedélyezésére várakozik.</h3>
               
-                <blockquote>
-                  <h2>Ha az eszközön nincs kamera akkor nincs engedélykérés.</h2>
-                </blockquote>
               
               </div>
               
@@ -86,7 +83,7 @@
         </div>
 
         <div [hidden]="!hasCameras"> 
-            <h3 *ngIf="!this.selectedDevice">Nincs kiválasztott kamera.</h3>        
+       
             <zxing-scanner #scanner
                             class="test-class"
                             start="true"

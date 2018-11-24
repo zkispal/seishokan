@@ -121,6 +121,7 @@ function addevent(req, res){
 
     validatorService.validString(req.body.name, 50)
         .then(nameIsValid => {
+            logger.info('Valid = ' + valid );
             valid = valid && nameIsValid;
 
         })
@@ -131,6 +132,7 @@ function addevent(req, res){
             return validatorService.isDojocho(token.pid);
         })
         .then(isDojocho => {
+            logger.info('isDojocho = ' + isDojocho);
  
             if(valid && isDojocho){ 
 
@@ -139,6 +141,8 @@ function addevent(req, res){
                   res.status(200).send(data);
                 })
                 .catch(function (err) {
+                    logger.info(err);
+                    
                   res.status(400).send(err);
                 });
             }else{
@@ -146,6 +150,7 @@ function addevent(req, res){
             }
         })
         .catch(function (err) {
+            logger.info(err);
             res.status(400).send(err);
           });
 
