@@ -14,10 +14,10 @@
   "dependencies": {
     "@angular-devkit/schematics": "0.0.34",
     "@angular/animations": "^5.2.9",
-    "@angular/cli": "^1.7.3",
+    "@angular/cli": "^6.0.0",
     "@angular/common": "^5.2.9",
     "@angular/compiler": "^5.2.9",
-    "@angular/core": "^5.2.9",
+    "@angular/core": "^11.0.5",
     "@angular/forms": "^5.2.9",
     "@angular/http": "^5.2.9",
     "@angular/platform-browser": "^5.2.9",
@@ -58,7 +58,7 @@
   },
   "devDependencies": {
     "@angular-devkit/core": "^0.4.8",
-    "@angular/cli": "^1.7.3",
+    "@angular/cli": "^6.0.0",
     "@angular/compiler-cli": "^5.2.9",
     "@angular/language-service": "^5.2.9",
     "@types/jasmine": "~2.5.53",
