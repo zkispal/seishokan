@@ -44,7 +44,7 @@
     "ng2-select": "^2.0.0",
     "ngx-bootstrap": "^2.0.3",
     "node-rsa": "^0.4.2",
-    "nodemon": "^1.17.2",
+    "nodemon": "^2.0.17",
     "omit-empty": "^0.4.1",
     "passport": "^0.4.0",
     "passport-jwt": "^3.0.1",
