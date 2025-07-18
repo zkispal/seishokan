@@ -37,7 +37,7 @@
     "jsonwebtoken": "^8.2.0",
     "knex": "^0.14.4",
     "lodash": "^4.17.5",
-    "morgan": "^1.9.0",
+    "morgan": "^1.10.1",
     "mysql": "^2.15.0",
     "ng2-datepicker": "^2.2.5",
     "ng2-dual-list-box": "^1.2.1",
